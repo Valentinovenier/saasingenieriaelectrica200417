@@ -1,6 +1,16 @@
 name = "saas-ingenieria-backend"
 main = "src/index.ts"
 compatibility_date = "2026-05-04"
+account_id = "cc1c754c9ad9b59f1738d554ef1c3329"
 
 [observability]
 enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "saas-ingenieria-db"
+database_id = "a1e4cb34-3203-4fd7-b6a2-8f228a3c0eb5"
+
+[[r2_buckets]]
+binding = "MY_BUCKET"
+bucket_name = "saas-ingenieria-planos"
