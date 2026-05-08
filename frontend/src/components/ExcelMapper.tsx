@@ -15,10 +15,7 @@ export const ExcelMapper = ({ onMappingComplete }: { onMappingComplete: (mapping
     { id: 'conductors_count', label: 'Conductores Cargados', desc: 'Cantidad de fases' },
   ];
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const bstr = event.target?.result;
@@ -34,33 +31,33 @@ export const ExcelMapper = ({ onMappingComplete }: { onMappingComplete: (mapping
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-8 bg-[var(--bg-secondary)] rounded-2xl border border-slate-700 shadow-xl">
+    <div className="max-w-3xl mx-auto p-8 bg-slate-900 rounded-2xl border border-slate-700 shadow-xl text-slate-100">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-white mb-2">Asignar Columnas del Excel</h2>
-        <p className="text-[var(--text-secondary)]">
+        <h2 className="text-2xl font-bold mb-2 text-white">Asignar Columnas del Excel</h2>
+        <p className="text-slate-400">
           Relaciona las columnas de tu archivo con los campos técnicos necesarios para el cálculo.
         </p>
       </div>
 
       {!headers.length ? (
-        <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-slate-600 rounded-xl cursor-pointer hover:border-[var(--accent)] transition-colors">
-          <Upload className="w-10 h-10 text-[var(--text-secondary)] mb-2" />
-          <span className="text-white font-medium">Seleccionar archivo Excel</span>
-          <input type="file" className="hidden" onChange={handleFileUpload} accept=".xlsx, .xls" />
+        <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-slate-600 rounded-xl cursor-pointer hover:border-blue-500 transition-colors bg-slate-800">
+          <Upload className="w-10 h-10 text-slate-400 mb-2" />
+          <span className="font-medium text-white">Seleccionar archivo Excel</span>
+          <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && processFile(e.target.files[0])} accept=".xlsx, .xls" />
         </label>
       ) : (
         <div className="space-y-6">
           <div className="grid gap-4">
             {fields.map((field) => (
-              <div key={field.id} className="flex items-center justify-between p-4 bg-[var(--bg-primary)] rounded-lg border border-slate-700">
+              <div key={field.id} className="flex items-center justify-between p-4 bg-slate-800 rounded-lg border border-slate-700">
                 <div>
                   <h4 className="font-semibold text-white">{field.label}</h4>
-                  <p className="text-xs text-[var(--text-secondary)]">{field.desc}</p>
+                  <p className="text-xs text-slate-400">{field.desc}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <ChevronRight className="text-slate-600" />
                   <select 
-                    className="bg-slate-800 text-white border border-slate-600 rounded-md p-2 outline-none focus:border-[var(--accent)]"
+                    className="bg-slate-950 text-white border border-slate-600 rounded-md p-2 outline-none focus:border-blue-500"
                     onChange={(e) => setMapping({...mapping, [field.id]: e.target.value})}
                   >
                     <option value="">Seleccionar...</option>
@@ -73,7 +70,7 @@ export const ExcelMapper = ({ onMappingComplete }: { onMappingComplete: (mapping
 
           <button 
             onClick={() => onMappingComplete(mapping, rawData)}
-            className="w-full py-3 bg-[var(--accent)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
           >
             <CheckCircle2 size={20} />
             Finalizar Mapeo y Calcular
