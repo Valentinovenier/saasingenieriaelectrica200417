@@ -18,24 +18,25 @@ export const ExcelMapper = ({ onMappingComplete }: { onMappingComplete: (mapping
   const processFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = (event) => {
-      const bstr = event.target?.result;
-      const wb = XLSX.read(bstr, { type: 'binary' });
+      const data = new Uint8Array(event.target?.result as ArrayBuffer);
+      const wb = XLSX.read(data, { type: 'array' });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      const json: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1 });
       
-      const fileHeaders = data[0] as string[];
-      setHeaders(fileHeaders);
-      setRawData(data.slice(1));
+      if (json.length > 0) {
+        setHeaders(json[0].map(h => String(h || '')));
+        setRawData(json.slice(1));
+      }
     };
-    reader.readAsBinaryString(file);
+    reader.readAsArrayBuffer(file);
   };
 
   return (
     <div className="max-w-3xl mx-auto p-8 bg-slate-900 rounded-2xl border border-slate-700 shadow-xl text-slate-100">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-2 text-white">Asignar Columnas del Excel</h2>
+        <h2 className="text-2xl font-bold mb-2 text-white">Configurar Datos de Instalación</h2>
         <p className="text-slate-400">
-          Relaciona las columnas de tu archivo con los campos técnicos necesarios para el cálculo.
+          Selecciona tu archivo Excel y asigna cada columna técnica.
         </p>
       </div>
 
@@ -73,7 +74,7 @@ export const ExcelMapper = ({ onMappingComplete }: { onMappingComplete: (mapping
             className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
           >
             <CheckCircle2 size={20} />
-            Finalizar Mapeo y Calcular
+            Confirmar y Calcular
           </button>
         </div>
       )}
