@@ -21,10 +21,16 @@ export const ExcelMapper = ({ onMappingComplete }: { onMappingComplete: (mapping
       const data = new Uint8Array(event.target?.result as ArrayBuffer);
       const wb = XLSX.read(data, { type: 'array' });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const json: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      
+      // Leemos como array de arrays para obtener la primera fila exactamente
+      const json: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+      
+      console.log("Estructura de datos detectada:", json);
       
       if (json.length > 0) {
-        setHeaders(json[0].map(h => String(h || '')));
+        // Tomamos la primera fila como encabezados
+        const headers = json[0].map(h => String(h || '').trim()).filter(h => h !== "");
+        setHeaders(headers);
         setRawData(json.slice(1));
       }
     };
