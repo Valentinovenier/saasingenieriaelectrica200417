@@ -27,7 +27,6 @@ export default function App() {
               setProjects(projects.map(p => p.id === updated.id ? updated : p));
             }} 
           />
-          <UnifilarPage />
         </div>
       );
     }
