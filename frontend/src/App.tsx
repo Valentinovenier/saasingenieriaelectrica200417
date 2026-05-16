@@ -54,7 +54,8 @@ export default function App() {
                     name,
                     createdAt: new Date().toISOString().split('T')[0],
                     status: 'draft',
-                    tableros: []
+                    tableros: [],
+                    armonicos: {h3:0, h5:0, h7:0, h9:0}
                   };
                   setProjects([...projects, newProject]);
                   setIsModalOpen(false);

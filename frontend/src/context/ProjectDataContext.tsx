@@ -1,30 +1,18 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { ProjectState, Trafo, Tablero, Carga } from '../types/project';
+import { Project } from './project';
 
 interface ProjectContextType {
-  state: ProjectState;
-  updateTrafo: (trafo: Trafo) => void;
-  addTablero: (tablero: Tablero) => void;
-  updateTablero: (id: string, tablero: Partial<Tablero>) => void;
+  state: Project | null;
+  setState: React.Dispatch<React.SetStateAction<Project | null>>;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export const ProjectProvider = ({ children }: { children: ReactNode }) => {
-  const [state, setState] = useState<ProjectState>({
-    trafo: { potenciaKVA: 630, tensionPrimaria: 13200, tensionSecundaria: 400 },
-    tableros: [],
-  });
-
-  const updateTrafo = (trafo: Trafo) => setState(prev => ({ ...prev, trafo }));
-  const addTablero = (tablero: Tablero) => setState(prev => ({ ...prev, tableros: [...prev.tableros, tablero] }));
-  const updateTablero = (id: string, updates: Partial<Tablero>) => setState(prev => ({
-    ...prev,
-    tableros: prev.tableros.map(t => t.id === id ? { ...t, ...updates } : t)
-  }));
+  const [state, setState] = useState<Project | null>(null);
 
   return (
-    <ProjectContext.Provider value={{ state, updateTrafo, addTablero, updateTablero }}>
+    <ProjectContext.Provider value={{ state, setState }}>
       {children}
     </ProjectContext.Provider>
   );
