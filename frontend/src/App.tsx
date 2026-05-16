@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { DashboardLayout } from './layouts/DashboardLayout';
-import { UnifilarPage } from './components/UnifilarPage';
 import { ProjectList } from './components/ProjectList';
 import { NewProjectModal } from './components/NewProjectModal';
 import { ProjectSettings } from './components/ProjectSettings';
+import { LiveUnifilar } from './components/LiveUnifilar';
 import { Project } from './types/project';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('inicio');
   const [projects, setProjects] = useState<Project[]>([
-    { id: '1', name: 'Edificio Residencial A', createdAt: '2026-05-15', status: 'draft', tableros: [] },
-    { id: '2', name: 'Nave Industrial B', createdAt: '2026-05-10', status: 'completed', tableros: [] },
+    { id: '1', name: 'Edificio Residencial A', createdAt: '2026-05-15', status: 'draft', tableros: [], armonicos: {h3:0,h5:0,h7:0,h9:0} },
+    { id: '2', name: 'Nave Industrial B', createdAt: '2026-05-10', status: 'completed', tableros: [], armonicos: {h3:0,h5:0,h7:0,h9:0} },
   ]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,10 +27,11 @@ export default function App() {
               setProjects(projects.map(p => p.id === updated.id ? updated : p));
             }} 
           />
+          <LiveUnifilar project={selectedProject} />
         </div>
       );
     }
-
+// ...
     switch (currentPage) {
       case 'inicio':
         return (
