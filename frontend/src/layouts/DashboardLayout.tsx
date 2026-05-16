@@ -14,6 +14,7 @@ export const DashboardLayout = ({
     { icon: LayoutDashboard, label: 'Dashboard', id: 'dashboard' },
     { icon: FileUp, label: 'Subir Plano', id: 'upload' },
     { icon: Sliders, label: 'Criterios', id: 'criteria' },
+    { icon: Zap, label: 'Unifilar', id: 'unifilar' },
     { icon: Settings, label: 'Configuración', id: 'settings' },
   ];
 
