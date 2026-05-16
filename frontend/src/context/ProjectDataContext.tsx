@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Project } from './project';
+import { Project } from '../types/project';
 
 interface ProjectContextType {
   state: Project | null;

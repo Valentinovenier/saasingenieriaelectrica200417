@@ -19,13 +19,13 @@ export const UnifilarCanvas = () => {
         <line x1="200" y1="80" x2="200" y2="120" stroke="white" strokeWidth="2" />
 
         {/* Tableros */}
-        {state.tableros.map((tablero, index) => {
+        {state?.tableros.map((tablero: any, index: number) => {
           const x = 80 + index * 60;
           return (
             <g key={tablero.id}>
               <line x1={x} y1="120" x2={x} y2="200" stroke="white" strokeWidth="2" />
               <rect x={x - 20} y="200" width="40" height="40" fill="none" stroke="white" strokeWidth="2" />
-              <text x={x} y="260" textAnchor="middle" fill="white" fontSize="10">{tablero.nombre}</text>
+              <text x={x} y="260" textAnchor="middle" fill="white" fontSize="10">{tablero.name}</text>
             </g>
           );
         })}
