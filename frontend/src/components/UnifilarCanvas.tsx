@@ -10,7 +10,7 @@ export const UnifilarCanvas = () => {
       <svg width="100%" height="400" viewBox="0 0 400 400" className="bg-[var(--bg-primary)] rounded-lg">
         {/* Transformador */}
         <circle cx="200" cy="50" r="30" fill="none" stroke="white" strokeWidth="2" />
-        <text x="200" y="55" textAnchor="middle" fill="white" fontSize="12">{state.trafo.potenciaKVA} kVA</text>
+        <text x="200" y="55" textAnchor="middle" fill="white" fontSize="12">{state?.transformador?.potencia || 0} kVA</text>
         
         {/* Barra Principal */}
         <line x1="50" y1="120" x2="350" y2="120" stroke="white" strokeWidth="4" />
