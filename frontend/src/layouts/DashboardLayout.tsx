@@ -11,10 +11,7 @@ export const DashboardLayout = ({
   onNavigate: (page: string) => void
 }) => {
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', id: 'dashboard' },
-    { icon: FileUp, label: 'Subir Plano', id: 'upload' },
-    { icon: Sliders, label: 'Criterios', id: 'criteria' },
-    { icon: Zap, label: 'Unifilar', id: 'unifilar' },
+    { icon: LayoutDashboard, label: 'Inicio', id: 'inicio' },
     { icon: Settings, label: 'Configuración', id: 'settings' },
   ];
 

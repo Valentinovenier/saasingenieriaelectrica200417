@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { z } from 'zod';
+import engine from './engine';
 
 // Definir los bindings para Cloudflare
 type Bindings = {
@@ -8,6 +8,9 @@ type Bindings = {
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
+
+// Montar el motor de cálculo
+app.route('/api', engine);
 
 // Endpoint para subir un plano
 app.post('/api/upload-plano', async (c) => {

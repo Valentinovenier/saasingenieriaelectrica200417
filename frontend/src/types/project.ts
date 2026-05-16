@@ -1,22 +1,29 @@
-export interface Trafo {
-  potenciaKVA: number;
-  tensionPrimaria: number;
-  tensionSecundaria: number;
+export interface HarmonicDistortion {
+  h3: number;
+  h5: number;
+  h7: number;
+  h9: number;
 }
 
-export interface Carga {
+export interface TableroSeccional {
   id: string;
-  nombre: string;
-  potenciaKW: number;
+  name: string;
+  tipo: 'Fuerza Motriz' | 'Iluminación';
+  potenciaTotal: number;
+  factorK: number;
 }
 
-export interface Tablero {
+export interface Transformador {
+  potencia: number;
+  cosFi: number;
+}
+
+export interface Project {
   id: string;
-  nombre: string;
-  cargas: Carga[];
-}
-
-export interface ProjectState {
-  trafo: Trafo;
-  tableros: Tablero[];
+  name: string;
+  createdAt: string;
+  status: 'draft' | 'completed';
+  transformador?: Transformador;
+  armonicos: HarmonicDistortion;
+  tableros: TableroSeccional[];
 }

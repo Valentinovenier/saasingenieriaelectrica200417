@@ -1,42 +1,66 @@
 import { useState } from 'react';
 import { DashboardLayout } from './layouts/DashboardLayout';
-import { FileUpload } from './components/FileUpload';
-import { ProjectCriteria } from './components/ProjectCriteria';
 import { UnifilarPage } from './components/UnifilarPage';
+import { ProjectList } from './components/ProjectList';
+import { NewProjectModal } from './components/NewProjectModal';
+import { ProjectSettings } from './components/ProjectSettings';
+import { Project } from './types/project';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('upload');
+  const [currentPage, setCurrentPage] = useState('inicio');
+  const [projects, setProjects] = useState<Project[]>([
+    { id: '1', name: 'Edificio Residencial A', createdAt: '2026-05-15', status: 'draft', tableros: [] },
+    { id: '2', name: 'Nave Industrial B', createdAt: '2026-05-10', status: 'completed', tableros: [] },
+  ]);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const selectedProject = projects.find(p => p.id === selectedProjectId);
 
   const renderContent = () => {
+    if (selectedProject) {
+      return (
+        <div className="space-y-6">
+          <ProjectSettings 
+            project={selectedProject} 
+            onSave={(updated) => {
+              setProjects(projects.map(p => p.id === updated.id ? updated : p));
+            }} 
+          />
+          <UnifilarPage />
+        </div>
+      );
+    }
+
     switch (currentPage) {
-      case 'upload':
+      case 'inicio':
         return (
           <>
             <header className="mb-10">
-              <h2 className="text-3xl font-bold text-white mb-2">Subir Plano</h2>
-              <p className="text-[var(--text-secondary)]">Cargá un archivo .dxf para iniciar el cálculo automático.</p>
+              <h2 className="text-3xl font-bold text-white mb-2">Mis Proyectos</h2>
+              <p className="text-[var(--text-secondary)]">Gestioná tus diseños eléctricos y cálculos de ingeniería.</p>
             </header>
-            <FileUpload />
-          </>
-        );
-      case 'criteria':
-        return (
-          <>
-            <header className="mb-10">
-              <h2 className="text-3xl font-bold text-white mb-2">Criterios de Proyectista</h2>
-              <p className="text-[var(--text-secondary)]">Definí los parámetros base para tus cálculos de ingeniería.</p>
-            </header>
-            <ProjectCriteria />
-          </>
-        );
-      case 'unifilar':
-        return (
-          <>
-            <header className="mb-10">
-              <h2 className="text-3xl font-bold text-white mb-2">Diseño Unifilar TGBT</h2>
-              <p className="text-[var(--text-secondary)]">Configurá tu sistema y visualizá el esquema en tiempo real.</p>
-            </header>
-            <UnifilarPage />
+            <ProjectList 
+              projects={projects}
+              onSelectProject={setSelectedProjectId} 
+              onAddNew={() => setIsModalOpen(true)} 
+            />
+            {isModalOpen && (
+              <NewProjectModal 
+                onClose={() => setIsModalOpen(false)} 
+                onCreate={(name) => {
+                  const newProject: Project = {
+                    id: Date.now().toString(),
+                    name,
+                    createdAt: new Date().toISOString().split('T')[0],
+                    status: 'draft',
+                    tableros: []
+                  };
+                  setProjects([...projects, newProject]);
+                  setIsModalOpen(false);
+                }} 
+              />
+            )}
           </>
         );
       default:
@@ -47,7 +71,10 @@ export default function App() {
   };
 
   return (
-    <DashboardLayout activePage={currentPage} onNavigate={setCurrentPage}>
+    <DashboardLayout activePage={currentPage} onNavigate={(page) => {
+      setSelectedProjectId(null);
+      setCurrentPage(page);
+    }}>
       {renderContent()}
     </DashboardLayout>
   );
