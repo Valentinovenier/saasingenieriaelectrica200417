@@ -12,7 +12,3 @@ SECRET_KEY = "super_secret_jwt_key_please_change_me"
 binding = "DB"
 database_name = "saas-db"
 database_id = "a1e4cb34-3203-4fd7-b6a2-8f228a3c0eb5"
-
-[[r2_buckets]]
-binding = "BUCKET"
-bucket_name = "saasingenieriaelectrica200417"
