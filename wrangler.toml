@@ -20,15 +20,3 @@ id = "f60a9f62c8e342249e0b23081e7d44c8"
 
 [site]
 bucket = "./frontend/dist"
-
-
-[[r2_buckets]]
-binding = "BUCKET"
-bucket_name = "saasingenieriaelectrica200417"
-
-
-[functions]
-main = "functions/src/index.ts"
-routes = [
-  "/api/*"
-]
