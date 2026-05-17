@@ -9,19 +9,28 @@ export const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+    console.log("Enviando petición a:", isLogin ? '/api/auth/login' : '/api/auth/register');
     
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+    try {
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
 
-    const data = await res.json();
-    if (res.ok) {
-      setUserId(data.userId);
-    } else {
-      alert(data.error || 'Error en autenticación');
+      const data = await res.json();
+      console.log("Respuesta del servidor:", data);
+
+      if (res.ok) {
+        setUserId(data.userId);
+      } else {
+        alert(data.error || 'Error en autenticación');
+      }
+    } catch (error) {
+      console.error("Error al conectar con la API:", error);
+      alert("Error de conexión con el servidor");
     }
   };
 
