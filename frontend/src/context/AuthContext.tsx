@@ -1,42 +1,67 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface AuthContextType {
-  userId: string | null;
-  setUserId: (id: string | null) => void;
   isAuthenticated: boolean;
+  user: { id: string; username: string } | null;
+  login: (token: string) => void;
+  logout: () => void;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const decodeToken = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const getInitialUserId = () => {
-    const params = new URLSearchParams(window.location.search);
-    const operatorId = params.get('operator_id');
-    if (operatorId) {
-      localStorage.setItem('userId', operatorId);
-      return operatorId;
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<{ id: string; username: string } | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = decodeToken(token);
+      if (decoded && decoded.userId) {
+        setIsAuthenticated(true);
+        setUser({ id: decoded.userId, username: decoded.username });
+      } else {
+        localStorage.removeItem('token');
+      }
     }
-    return localStorage.getItem('userId');
-  };
+    setLoading(false);
+  }, []);
 
-  const [userId, setUserId] = useState<string | null>(getInitialUserId());
-
-  const login = (id: string | null) => {
-    setUserId(id);
-    if (id) {
-      localStorage.setItem('userId', id);
-    } else {
-      localStorage.removeItem('userId');
+  const login = (token: string) => {
+    localStorage.setItem('token', token);
+    const decoded = decodeToken(token);
+    if (decoded && decoded.userId) {
+      setIsAuthenticated(true);
+      setUser({ id: decoded.userId, username: decoded.username });
     }
   };
 
   const logout = () => {
-    setUserId(null);
-    localStorage.removeItem('userId');
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ userId, setUserId: login, isAuthenticated: !!userId }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -44,6 +69,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   return context;
 };

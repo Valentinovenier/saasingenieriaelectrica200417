@@ -1,5 +1,6 @@
 import React from 'react';
-import { LayoutDashboard, FileUp, Settings, Zap, Sliders } from 'lucide-react';
+import { LayoutDashboard, FileUp, Settings, Zap, Sliders, LogOut, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export const DashboardLayout = ({ 
   children, 
@@ -10,6 +11,8 @@ export const DashboardLayout = ({
   activePage: string,
   onNavigate: (page: string) => void
 }) => {
+  const { user, logout } = useAuth();
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Inicio', id: 'inicio' },
     { icon: Settings, label: 'Configuración', id: 'settings' },
@@ -23,7 +26,7 @@ export const DashboardLayout = ({
           <Zap size={28} fill="currentColor" />
           <h1 className="text-xl font-bold tracking-tight text-white">IngenieríaAuto</h1>
         </div>
-        <nav className="space-y-2">
+        <nav className="space-y-2 flex-1">
           {menuItems.map((item) => (
             <button
               key={item.id}
@@ -39,6 +42,25 @@ export const DashboardLayout = ({
             </button>
           ))}
         </nav>
+
+        <div className="mt-auto pt-6 border-t border-slate-800">
+          <div className="flex items-center gap-3 px-4 py-3 mb-4 bg-slate-800/50 rounded-xl">
+            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+              {user?.username?.charAt(0).toUpperCase() || 'U'}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <p className="text-sm font-medium text-white truncate">{user?.username || 'Usuario'}</p>
+              <p className="text-xs text-[var(--text-secondary)] truncate">Cuenta Activa</p>
+            </div>
+          </div>
+          <button
+            onClick={logout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[var(--text-secondary)] hover:text-red-400 hover:bg-red-400/10 transition-all duration-200"
+          >
+            <LogOut size={20} />
+            <span className="font-medium">Cerrar Sesión</span>
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}

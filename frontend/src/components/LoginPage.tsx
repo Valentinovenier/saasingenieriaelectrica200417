@@ -1,63 +1,88 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-export const LoginPage = () => {
-  const { setUserId } = useAuth();
-  const [email, setEmail] = useState('');
+interface LoginPageProps {
+  onRegisterClick: () => void;
+}
+
+export const LoginPage = ({ onRegisterClick }: LoginPageProps) => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Enviando petición a:", isLogin ? '/api/auth/login' : '/api/auth/register');
-    
+    setError(null);
+
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      
-      const res = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-                credentials: 'include'
-              });
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error("Error del servidor (raw):", errorText);
-        alert('Error en autenticación: ' + errorText);
-        return;
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || 'Error de inicio de sesión');
       }
 
-      const data = await res.json();
-      console.log("Respuesta del servidor:", data);
-      setUserId(data.userId);
-    } catch (error) {
-      console.error("Error al conectar con la API:", error);
-      alert("Error de conexión con el servidor");
+      const data = await response.json();
+      login(data.token);
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <form onSubmit={handleSubmit} className="bg-gray-800 p-8 rounded-lg shadow-xl space-y-6 text-white w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center">Gestor Eléctrico</h1>
-        <h2 className="text-lg text-center">{isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}</h2>
-        <input 
-          type="email" placeholder="Email" required
-          className="w-full p-3 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-blue-500"
-          onChange={e => setEmail(e.target.value)}
-        />
-        <input 
-          type="password" placeholder="Contraseña" required
-          className="w-full p-3 bg-gray-700 rounded border border-gray-600 focus:outline-none focus:border-blue-500"
-          onChange={e => setPassword(e.target.value)}
-        />
-        <button type="submit" className="w-full bg-blue-600 p-3 rounded font-bold hover:bg-blue-500 transition">
-          {isLogin ? 'Entrar' : 'Registrarse'}
-        </button>
-        <button type="button" onClick={() => setIsLogin(!isLogin)} className="w-full text-sm text-gray-400 hover:text-white underline">
-          {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
-        </button>
-      </form>
+    <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      <div className="px-8 py-6 mt-4 text-left bg-gray-800 shadow-lg rounded-lg">
+        <h3 className="text-2xl font-bold text-white text-center">Iniciar Sesión</h3>
+        <form onSubmit={handleSubmit}>
+          <div className="mt-4">
+            <div>
+              <label className="block text-white" htmlFor="username">Nombre de Usuario</label>
+              <input 
+                type="text" 
+                placeholder="Nombre de Usuario"
+                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600 bg-gray-700 text-white"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+            <div className="mt-4">
+              <label className="block text-white" htmlFor="password">Contraseña</label>
+              <input 
+                type="password" 
+                placeholder="Contraseña"
+                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600 bg-gray-700 text-white"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+            <div className="flex items-baseline justify-between">
+              <button 
+                type="submit" 
+                className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-900"
+              >
+                Iniciar Sesión
+              </button>
+              <a 
+                href="#" 
+                className="text-sm text-blue-600 hover:underline"
+                onClick={onRegisterClick}
+              >
+                Registrarse
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

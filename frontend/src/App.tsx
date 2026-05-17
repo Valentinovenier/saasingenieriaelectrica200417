@@ -5,54 +5,56 @@ import { NewProjectModal } from './components/NewProjectModal';
 import { ProjectSettings } from './components/ProjectSettings';
 import { LiveUnifilar } from './components/LiveUnifilar';
 import { Project } from './types/project';
-import { Auth } from './components/Auth';
+import { useAuth } from './context/AuthContext';
+import { LoginPage } from './components/LoginPage';
+import { RegisterPage } from './components/RegisterPage';
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, loading, logout } = useAuth();
   const [currentPage, setCurrentPage] = useState('inicio');
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
-  // 1. Verificar si ya hay un token al cargar la app
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
+    if (isAuthenticated) {
       fetchProjects();
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const fetchProjects = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
     try {
-      const res = await fetch('/api/projects', { 
+      const res = await fetch('/api/projects', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (res.ok) {
         const data = await res.json();
         const parsed = Array.isArray(data) ? data.map((p: any) => ({ ...p, data: JSON.parse(p.data) })) : [];
         setProjects(parsed);
       } else if (res.status === 401) {
-        localStorage.removeItem('token');
-        setIsAuthenticated(false);
+        logout();
       }
     } catch (e) {
       console.error("Error al cargar proyectos:", e);
     }
   };
 
-  const handleAuthSuccess = () => {
-    setIsAuthenticated(true);
-    fetchProjects();
-  };
 
-  // SI NO ESTÁ AUTENTICADO, SOLO MOSTRAR EL LOGIN. SIN LLAMADAS A API PREVIAS.
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">Cargando...</div>;
+  }
+
   if (!isAuthenticated) {
-    return <Auth onAuth={handleAuthSuccess} />;
+    return showRegister ? (
+      <RegisterPage onLoginClick={() => setShowRegister(false)} />
+    ) : (
+      <LoginPage onRegisterClick={() => setShowRegister(true)} />
+    );
   }
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
@@ -71,7 +73,7 @@ export default function App() {
       const token = localStorage.getItem('token');
       const response = await fetch('/api/projects', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
@@ -81,7 +83,7 @@ export default function App() {
           data: newProject
         })
       });
-      
+
       if (response.ok) {
         setProjects([...projects, newProject]);
         setIsModalOpen(false);
@@ -95,11 +97,11 @@ export default function App() {
     if (selectedProject) {
       return (
         <div className="space-y-6">
-          <ProjectSettings 
-            project={selectedProject} 
+          <ProjectSettings
+            project={selectedProject}
             onSave={(updated) => {
               setProjects(projects.map(p => p.id === updated.id ? updated : p));
-            }} 
+            }}
           />
           <LiveUnifilar project={selectedProject} />
         </div>
@@ -114,15 +116,15 @@ export default function App() {
               <h2 className="text-3xl font-bold text-white mb-2">Mis Proyectos</h2>
               <p className="text-[var(--text-secondary)]">Gestioná tus diseños eléctricos y cálculos de ingeniería.</p>
             </header>
-            <ProjectList 
+            <ProjectList
               projects={projects}
-              onSelectProject={setSelectedProjectId} 
-              onAddNew={() => setIsModalOpen(true)} 
+              onSelectProject={setSelectedProjectId}
+              onAddNew={() => setIsModalOpen(true)}
             />
             {isModalOpen && (
-              <NewProjectModal 
-                onClose={() => setIsModalOpen(false)} 
-                onCreate={createProject} 
+              <NewProjectModal
+                onClose={() => setIsModalOpen(false)}
+                onCreate={createProject}
               />
             )}
           </>
