@@ -3,8 +3,8 @@ import { jwtVerify } from '../utils/jwt';
 export const onRequest: PagesFunction = async (context) => {
   const { request, env } = context;
   const db = env.DB;
-  const cookieHeader = request.headers.get("Cookie") || "";
-  const token = cookieHeader.split('; ').find(c => c.startsWith('auth_token='))?.split('=')[1];
+  const authHeader = request.headers.get("Authorization") || "";
+  const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
   if (!token) {
     return new Response(JSON.stringify({ error: "No autorizado" }), { 
@@ -38,7 +38,10 @@ export const onRequest: PagesFunction = async (context) => {
         .bind(id, user_id, name, JSON.stringify(data))
         .run();
 
-      return new Response(JSON.stringify({ success: true }), { status: 201 });
+      return new Response(JSON.stringify({ success: true }), { 
+        status: 201,
+        headers: { "Content-Type": "application/json" }
+      });
     }
   } catch (e: any) {
     return new Response(JSON.stringify({ error: e.message }), { 

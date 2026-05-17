@@ -2,7 +2,6 @@ import { verifyPassword } from '../utils/crypto';
 import { signToken } from '../utils/jwt';
 
 export const onRequest: PagesFunction = async (context) => {
-  console.log("Login endpoint reached, method:", context.request.method);
   const { request, env } = context;
   const db = env.DB;
   const SECRET = env.JWT_SECRET as string;
@@ -25,15 +24,11 @@ export const onRequest: PagesFunction = async (context) => {
 
     const token = await signToken(user.id as string, SECRET);
 
-    const response = new Response(JSON.stringify({ success: true }), { 
+    return new Response(JSON.stringify({ success: true, token }), { 
       status: 200,
       headers: jsonHeaders
     });
-
-    response.headers.append("Set-Cookie", `auth_token=${token}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=86400`);
-
-    return response;
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: "Error en el servidor: " + e.message }), { status: 500, headers: jsonHeaders });
+    return new Response(JSON.stringify({ error: "Error: " + e.message }), { status: 500, headers: jsonHeaders });
   }
 };

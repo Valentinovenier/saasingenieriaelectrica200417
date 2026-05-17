@@ -15,19 +15,18 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchProjects = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsAuthenticated(false);
+      return;
+    }
+
     try {
-      console.log("Intentando cargar proyectos...");
-      const res = await fetch('/api/projects', { credentials: 'include' });
+      const res = await fetch('/api/projects', { 
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       
       if (res.status === 401) {
-        console.log("No autorizado, redirigiendo a Auth");
-        setIsAuthenticated(false);
-        return;
-      }
-      
-      const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        console.error("Respuesta no es JSON");
         setIsAuthenticated(false);
         return;
       }
@@ -36,7 +35,6 @@ export default function App() {
       const parsed = Array.isArray(data) ? data.map((p: any) => ({ ...p, data: JSON.parse(p.data) })) : [];
       setProjects(parsed);
       setIsAuthenticated(true);
-      console.log("Autenticación exitosa, proyectos cargados");
     } catch (e) {
       console.error("Error al cargar proyectos:", e);
       setIsAuthenticated(false);

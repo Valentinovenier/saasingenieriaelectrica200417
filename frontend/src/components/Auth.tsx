@@ -27,7 +27,6 @@ export const Auth = ({ onAuth }: { onAuth: () => void }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        credentials: 'include',
       });
       
       const data = await res.json();
@@ -41,6 +40,7 @@ export const Auth = ({ onAuth }: { onAuth: () => void }) => {
         setIsLogin(true);
         setPassword('');
       } else {
+        localStorage.setItem('token', data.token);
         onAuth();
       }
     } catch (err: any) {
