@@ -66,15 +66,18 @@ export default function App() {
     }
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/projects', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           id: newProject.id,
           name: newProject.name,
           data: newProject
-        }),
-        credentials: 'include'
+        })
       });
       
       if (!response.ok) {
