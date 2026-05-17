@@ -16,18 +16,27 @@ export default function App() {
 
   const fetchProjects = async () => {
     try {
+      console.log("Intentando cargar proyectos...");
       const res = await fetch('/api/projects', { credentials: 'include' });
-      if (res.status === 401) throw new Error('No autorizado');
+      
+      if (res.status === 401) {
+        console.log("No autorizado, redirigiendo a Auth");
+        setIsAuthenticated(false);
+        return;
+      }
       
       const contentType = res.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Respuesta del servidor no válida");
+        console.error("Respuesta no es JSON");
+        setIsAuthenticated(false);
+        return;
       }
       
       const data = await res.json();
       const parsed = Array.isArray(data) ? data.map((p: any) => ({ ...p, data: JSON.parse(p.data) })) : [];
       setProjects(parsed);
       setIsAuthenticated(true);
+      console.log("Autenticación exitosa, proyectos cargados");
     } catch (e) {
       console.error("Error al cargar proyectos:", e);
       setIsAuthenticated(false);
