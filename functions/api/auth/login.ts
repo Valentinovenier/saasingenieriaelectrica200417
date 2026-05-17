@@ -1,15 +1,11 @@
 import { verifyPassword } from '../utils/crypto';
 import { signToken } from '../utils/jwt';
 
-export const onRequest: PagesFunction = async (context) => {
+export const onRequestPost: PagesFunction = async (context) => {
   const { request, env } = context;
   const db = env.DB;
   const SECRET = env.JWT_SECRET as string;
   const jsonHeaders = { "Content-Type": "application/json" };
-
-  if (request.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Método no soportado" }), { status: 405, headers: jsonHeaders });
-  }
 
   try {
     const { email, password } = await request.json();

@@ -1,13 +1,9 @@
 import { hashPassword } from '../utils/crypto';
 
-export const onRequest: PagesFunction = async (context) => {
+export const onRequestPost: PagesFunction = async (context) => {
   const { request, env } = context;
   const db = env.DB;
   const jsonHeaders = { "Content-Type": "application/json" };
-
-  if (request.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Método no soportado" }), { status: 405, headers: jsonHeaders });
-  }
 
   try {
     const { email, password } = await request.json();
