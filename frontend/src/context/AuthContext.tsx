@@ -21,9 +21,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const [userId, setUserId] = useState<string | null>(getInitialUserId());
 
-  const login = (id: string) => {
+  const login = (id: string | null) => {
     setUserId(id);
-    localStorage.setItem('userId', id);
+    if (id) {
+      localStorage.setItem('userId', id);
+    } else {
+      localStorage.removeItem('userId');
+    }
   };
 
   const logout = () => {
