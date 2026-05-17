@@ -14,36 +14,46 @@ export default function App() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // 1. Verificar si ya hay un token al cargar la app
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+      fetchProjects();
+    }
+  }, []);
+
   const fetchProjects = async () => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      setIsAuthenticated(false);
-      return;
-    }
+    if (!token) return;
 
     try {
       const res = await fetch('/api/projects', { 
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
-      if (res.status === 401) {
+      if (res.ok) {
+        const data = await res.json();
+        const parsed = Array.isArray(data) ? data.map((p: any) => ({ ...p, data: JSON.parse(p.data) })) : [];
+        setProjects(parsed);
+      } else if (res.status === 401) {
+        localStorage.removeItem('token');
         setIsAuthenticated(false);
-        return;
       }
-      
-      const data = await res.json();
-      const parsed = Array.isArray(data) ? data.map((p: any) => ({ ...p, data: JSON.parse(p.data) })) : [];
-      setProjects(parsed);
-      setIsAuthenticated(true);
     } catch (e) {
       console.error("Error al cargar proyectos:", e);
-      setIsAuthenticated(false);
     }
   };
 
-  useEffect(() => { fetchProjects(); }, []);
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true);
+    fetchProjects();
+  };
 
-  if (!isAuthenticated) return <Auth onAuth={fetchProjects} />;
+  // SI NO ESTÁ AUTENTICADO, SOLO MOSTRAR EL LOGIN. SIN LLAMADAS A API PREVIAS.
+  if (!isAuthenticated) {
+    return <Auth onAuth={handleAuthSuccess} />;
+  }
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
 
@@ -56,14 +66,6 @@ export default function App() {
       tableros: [],
       armonicos: {h3:0, h5:0, h7:0, h9:0}
     };
-
-    if (import.meta.env.DEV) {
-      const updated = [...projects, newProject];
-      setProjects(updated);
-      localStorage.setItem('localProjects', JSON.stringify(updated));
-      setIsModalOpen(false);
-      return;
-    }
 
     try {
       const token = localStorage.getItem('token');
@@ -80,13 +82,10 @@ export default function App() {
         })
       });
       
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `Error HTTP: ${response.status}`);
+      if (response.ok) {
+        setProjects([...projects, newProject]);
+        setIsModalOpen(false);
       }
-
-      setProjects([...projects, newProject]);
-      setIsModalOpen(false);
     } catch (error: any) {
       alert(`Error al crear el proyecto: ${error.message}`);
     }
