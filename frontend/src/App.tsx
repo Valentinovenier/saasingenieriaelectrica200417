@@ -5,36 +5,31 @@ import { NewProjectModal } from './components/NewProjectModal';
 import { ProjectSettings } from './components/ProjectSettings';
 import { LiveUnifilar } from './components/LiveUnifilar';
 import { Project } from './types/project';
-import { useAuth } from './context/AuthContext';
-import { LoginPage } from './components/LoginPage';
+import { Auth } from './components/Auth';
 
 export default function App() {
-  const { userId, isAuthenticated } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentPage, setCurrentPage] = useState('inicio');
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (import.meta.env.DEV) {
-      const local = localStorage.getItem('localProjects');
-      if (local) setProjects(JSON.parse(local));
-      return;
+  const fetchProjects = async () => {
+    try {
+      const res = await fetch('/api/projects');
+      if (!res.ok) throw new Error('No autorizado');
+      const data = await res.json();
+      const parsed = data.map((p: any) => ({ ...p, data: JSON.parse(p.data) }));
+      setProjects(parsed);
+      setIsAuthenticated(true);
+    } catch {
+      setIsAuthenticated(false);
     }
+  };
 
-    if (!userId) return;
-    fetch(`/api/projects?user_id=${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        const parsed = data.map((p: any) => ({ ...p, data: JSON.parse(p.data) }));
-        setProjects(parsed);
-      })
-      .catch(err => console.error("Error al cargar proyectos:", err));
-  }, [userId]);
+  useEffect(() => { fetchProjects(); }, []);
 
-  if (!isAuthenticated) {
-    return <LoginPage />;
-  }
+  if (!isAuthenticated) return <Auth onAuth={fetchProjects} />;
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
 
@@ -56,15 +51,12 @@ export default function App() {
       return;
     }
 
-    if (!userId) return;
-
     try {
       const response = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: newProject.id,
-          user_id: userId,
           name: newProject.name,
           data: newProject
         })
