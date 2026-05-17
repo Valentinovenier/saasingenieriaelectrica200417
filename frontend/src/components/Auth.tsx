@@ -10,6 +10,11 @@ export const Auth = ({ onAuth }: { onAuth: () => void }) => {
     e.preventDefault();
     setError('');
 
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      setError('Por favor, ingresa un correo electrónico válido.');
+      return;
+    }
+
     if (!isLogin && password.length < 8) {
       setError('La contraseña debe tener al menos 8 caracteres.');
       return;
