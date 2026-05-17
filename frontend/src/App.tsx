@@ -32,6 +32,10 @@ export default function App() {
       .catch(err => console.error("Error al cargar proyectos:", err));
   }, [userId]);
 
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+
   const selectedProject = projects.find(p => p.id === selectedProjectId);
 
   const createProject = async (name: string) => {
