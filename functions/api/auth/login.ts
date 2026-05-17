@@ -29,7 +29,7 @@ export const onRequest: PagesFunction = async (context) => {
       headers: jsonHeaders
     });
 
-    response.headers.append("Set-Cookie", `auth_token=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400`);
+    response.headers.append("Set-Cookie", `auth_token=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400`);
 
     return response;
   } catch (e: any) {

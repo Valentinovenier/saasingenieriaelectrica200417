@@ -9,20 +9,35 @@ export const Auth = ({ onAuth }: { onAuth: () => void }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!isLogin && password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
 
     try {
       const res = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-                credentials: 'include',
-              });
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        credentials: 'include',
+      });
+      
+      const data = await res.json();
+      
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || 'Error en la solicitud');
       }
-      onAuth();
+      
+      if (!isLogin) {
+        alert('Registro exitoso. Ahora puedes iniciar sesión.');
+        setIsLogin(true);
+        setPassword('');
+      } else {
+        onAuth();
+      }
     } catch (err: any) {
       setError(err.message);
     }
@@ -32,7 +47,11 @@ export const Auth = ({ onAuth }: { onAuth: () => void }) => {
     <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]">
       <form onSubmit={handleSubmit} className="bg-[var(--bg-secondary)] p-8 rounded-2xl w-full max-w-sm border border-slate-700">
         <h2 className="text-2xl font-bold text-white mb-6">{isLogin ? 'Iniciar Sesión' : 'Registro'}</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-xl mb-4 text-sm font-medium">
+            {error}
+          </div>
+        )}
         <input 
           className="w-full bg-[var(--bg-primary)] border border-slate-700 rounded-xl px-4 py-3 text-white mb-4"
           placeholder="Email" value={email} onChange={e => setEmail(e.target.value)}

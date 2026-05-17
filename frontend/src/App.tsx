@@ -17,12 +17,17 @@ export default function App() {
   const fetchProjects = async () => {
     try {
       const res = await fetch('/api/projects', { credentials: 'include' });
-      if (!res.ok) throw new Error('No autorizado');
+      // Si la respuesta no es OK, no necesariamente significa 'No autorizado'.
+      // Pero si recibimos 401, entonces sí es 'No autorizado'.
+      if (res.status === 401) throw new Error('No autorizado');
+      
       const data = await res.json();
-      const parsed = data.map((p: any) => ({ ...p, data: JSON.parse(p.data) }));
+      // Si la respuesta es un array (incluso vacío), el usuario está autenticado.
+      const parsed = Array.isArray(data) ? data.map((p: any) => ({ ...p, data: JSON.parse(p.data) })) : [];
       setProjects(parsed);
       setIsAuthenticated(true);
-    } catch {
+    } catch (e) {
+      console.error("Error al cargar proyectos:", e);
       setIsAuthenticated(false);
     }
   };
