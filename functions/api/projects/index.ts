@@ -7,7 +7,10 @@ export const onRequest: PagesFunction = async (context) => {
   const token = cookieHeader.split('; ').find(c => c.startsWith('auth_token='))?.split('=')[1];
 
   if (!token) {
-    return new Response(JSON.stringify({ error: "No autorizado" }), { status: 401 });
+    return new Response(JSON.stringify({ error: "No autorizado" }), { 
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   try {
@@ -38,8 +41,14 @@ export const onRequest: PagesFunction = async (context) => {
       return new Response(JSON.stringify({ success: true }), { status: 201 });
     }
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: e.message }), { 
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
-  return new Response("Método no soportado", { status: 405 });
+  return new Response(JSON.stringify({ error: "Método no soportado" }), { 
+    status: 405,
+    headers: { "Content-Type": "application/json" }
+  });
 };
