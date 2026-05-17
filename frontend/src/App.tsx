@@ -16,6 +16,12 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
+    if (import.meta.env.DEV) {
+      const local = localStorage.getItem('localProjects');
+      if (local) setProjects(JSON.parse(local));
+      return;
+    }
+
     if (!userId) return;
     fetch(`/api/projects?user_id=${userId}`)
       .then(res => res.json())
@@ -26,15 +32,9 @@ export default function App() {
       .catch(err => console.error("Error al cargar proyectos:", err));
   }, [userId]);
 
-  if (!isAuthenticated) {
-    return <LoginPage />;
-  }
-
   const selectedProject = projects.find(p => p.id === selectedProjectId);
 
   const createProject = async (name: string) => {
-    if (!userId) return;
-
     const newProject: Project = {
       id: Date.now().toString(),
       name,
@@ -43,6 +43,16 @@ export default function App() {
       tableros: [],
       armonicos: {h3:0, h5:0, h7:0, h9:0}
     };
+
+    if (import.meta.env.DEV) {
+      const updated = [...projects, newProject];
+      setProjects(updated);
+      localStorage.setItem('localProjects', JSON.stringify(updated));
+      setIsModalOpen(false);
+      return;
+    }
+
+    if (!userId) return;
 
     try {
       const response = await fetch('/api/projects', {
