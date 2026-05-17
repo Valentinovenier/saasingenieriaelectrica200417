@@ -1,0 +1,10 @@
+name = "saasingenieriaelectrica"
+pages_build_output_dir = "frontend/dist"
+
+[vars]
+# Tus variables de entorno aquí
+
+[[d1_databases]]
+binding = "DB"
+database_name = "saas-db"
+database_id = "a1e4cb34-3203-4fd7-b6a2-8f228a3c0eb5"

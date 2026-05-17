@@ -20,14 +20,16 @@ export const LoginPage = () => {
         body: JSON.stringify({ email, password })
       });
 
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Error desconocido' }));
+        console.error("Error del servidor:", errorData);
+        alert(errorData.error || 'Error en autenticación');
+        return;
+      }
+
       const data = await res.json();
       console.log("Respuesta del servidor:", data);
-
-      if (res.ok) {
-        setUserId(data.userId);
-      } else {
-        alert(data.error || 'Error en autenticación');
-      }
+      setUserId(data.userId);
     } catch (error) {
       console.error("Error al conectar con la API:", error);
       alert("Error de conexión con el servidor");
