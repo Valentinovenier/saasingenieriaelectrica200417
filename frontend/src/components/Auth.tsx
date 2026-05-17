@@ -13,11 +13,11 @@ export const Auth = ({ onAuth }: { onAuth: () => void }) => {
 
     try {
       const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+                credentials: 'include',
+              });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Error en la solicitud');

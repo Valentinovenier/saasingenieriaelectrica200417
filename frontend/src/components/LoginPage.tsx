@@ -15,11 +15,11 @@ export const LoginPage = () => {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       
       const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+                credentials: 'include'
+              });
       if (!res.ok) {
         const errorText = await res.text();
         console.error("Error del servidor (raw):", errorText);

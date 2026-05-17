@@ -12,11 +12,11 @@ export const AuthModal = ({ onClose }: { onClose: () => void }) => {
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
     
     const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include'
+          });
     const data = await res.json();
     if (res.ok) {
       setUserId(data.userId);

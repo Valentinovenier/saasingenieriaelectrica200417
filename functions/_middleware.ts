@@ -7,8 +7,13 @@ export const onRequest: PagesFunction = async (context) => {
 
   console.log(`Middleware: Processing ${request.method} ${url.pathname}`);
 
-  // Permitir el registro y login sin autenticación
-  if (url.pathname.startsWith('/api/auth/')) {
+  // Permitir acceso a la raíz, endpoints de auth y archivos estáticos (assets)
+  if (
+    url.pathname === '/' || 
+    url.pathname.startsWith('/api/auth/') || 
+    url.pathname.startsWith('/assets/') ||
+    url.pathname.endsWith('.ico')
+  ) {
     return await context.next();
   }
 
