@@ -21,9 +21,9 @@ export const LoginPage = () => {
       });
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ error: 'Error desconocido' }));
-        console.error("Error del servidor:", errorData);
-        alert(errorData.error || 'Error en autenticación');
+        const errorText = await res.text();
+        console.error("Error del servidor (raw):", errorText);
+        alert('Error en autenticación: ' + errorText);
         return;
       }
 
