@@ -1,21 +1,69 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { ProjectList } from './components/ProjectList';
 import { NewProjectModal } from './components/NewProjectModal';
 import { ProjectSettings } from './components/ProjectSettings';
 import { LiveUnifilar } from './components/LiveUnifilar';
 import { Project } from './types/project';
+import { useAuth } from './context/AuthContext';
+import { LoginPage } from './components/LoginPage';
 
 export default function App() {
+  const { userId, isAuthenticated } = useAuth();
   const [currentPage, setCurrentPage] = useState('inicio');
-  const [projects, setProjects] = useState<Project[]>([
-    { id: '1', name: 'Edificio Residencial A', createdAt: '2026-05-15', status: 'draft', tableros: [], armonicos: {h3:0,h5:0,h7:0,h9:0} },
-    { id: '2', name: 'Nave Industrial B', createdAt: '2026-05-10', status: 'completed', tableros: [], armonicos: {h3:0,h5:0,h7:0,h9:0} },
-  ]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(() => {
+    if (!userId) return;
+    fetch(`/api/projects?user_id=${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        const parsed = data.map((p: any) => ({ ...p, data: JSON.parse(p.data) }));
+        setProjects(parsed);
+      })
+      .catch(err => console.error("Error al cargar proyectos:", err));
+  }, [userId]);
+
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+
   const selectedProject = projects.find(p => p.id === selectedProjectId);
+
+  const createProject = async (name: string) => {
+    if (!userId) return;
+
+    const newProject: Project = {
+      id: Date.now().toString(),
+      name,
+      createdAt: new Date().toISOString().split('T')[0],
+      status: 'draft',
+      tableros: [],
+      armonicos: {h3:0, h5:0, h7:0, h9:0}
+    };
+
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: newProject.id,
+          user_id: userId,
+          name: newProject.name,
+          data: newProject
+        })
+      });
+      
+      if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+      setProjects([...projects, newProject]);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error al crear proyecto:", error);
+    }
+  };
 
   const renderContent = () => {
     if (selectedProject) {
@@ -31,7 +79,7 @@ export default function App() {
         </div>
       );
     }
-// ...
+
     switch (currentPage) {
       case 'inicio':
         return (
@@ -48,26 +96,13 @@ export default function App() {
             {isModalOpen && (
               <NewProjectModal 
                 onClose={() => setIsModalOpen(false)} 
-                onCreate={(name) => {
-                  const newProject: Project = {
-                    id: Date.now().toString(),
-                    name,
-                    createdAt: new Date().toISOString().split('T')[0],
-                    status: 'draft',
-                    tableros: [],
-                    armonicos: {h3:0, h5:0, h7:0, h9:0}
-                  };
-                  setProjects([...projects, newProject]);
-                  setIsModalOpen(false);
-                }} 
+                onCreate={createProject} 
               />
             )}
           </>
         );
       default:
-        return (
-          <div className="text-white">Página en construcción</div>
-        );
+        return <div className="text-white">Página en construcción</div>;
     }
   };
 
