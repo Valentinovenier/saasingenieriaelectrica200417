@@ -17,6 +17,3 @@ bucket_name = "saasingenieriaelectrica200417"
 [[kv_namespaces]]
 binding = "KV_NAMESPACE"
 id = "f60a9f62c8e342249e0b23081e7d44c8"
-
-[site]
-bucket = "./frontend/dist"
