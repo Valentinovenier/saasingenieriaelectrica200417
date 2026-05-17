@@ -3,16 +3,17 @@ import { hashPassword } from '../utils/crypto';
 export const onRequest: PagesFunction = async (context) => {
   const { request, env } = context;
   const db = env.DB;
+  const jsonHeaders = { "Content-Type": "application/json" };
 
   if (request.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Método no soportado" }), { status: 405 });
+    return new Response(JSON.stringify({ error: "Método no soportado" }), { status: 405, headers: jsonHeaders });
   }
 
   try {
     const { email, password } = await request.json();
     
     if (!email || !password || password.length < 8) {
-        return new Response(JSON.stringify({ error: "Datos inválidos" }), { status: 400 });
+        return new Response(JSON.stringify({ error: "Datos inválidos (la contraseña debe tener al menos 8 caracteres)" }), { status: 400, headers: jsonHeaders });
     }
 
     const hashedPassword = await hashPassword(password);
@@ -24,12 +25,12 @@ export const onRequest: PagesFunction = async (context) => {
 
     return new Response(JSON.stringify({ success: true, userId: id }), { 
       status: 201,
-      headers: { "Content-Type": "application/json" }
+      headers: jsonHeaders
     });
   } catch (e: any) {
     return new Response(JSON.stringify({ error: "Error en el servidor: " + e.message }), { 
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: jsonHeaders
     });
   }
 };
