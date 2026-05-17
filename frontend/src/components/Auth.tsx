@@ -18,7 +18,10 @@ export const Auth = ({ onAuth }: { onAuth: () => void }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!res.ok) throw new Error(isLogin ? 'Error al iniciar sesión' : 'Error al registrarse');
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error en la solicitud');
+      }
       onAuth();
     } catch (err: any) {
       setError(err.message);
