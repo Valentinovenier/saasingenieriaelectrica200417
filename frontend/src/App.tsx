@@ -16,7 +16,7 @@ export default function App() {
 
   const fetchProjects = async () => {
     try {
-      const res = await fetch('/api/projects');
+      const res = await fetch('/api/projects', { credentials: 'include' });
       if (!res.ok) throw new Error('No autorizado');
       const data = await res.json();
       const parsed = data.map((p: any) => ({ ...p, data: JSON.parse(p.data) }));
@@ -59,15 +59,19 @@ export default function App() {
           id: newProject.id,
           name: newProject.name,
           data: newProject
-        })
+        }),
+        credentials: 'include'
       });
       
-      if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Error HTTP: ${response.status}`);
+      }
 
       setProjects([...projects, newProject]);
       setIsModalOpen(false);
-    } catch (error) {
-      console.error("Error al crear proyecto:", error);
+    } catch (error: any) {
+      alert(`Error al crear el proyecto: ${error.message}`);
     }
   };
 
