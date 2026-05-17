@@ -2,6 +2,7 @@ import { verifyPassword } from '../utils/crypto';
 import { signToken } from '../utils/jwt';
 
 export const onRequest: PagesFunction = async (context) => {
+  console.log("Login endpoint reached, method:", context.request.method);
   const { request, env } = context;
   const db = env.DB;
   const SECRET = env.JWT_SECRET as string;
