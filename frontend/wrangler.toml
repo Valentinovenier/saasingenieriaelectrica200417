@@ -1,6 +1,8 @@
 name = "saasingenieriaelectrica200417"
 pages_build_output_dir = "frontend/dist"
 
+compatibility_flags = [ "nodejs_compat" ]
+
 [vars]
 # Tus variables de entorno aquí
 SECRET_KEY = "super_secret_jwt_key_please_change_me"
