@@ -37,7 +37,8 @@ export default function App() {
         const parsed = Array.isArray(data) ? data.map((p: any) => ({ ...p, data: JSON.parse(p.data) })) : [];
         setProjects(parsed);
       } else if (res.status === 401) {
-        console.error("Sesión no autorizada al cargar proyectos. Por favor, verifica tu token.");
+        const errorData = await res.json().catch(() => ({ error: 'No se pudo leer el error del servidor' }));
+        console.error(`Sesión no autorizada: ${errorData.error || 'Verifica tu token'}`);
       }
     } catch (e) {
       console.error("Error al cargar proyectos:", e);
