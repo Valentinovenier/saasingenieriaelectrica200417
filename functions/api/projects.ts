@@ -10,7 +10,7 @@ export async function onRequestGet(context) {
 
   try {
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, env.SECRET_KEY);
+    const decoded = jwt.verify(token, env.SECRET_KEY) as any;
     const userId = decoded.userId;
 
     const { results } = await env.DB.prepare('SELECT * FROM projects WHERE userId = ?')
@@ -21,8 +21,8 @@ export async function onRequestGet(context) {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: 'Invalid token' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: `Auth Error: ${e.message}` }), { status: 401, headers: { 'Content-Type': 'application/json' } });
   }
 }
 
@@ -36,7 +36,7 @@ export async function onRequestPost(context) {
 
   try {
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, env.SECRET_KEY);
+    const decoded = jwt.verify(token, env.SECRET_KEY) as any;
     const userId = decoded.userId;
 
     const { id, name, data } = await request.json();
@@ -49,8 +49,8 @@ export async function onRequestPost(context) {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: 'Internal Server Error: ' + e.message }), {
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: `Server Error: ${e.message}` }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
