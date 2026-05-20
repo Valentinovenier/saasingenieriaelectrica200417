@@ -1,5 +1,6 @@
 name = "saasingenieriaelectrica200417"
 pages_build_output_dir = "frontend/dist"
+compatibility_flags = [ "nodejs_compat" ]
 
 [vars]
 # Tus variables de entorno aquí
