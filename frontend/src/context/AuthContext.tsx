@@ -22,6 +22,7 @@ const decodeToken = (token: string) => {
     );
     return JSON.parse(jsonPayload);
   } catch (e) {
+    console.error("Error decodificando token:", e);
     return null;
   }
 };

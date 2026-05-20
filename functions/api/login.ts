@@ -33,14 +33,18 @@ export async function onRequestPost(context) {
       });
     }
 
-    const token = jwt.sign({ userId: user.id, username: user.username }, env.SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { userId: user.id, username: user.username }, 
+      env.SECRET_KEY || 'fallback_secret_key_for_development', 
+      { expiresIn: '24h' }
+    );
 
     return new Response(JSON.stringify({ token }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: 'Internal Server Error: ' + e.message }), {
+    return new Response(JSON.stringify({ error: 'Error interno al generar sesión: ' + e.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
