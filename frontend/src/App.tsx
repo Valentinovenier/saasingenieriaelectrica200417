@@ -86,6 +86,7 @@ export default function App() {
 
       if (response.ok) {
         setProjects([...projects, newProject]);
+        setSelectedProjectId(newProject.id);
         setIsModalOpen(false);
       }
     } catch (error: any) {
