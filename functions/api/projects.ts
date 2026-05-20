@@ -13,7 +13,7 @@ export async function onRequestGet(context) {
   const { request, env } = context;
   try {
     const user = await verifyAuth(request, env);
-    const { results } = await env.DB.prepare('SELECT * FROM projects WHERE userId = ?').bind(user.userId).all();
+    const { results } = await env.DB.prepare('SELECT * FROM projects WHERE user_id = ?').bind(user.userId).all();
     return new Response(JSON.stringify(results), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (e: any) {
     const status = e.message.includes('autorización') || e.name === 'JsonWebTokenError' ? 401 : 500;
@@ -26,12 +26,12 @@ export async function onRequestPost(context) {
   try {
     const user = await verifyAuth(request, env);
     const { id, name, data } = await request.json();
-    await env.DB.prepare('INSERT INTO projects (id, userId, name, data) VALUES (?, ?, ?, ?)')
+    await env.DB.prepare('INSERT INTO projects (id, user_id, name, data) VALUES (?, ?, ?, ?)')
       .bind(id, user.userId, name, JSON.stringify(data))
       .run();
     return new Response(JSON.stringify({ success: true }), { status: 201, headers: { 'Content-Type': 'application/json' } });
   } catch (e: any) {
-    const status = e.message.includes('autorización') || e.name === 'JsonWebTokenError' ? 401 : 500 {
+    const status = e.message.includes('autorización') || e.name === 'JsonWebTokenError' ? 401 : 500;
     return new Response(JSON.stringify({ error: e.message }), { status, headers: { 'Content-Type': 'application/json' } });
   }
 }
