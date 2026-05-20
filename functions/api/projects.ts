@@ -10,7 +10,7 @@ export async function onRequestGet(context) {
 
   try {
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, env.SECRET_KEY) as any;
+    const decoded = jwt.verify(token, env.SECRET_KEY || 'fallback_secret_key_for_development') as any;
     const userId = decoded.userId;
 
     const { results } = await env.DB.prepare('SELECT * FROM projects WHERE userId = ?')
@@ -36,7 +36,7 @@ export async function onRequestPost(context) {
 
   try {
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, env.SECRET_KEY) as any;
+    const decoded = jwt.verify(token, env.SECRET_KEY || 'fallback_secret_key_for_development') as any;
     const userId = decoded.userId;
 
     const { id, name, data } = await request.json();
