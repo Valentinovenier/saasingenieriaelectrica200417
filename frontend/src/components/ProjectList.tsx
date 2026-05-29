@@ -1,7 +1,7 @@
 import { Plus, Folder, Calendar } from 'lucide-react';
 import { Project } from '../types/project';
 
-export const ProjectList = ({ projects, onSelectProject, onAddNew }: { projects: Project[], onSelectProject: (id: string) => void, onAddNew: () => void }) => {
+export const ProjectList = ({ projects = [], onSelectProject, onAddNew }: { projects?: Project[], onSelectProject: (id: string) => void, onAddNew: () => void }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Botón Nuevo Proyecto */}
@@ -16,7 +16,7 @@ export const ProjectList = ({ projects, onSelectProject, onAddNew }: { projects:
       </button>
 
       {/* Tarjetas de Proyectos */}
-      {Array.isArray(projects) && projects.map((project) => (
+      {projects.map((project) => (
         <button
           key={project.id}
           onClick={() => onSelectProject(project.id)}
