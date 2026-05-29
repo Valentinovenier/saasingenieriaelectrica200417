@@ -3,6 +3,7 @@ import { DashboardLayout } from './layouts/DashboardLayout';
 import { ProjectList } from './components/ProjectList';
 import { NewProjectModal } from './components/NewProjectModal';
 import { ProjectSettings } from './components/ProjectSettings';
+import { ConductorCalculation } from './components/ConductorCalculation';
 import { LiveUnifilar } from './components/LiveUnifilar';
 import { Project } from './types/project';
 import { useAuth } from './context/AuthContext';
@@ -147,7 +148,9 @@ export default function App() {
             onSave={(updated) => {
               setProjects((projects || []).map(p => p.id === updated.id ? updated : p));
             }}
+            onDelete={() => deleteProject(selectedProject.id)}
           />
+          <ConductorCalculation project={selectedProject} />
           <LiveUnifilar project={selectedProject} />
         </div>
       );
@@ -165,7 +168,6 @@ export default function App() {
               projects={projects}
               onSelectProject={setSelectedProjectId}
               onAddNew={() => setIsModalOpen(true)}
-              onDelete={deleteProject}
             />
             {isModalOpen && (
               <NewProjectModal

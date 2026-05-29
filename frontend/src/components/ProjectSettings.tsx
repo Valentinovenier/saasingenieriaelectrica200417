@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Project, TableroSeccional } from '../types/project';
 import { Trash2, Plus } from 'lucide-react';
 
-export const ProjectSettings = ({ project, onSave }: { project: Project, onSave: (p: Project) => void }) => {
+export const ProjectSettings = ({ project, onSave, onDelete }: { project: Project, onSave: (p: Project) => void, onDelete: () => void }) => {
   const [data, setData] = useState<Project>({
     ...project,
     armonicos: project.armonicos || { h3: 0, h5: 0, h7: 0, h9: 0 }
@@ -21,7 +21,12 @@ export const ProjectSettings = ({ project, onSave }: { project: Project, onSave:
 
   return (
     <div className="space-y-8 bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
-      <h2 className="text-2xl font-bold text-white">Configuración: {data.name}</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-white">Configuración: {data.name}</h2>
+        <button onClick={onDelete} className="text-red-400 hover:text-red-300 flex items-center gap-2">
+            Eliminar proyecto
+        </button>
+      </div>
       
       <section className="grid grid-cols-2 gap-6">
         <div>
