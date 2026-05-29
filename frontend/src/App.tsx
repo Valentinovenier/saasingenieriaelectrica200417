@@ -124,7 +124,8 @@ export default function App() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/projects?id=' + id, {
+      const params = new URLSearchParams({ id });
+      const response = await fetch(`/api/projects?${params.toString()}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
