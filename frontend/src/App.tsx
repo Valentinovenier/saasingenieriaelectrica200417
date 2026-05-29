@@ -89,6 +89,12 @@ export default function App() {
         setProjects([...projects, newProject]);
         setSelectedProjectId(newProject.id);
         setIsModalOpen(false);
+      } else if (response.status === 401) {
+        localStorage.removeItem('token');
+        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        window.location.reload();
+      } else {
+        throw new Error('No se pudo crear el proyecto');
       }
     } catch (error: any) {
       alert(`Error al crear el proyecto: ${error.message}`);
