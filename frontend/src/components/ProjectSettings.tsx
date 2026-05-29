@@ -48,7 +48,7 @@ export const ProjectSettings = ({ project, onSave }: { project: Project, onSave:
           <h3 className="text-lg font-semibold text-white">Tableros Seccionales</h3>
           <button onClick={addTablero} className="text-[var(--accent)] flex items-center gap-2"><Plus size={18} /> Agregar</button>
         </div>
-        {data.tableros.map((t, idx) => (
+        {(data.tableros || []).map((t, idx) => (
           <div key={t.id} className="grid grid-cols-6 gap-2 mb-2 bg-[var(--bg-primary)] p-3 rounded-xl items-center">
             <input className="col-span-1 bg-transparent text-white" value={t.name} onChange={(e) => { const tabs = [...data.tableros]; tabs[idx].name = e.target.value; setData({...data, tableros: tabs}); }} />
             <select className="col-span-2 bg-transparent text-white" value={t.tipo} onChange={(e) => { const tabs = [...data.tableros]; tabs[idx].tipo = e.target.value as any; setData({...data, tableros: tabs}); }}>
