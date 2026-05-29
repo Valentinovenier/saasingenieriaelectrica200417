@@ -16,7 +16,7 @@ export const ProjectList = ({ projects, onSelectProject, onAddNew }: { projects:
       </button>
 
       {/* Tarjetas de Proyectos */}
-      {projects.map((project) => (
+      {Array.isArray(projects) && projects.map((project) => (
         <button
           key={project.id}
           onClick={() => onSelectProject(project.id)}

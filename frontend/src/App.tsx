@@ -86,7 +86,9 @@ export default function App() {
       });
 
       if (response.ok) {
-        setProjects([...projects, newProject]);
+        // Aseguramos que el objeto tenga la estructura completa
+        const projectToAdd = { ...newProject, data: newProject };
+        setProjects([...projects, projectToAdd]);
         setSelectedProjectId(newProject.id);
         setIsModalOpen(false);
       } else if (response.status === 401) {
