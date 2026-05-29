@@ -34,14 +34,29 @@ export default function App() {
 
       if (res.ok) {
         const data = await res.json();
-        const parsed = Array.isArray(data) ? data.map((p: any) => ({ ...p, data: JSON.parse(p.data) })) : [];
-        setProjects(parsed);
+        
+        // Verificación estricta: asegurar que 'data' sea un array
+        if (Array.isArray(data)) {
+          const parsed = data.map((p: any) => {
+            try {
+              return { ...p, data: typeof p.data === 'string' ? JSON.parse(p.data) : p.data };
+            } catch (e) {
+              console.error("Error al parsear el JSON de un proyecto:", p.id, e);
+              return { ...p, data: {} }; // Fallback para datos corruptos
+            }
+          });
+          setProjects(parsed);
+        } else {
+          console.error("La respuesta de /api/projects no es un array:", data);
+          setProjects([]); // Estado seguro
+        }
       } else if (res.status === 401) {
-        const errorData = await res.json().catch(() => ({ error: 'No se pudo leer el error del servidor' }));
-        console.error(`Sesión no autorizada: ${errorData.error || 'Verifica tu token'}`);
+        localStorage.removeItem('token');
+        window.location.reload();
       }
     } catch (e) {
       console.error("Error al cargar proyectos:", e);
+      setProjects([]); // Estado seguro en caso de error de red
     }
   };
 
@@ -110,7 +125,7 @@ export default function App() {
           <ProjectSettings
             project={selectedProject}
             onSave={(updated) => {
-              setProjects(projects.map(p => p.id === updated.id ? updated : p));
+              setProjects((projects || []).map(p => p.id === updated.id ? updated : p));
             }}
           />
           <LiveUnifilar project={selectedProject} />
