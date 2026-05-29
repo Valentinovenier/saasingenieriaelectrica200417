@@ -168,6 +168,7 @@ export default function App() {
               projects={projects}
               onSelectProject={setSelectedProjectId}
               onAddNew={() => setIsModalOpen(true)}
+              onDelete={deleteProject}
             />
             {isModalOpen && (
               <NewProjectModal
