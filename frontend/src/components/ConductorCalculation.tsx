@@ -12,11 +12,10 @@ export const ConductorCalculation = ({ project }: { project: Project }) => {
       <div className="mt-4 p-4 bg-[var(--bg-primary)] rounded-xl text-white">
         <h4 className="font-semibold mb-2">Resumen de Tableros</h4>
         <ul>
-          {project.tableros.map(t => (
+          {(project.tableros || []).map(t => (
             <li key={t.id}>{t.name} - {t.potenciaTotal} kW</li>
           ))}
-        </ul>
-      </div>
+        </ul>      </div>
     </div>
   );
 };
