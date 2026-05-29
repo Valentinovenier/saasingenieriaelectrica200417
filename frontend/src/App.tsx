@@ -118,6 +118,26 @@ export default function App() {
     }
   };
 
+  const deleteProject = async (id: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar este proyecto?')) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/projects?id=${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        setProjects(projects.filter(p => p.id !== id));
+      } else {
+        alert('No se pudo eliminar el proyecto.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   const renderContent = () => {
     if (selectedProject) {
       return (
@@ -145,6 +165,7 @@ export default function App() {
               projects={projects}
               onSelectProject={setSelectedProjectId}
               onAddNew={() => setIsModalOpen(true)}
+              onDelete={deleteProject}
             />
             {isModalOpen && (
               <NewProjectModal

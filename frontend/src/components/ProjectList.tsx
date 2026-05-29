@@ -1,7 +1,7 @@
-import { Plus, Folder, Calendar } from 'lucide-react';
+import { Plus, Folder, Calendar, Trash2 } from 'lucide-react';
 import { Project } from '../types/project';
 
-export const ProjectList = ({ projects = [], onSelectProject, onAddNew }: { projects?: Project[], onSelectProject: (id: string) => void, onAddNew: () => void }) => {
+export const ProjectList = ({ projects = [], onSelectProject, onAddNew, onDelete }: { projects?: Project[], onSelectProject: (id: string) => void, onAddNew: () => void, onDelete: (id: string) => void }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Botón Nuevo Proyecto */}
@@ -17,27 +17,34 @@ export const ProjectList = ({ projects = [], onSelectProject, onAddNew }: { proj
 
       {/* Tarjetas de Proyectos */}
       {projects.map((project) => (
-        <button
-          key={project.id}
-          onClick={() => onSelectProject(project.id)}
-          className="h-48 bg-[var(--bg-secondary)] border border-slate-800 rounded-2xl p-6 flex flex-col justify-between text-left hover:border-[var(--accent)] transition-all group"
-        >
-          <div className="flex justify-between items-start">
-            <div className="bg-[var(--bg-primary)] p-3 rounded-xl text-[var(--accent)]">
-              <Folder size={24} />
+        <div key={project.id} className="relative group">
+          <button
+            onClick={() => onSelectProject(project.id)}
+            className="w-full h-48 bg-[var(--bg-secondary)] border border-slate-800 rounded-2xl p-6 flex flex-col justify-between text-left hover:border-[var(--accent)] transition-all"
+          >
+            <div className="flex justify-between items-start">
+              <div className="bg-[var(--bg-primary)] p-3 rounded-xl text-[var(--accent)]">
+                <Folder size={24} />
+              </div>
+              <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'completed' ? 'bg-green-900 text-green-300' : 'bg-amber-900 text-amber-300'}`}>
+                {project.status === 'completed' ? 'Completado' : 'En proceso'}
+              </span>
             </div>
-            <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'completed' ? 'bg-green-900 text-green-300' : 'bg-amber-900 text-amber-300'}`}>
-              {project.status === 'completed' ? 'Completado' : 'En proceso'}
-            </span>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-white group-hover:text-[var(--accent)] transition-colors">{project.name}</h3>
-            <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mt-1">
-              <Calendar size={14} />
-              <span>{project.createdAt}</span>
+            <div>
+              <h3 className="text-lg font-bold text-white group-hover:text-[var(--accent)] transition-colors">{project.name}</h3>
+              <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mt-1">
+                <Calendar size={14} />
+                <span>{project.createdAt}</span>
+              </div>
             </div>
-          </div>
-        </button>
+          </button>
+          <button 
+            onClick={(e) => { e.stopPropagation(); onDelete(project.id); }}
+            className="absolute top-4 right-4 p-2 bg-red-900/50 text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 hover:text-white"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
       ))}
     </div>
   );
