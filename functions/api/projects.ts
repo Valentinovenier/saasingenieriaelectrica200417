@@ -57,10 +57,37 @@ export async function onRequestPost(context) {
       headers: { 'Content-Type': 'application/json' } 
     });
   } catch (e: any) {
-    const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
     return new Response(JSON.stringify({ error: `Error en Servidor: ${e.message}` }), { 
       status, 
       headers: { 'Content-Type': 'application/json' } 
     });
   }
 }
+
+export async function onRequestDelete(context) {
+  const { request, env } = context;
+  try {
+    const user = await verifyAuth(request, env);
+    const url = new URL(request.url);
+    const projectId = url.searchParams.get('id');
+
+    if (!projectId) {
+      return new Response(JSON.stringify({ error: 'ID de proyecto requerido' }), { status: 400 });
+    }
+
+    const project = await env.DB.prepare('SELECT id FROM projects WHERE id = ? AND user_id = ?')
+      .bind(projectId, user.userId)
+      .first();
+
+    if (!project) {
+      return new Response(JSON.stringify({ error: 'Proyecto no encontrado o no autorizado' }), { status: 404 });
+    }
+
+    await env.DB.prepare('DELETE FROM projects WHERE id = ?').bind(projectId).run();
+
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+  }
+}
+
