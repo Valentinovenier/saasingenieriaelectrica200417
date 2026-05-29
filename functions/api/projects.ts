@@ -1,8 +1,12 @@
 import jwt from 'jsonwebtoken';
 
 async function verifyAuth(request, env) {
-  const authHeader = request.headers.get('Authorization');
+  // Depuración: registrar todos los encabezados
+  console.log('Headers recibidos:', JSON.stringify(Object.fromEntries(request.headers.entries())));
+  
+  const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('Encabezado Authorization faltante o mal formado.');
     throw new Error('Faltan credenciales de autorización');
   }
   
