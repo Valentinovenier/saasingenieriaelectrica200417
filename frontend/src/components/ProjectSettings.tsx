@@ -63,9 +63,19 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
         {/* Transformador */}
         <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
             <h3 className="text-lg font-bold text-white mb-4">Transformador</h3>
-            <div>
-                <label className="text-xs text-[var(--text-secondary)] mb-1 block">Potencia (kVA)</label>
-                <input type="number" placeholder="kVA" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.potencia ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, potencia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Potencia (kVA)</label>
+                    <input type="number" placeholder="kVA" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.potencia ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, potencia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+                </div>
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">V Primario (V)</label>
+                    <input type="number" placeholder="V" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.tensionPrimario ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, tensionPrimario: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+                </div>
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">V Secundario (V)</label>
+                    <input type="number" placeholder="V" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.tensionSecundario ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, tensionSecundario: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+                </div>
             </div>
         </div>
 

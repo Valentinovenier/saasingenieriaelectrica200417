@@ -140,25 +140,9 @@ export default function App() {
   };
 
   const renderContent = () => {
-    if (selectedProject) {
-      return (
-        <div className="space-y-6">
-          <ProjectSettings
-            project={selectedProject}
-            onSave={(updated) => {
-              setProjects((projects || []).map(p => p.id === updated.id ? updated : p));
-              setSelectedProject(updated);
-            }}
-            onDelete={() => deleteProject(selectedProject.id)}
-          />
-          <ConductorCalculation project={selectedProject} />
-          <UnifilarPage />
-        </div>
-      );
-    }
-
-    switch (currentPage) {
-      case 'inicio':
+    // Si NO hay proyecto seleccionado, mostramos la lista de proyectos o login
+    if (!selectedProject) {
+      if (currentPage === 'inicio') {
         return (
           <>
             <header className="mb-10">
@@ -167,7 +151,10 @@ export default function App() {
             </header>
             <ProjectList
               projects={projects}
-              onSelectProject={(id) => setSelectedProject(projects.find(p => p.id === id) || null)}
+              onSelectProject={(id) => {
+                const proj = projects.find(p => p.id === id);
+                if (proj) setSelectedProject(proj);
+              }}
               onAddNew={() => setIsModalOpen(true)}
               onDelete={deleteProject}
             />
@@ -179,14 +166,34 @@ export default function App() {
             )}
           </>
         );
+      }
+      return <div className="text-white">Selecciona un proyecto desde el inicio.</div>;
+    }
+
+    // Si HAY proyecto seleccionado, renderizamos la sección elegida
+    switch (currentPage) {
+      case 'parametros':
+        return (
+          <ProjectSettings
+            project={selectedProject}
+            onSave={(updated) => {
+              setProjects(projects.map(p => p.id === updated.id ? updated : p));
+              setSelectedProject(updated);
+            }}
+            onDelete={() => deleteProject(selectedProject.id)}
+          />
+        );
+      case 'tgbt':
+        return <UnifilarPage />; // Asumiendo que UnifilarPage contiene el TGBT
+      case 'tableros':
+        return <ConductorCalculation project={selectedProject} />; // O el componente que corresponda a tableros
       default:
-        return <div className="text-white">Página en construcción</div>;
+        return <div className="text-white">Sección no implementada.</div>;
     }
   };
 
   return (
     <DashboardLayout activePage={currentPage} onNavigate={(page) => {
-      setSelectedProject(null);
       setCurrentPage(page);
     }}>
       {renderContent()}
