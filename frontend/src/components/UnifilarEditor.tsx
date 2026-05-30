@@ -1,7 +1,7 @@
 import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
 import { Plus, Trash2 } from 'lucide-react';
-import { TableroSeccional } from '../types/project';
+import { TableroSeccional, Transformador } from '../types/project';
 import { engine } from '../engine';
 
 const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: { 

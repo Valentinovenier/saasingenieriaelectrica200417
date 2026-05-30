@@ -1,4 +1,4 @@
-import { TableroSeccional } from '../types/project';
+import { TableroSeccional } from '../../types/project';
 
 /**
  * Calcula la potencia total de una lista de tableros y sus sub-tableros.
