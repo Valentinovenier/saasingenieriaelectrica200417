@@ -26,4 +26,6 @@ export interface Project {
   transformador?: Transformador;
   armonicos: HarmonicDistortion;
   tableros: TableroSeccional[];
+  tempAmbiente?: number;
+  coefSimultaneidad?: number;
 }

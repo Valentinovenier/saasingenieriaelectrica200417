@@ -39,6 +39,13 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
             </div>
         </div>
         <div>
+            <h3 className="text-lg font-semibold text-white mb-4">Parámetros Generales</h3>
+            <div className="grid grid-cols-2 gap-4">
+                <input type="number" placeholder="Temp. Ambiente (°C)" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white" value={data.tempAmbiente || ''} onChange={(e) => setData({...data, tempAmbiente: Number(e.target.value)})} />
+                <input type="number" step="0.01" placeholder="Coef. Simultaneidad" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white" value={data.coefSimultaneidad || ''} onChange={(e) => setData({...data, coefSimultaneidad: Number(e.target.value)})} />
+            </div>
+        </div>
+        <div className="col-span-2">
             <h3 className="text-lg font-semibold text-white mb-4">Distorsión Armónica (%)</h3>
             <div className="grid grid-cols-4 gap-2">
                 {(['h3','h5','h7','h9'] as const).map(h => (
