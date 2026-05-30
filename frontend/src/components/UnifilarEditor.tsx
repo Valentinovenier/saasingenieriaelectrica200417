@@ -152,7 +152,26 @@ export const UnifilarEditor = () => {
         </div>
       </div>
 
-      {/* ... (código existente de tableros) */}
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-md text-white">Tableros</h3>
+        <button onClick={handleAddTopTablero} className="bg-[var(--accent)] text-white p-2 rounded-lg">
+          <Plus size={16} />
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        {state.tableros && state.tableros.map((tablero: TableroSeccional) => (
+          <TableroItem 
+            key={tablero.id} 
+            tablero={tablero} 
+            onUpdate={(id, updates) => setState({...state, tableros: updateTableroRecursive(state.tableros || [], id, updates)})}
+            onAddSub={(parentId) => setState({...state, tableros: addSubTableroRecursive(state.tableros || [], parentId)})}
+            onDelete={(id) => setState({...state, tableros: deleteTableroRecursive(state.tableros || [], id)})}
+          />
+        ))}
+      </div>
+
+      {/* Sección de Datos Calculados */}
 
       {/* Sección de Datos Calculados */}
       <div className="mt-8 p-6 bg-slate-900 rounded-2xl border border-slate-700">
