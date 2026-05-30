@@ -1,6 +1,6 @@
 import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
-import { SymbolRenderer } from './SymbolRenderer';
+import { TransformerSymbol, BoardSymbol } from './symbols/NativeSymbols';
 
 export const UnifilarCanvas = () => {
   const { state } = useProject();
@@ -9,12 +9,12 @@ export const UnifilarCanvas = () => {
     <div className="bg-[var(--bg-secondary)] p-8 rounded-2xl border border-slate-800 h-full relative">
       <h2 className="text-lg font-semibold text-white mb-6">Diagrama Unifilar</h2>
       
-      {/* Usamos un contenedor para renderizar los símbolos SVG posicionados absolutamente sobre el lienzo */}
-      <div className="relative w-full h-[400px] bg-[var(--bg-primary)] rounded-lg">
+      {/* Contenedor SVG principal para el esquema */}
+      <div className="relative w-full h-[400px] bg-[var(--bg-primary)] rounded-lg overflow-hidden">
         
         {/* Transformador */}
         <div style={{ position: 'absolute', left: 200, top: 45, transform: 'translate(-50%, -50%)' }}>
-          <SymbolRenderer name="transformador" className="w-16 h-16" />
+          <TransformerSymbol className="w-16 h-16" />
         </div>
         <text x="200" y="30" textAnchor="middle" fill="white" fontSize="12" style={{ position: 'absolute' }}>{state?.transformador?.potencia || 0} kVA</text>
         
@@ -30,10 +30,7 @@ export const UnifilarCanvas = () => {
           return (
             <div key={tablero.id} style={{ position: 'absolute', left: x, top: 120, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ width: 2, height: 40, backgroundColor: 'white' }} />
-              {/* Símbolo de tablero estilizado temporalmente hasta refinar */}
-              <div className="w-8 h-8 border-2 border-white flex items-center justify-center text-[8px] text-white">
-                {tablero.tipo === 'Iluminación' ? 'I' : 'FM'}
-              </div>
+              <BoardSymbol type={tablero.tipo} className="w-8 h-8" />
               <div className="text-white text-xs font-semibold mt-2 tracking-tight">{tablero.name}</div>
             </div>
           );
