@@ -193,9 +193,15 @@ export default function App() {
   };
 
   return (
-    <DashboardLayout activePage={currentPage} onNavigate={(page) => {
-      setCurrentPage(page);
-    }}>
+    <DashboardLayout 
+      activePage={currentPage} 
+      onNavigate={(page) => {
+        // Lógica de navegación adaptada
+        if (page === 'inicio') setSelectedProject(null);
+        setCurrentPage(page);
+      }}
+      projectSelected={!!selectedProject}
+    >
       {renderContent()}
     </DashboardLayout>
   );

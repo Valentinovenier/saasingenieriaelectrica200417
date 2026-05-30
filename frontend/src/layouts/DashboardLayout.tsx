@@ -5,20 +5,26 @@ import { useAuth } from '../context/AuthContext';
 export const DashboardLayout = ({ 
   children, 
   activePage, 
-  onNavigate 
+  onNavigate,
+  projectSelected
 }: { 
   children: React.ReactNode,
   activePage: string,
-  onNavigate: (page: string) => void
+  onNavigate: (page: string) => void,
+  projectSelected: boolean
 }) => {
   const { user, logout } = useAuth();
 
-  const menuItems = [
-    { icon: LayoutDashboard, label: 'Inicio', id: 'inicio' },
-    { icon: Settings, label: 'Parámetros', id: 'parametros' },
-    { icon: BarChart3, label: 'TGBT', id: 'tgbt' },
-    { icon: Box, label: 'Tableros', id: 'tableros' },
-  ];
+  const menuItems = projectSelected 
+    ? [
+        { icon: Settings, label: 'Parámetros', id: 'parametros' },
+        { icon: BarChart3, label: 'TGBT', id: 'tgbt' },
+        { icon: Box, label: 'Tableros Seccionales', id: 'tableros' },
+      ]
+    : [
+        { icon: LayoutDashboard, label: 'Inicio', id: 'inicio' },
+        { icon: Settings, label: 'Configuración', id: 'settings' },
+      ];
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col">
@@ -26,7 +32,7 @@ export const DashboardLayout = ({
       <header className="bg-[var(--bg-secondary)] border-b border-slate-800 p-4 flex items-center justify-between">
         <div className="flex items-center gap-2 text-[var(--accent)] px-2">
           <Zap size={28} fill="currentColor" />
-          <h1 className="text-xl font-bold tracking-tight text-white">IngenieríaAuto</h1>
+          <h1 className="text-2xl font-black tracking-tighter text-white font-sans uppercase">Check</h1>
         </div>
         
         <nav className="flex items-center gap-2">

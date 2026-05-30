@@ -25,13 +25,16 @@ export const UnifilarCanvas = () => {
         <div style={{ position: 'absolute', left: 200, top: 90, width: 2, height: 30, backgroundColor: 'white' }} />
 
         {/* Tableros */}
-        {state?.tableros?.map((tablero: any, index: number) => {
+        {(state?.tableros || []).map((tablero: any, index: number) => {
           const x = 80 + index * 60;
           return (
             <div key={tablero.id} style={{ position: 'absolute', left: x, top: 120, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ width: 2, height: 40, backgroundColor: 'white' }} />
-              <SymbolRenderer name="blindobarra" className="w-8 h-8" />
-              <div className="text-white text-[10px] mt-1">{tablero.name}</div>
+              {/* Símbolo de tablero estilizado temporalmente hasta refinar */}
+              <div className="w-8 h-8 border-2 border-white flex items-center justify-center text-[8px] text-white">
+                {tablero.tipo === 'Iluminación' ? 'I' : 'FM'}
+              </div>
+              <div className="text-white text-xs font-semibold mt-2 tracking-tight">{tablero.name}</div>
             </div>
           );
         })}
