@@ -1,37 +1,41 @@
 import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
-import { IECTransformer } from './symbols/IECTransformer';
-import { IECBreaker } from './symbols/IECBreaker';
+import { SymbolRenderer } from './SymbolRenderer';
 
 export const UnifilarCanvas = () => {
   const { state } = useProject();
 
   return (
-    <div className="bg-[var(--bg-secondary)] p-8 rounded-2xl border border-slate-800 h-full">
+    <div className="bg-[var(--bg-secondary)] p-8 rounded-2xl border border-slate-800 h-full relative">
       <h2 className="text-lg font-semibold text-white mb-6">Diagrama Unifilar</h2>
-      <svg width="100%" height="400" viewBox="0 0 400 400" className="bg-[var(--bg-primary)] rounded-lg text-white" stroke="currentColor">
+      
+      {/* Usamos un contenedor para renderizar los símbolos SVG posicionados absolutamente sobre el lienzo */}
+      <div className="relative w-full h-[400px] bg-[var(--bg-primary)] rounded-lg">
+        
         {/* Transformador */}
-        <IECTransformer x={200} y={45} />
-        <text x="200" y="20" textAnchor="middle" fill="white" fontSize="12">{state?.transformador?.potencia || 0} kVA</text>
+        <div style={{ position: 'absolute', left: 200, top: 45, transform: 'translate(-50%, -50%)' }}>
+          <SymbolRenderer name="transformador" className="w-16 h-16" />
+        </div>
+        <text x="200" y="30" textAnchor="middle" fill="white" fontSize="12" style={{ position: 'absolute' }}>{state?.transformador?.potencia || 0} kVA</text>
         
         {/* Barra Principal */}
-        <line x1="50" y1="120" x2="350" y2="120" stroke="white" strokeWidth="4" />
+        <div style={{ position: 'absolute', left: 50, top: 120, width: 300, height: 4, backgroundColor: 'white' }} />
         
         {/* Conexión Trafo-Barra */}
-        <line x1="200" y1="90" x2="200" y2="120" stroke="white" strokeWidth="2" />
+        <div style={{ position: 'absolute', left: 200, top: 90, width: 2, height: 30, backgroundColor: 'white' }} />
 
         {/* Tableros */}
         {state?.tableros.map((tablero: any, index: number) => {
           const x = 80 + index * 60;
           return (
-            <g key={tablero.id}>
-              <line x1={x} y1="120" x2={x} y2="160" stroke="white" strokeWidth="2" />
-              <IECBreaker x={x} y={180} />
-              <text x={x} y={220} textAnchor="middle" fill="white" fontSize="10">{tablero.name}</text>
-            </g>
+            <div key={tablero.id} style={{ position: 'absolute', left: x, top: 120, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ width: 2, height: 40, backgroundColor: 'white' }} />
+              <SymbolRenderer name="blindobarra" className="w-8 h-8" />
+              <div className="text-white text-[10px] mt-1">{tablero.name}</div>
+            </div>
           );
         })}
-      </svg>
+      </div>
     </div>
   );
 };

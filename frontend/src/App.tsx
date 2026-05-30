@@ -5,16 +5,18 @@ import { NewProjectModal } from './components/NewProjectModal';
 import { ProjectSettings } from './components/ProjectSettings';
 import { ConductorCalculation } from './components/ConductorCalculation';
 import { LiveUnifilar } from './components/LiveUnifilar';
+import { UnifilarPage } from './components/UnifilarPage';
 import { Project } from './types/project';
 import { useAuth } from './context/AuthContext';
+import { useProject } from './context/ProjectDataContext';
 import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
 
 export default function App() {
   const { isAuthenticated, loading, logout } = useAuth();
+  const { state: selectedProject, setState: setSelectedProject } = useProject();
   const [currentPage, setCurrentPage] = useState('inicio');
   const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
 
@@ -61,7 +63,6 @@ export default function App() {
     }
   };
 
-
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">Cargando...</div>;
   }
@@ -73,8 +74,6 @@ export default function App() {
       <LoginPage onRegisterClick={() => setShowRegister(true)} />
     );
   }
-
-  const selectedProject = projects.find(p => p.id === selectedProjectId);
 
   const createProject = async (name: string) => {
     const newProject: Project = {
@@ -102,10 +101,9 @@ export default function App() {
       });
 
       if (response.ok) {
-        // Aseguramos que el objeto tenga la estructura completa
         const projectToAdd = { ...newProject, data: newProject };
         setProjects([...projects, projectToAdd]);
-        setSelectedProjectId(newProject.id);
+        setSelectedProject(newProject);
         setIsModalOpen(false);
       } else if (response.status === 401) {
         localStorage.removeItem('token');
@@ -132,6 +130,7 @@ export default function App() {
 
       if (response.ok) {
         setProjects(projects.filter(p => p.id !== id));
+        if (selectedProject?.id === id) setSelectedProject(null);
       } else {
         alert('No se pudo eliminar el proyecto.');
       }
@@ -148,11 +147,12 @@ export default function App() {
             project={selectedProject}
             onSave={(updated) => {
               setProjects((projects || []).map(p => p.id === updated.id ? updated : p));
+              setSelectedProject(updated);
             }}
             onDelete={() => deleteProject(selectedProject.id)}
           />
           <ConductorCalculation project={selectedProject} />
-          <LiveUnifilar project={selectedProject} />
+          <UnifilarPage />
         </div>
       );
     }
@@ -167,7 +167,7 @@ export default function App() {
             </header>
             <ProjectList
               projects={projects}
-              onSelectProject={setSelectedProjectId}
+              onSelectProject={(id) => setSelectedProject(projects.find(p => p.id === id) || null)}
               onAddNew={() => setIsModalOpen(true)}
               onDelete={deleteProject}
             />
@@ -186,7 +186,7 @@ export default function App() {
 
   return (
     <DashboardLayout activePage={currentPage} onNavigate={(page) => {
-      setSelectedProjectId(null);
+      setSelectedProject(null);
       setCurrentPage(page);
     }}>
       {renderContent()}

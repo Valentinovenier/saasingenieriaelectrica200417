@@ -65,7 +65,7 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
             <h3 className="text-lg font-bold text-white mb-4">Transformador</h3>
             <div>
                 <label className="text-xs text-[var(--text-secondary)] mb-1 block">Potencia (kVA)</label>
-                <input type="number" placeholder="kVA" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.potencia || ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, potencia: Number(e.target.value)}})} />
+                <input type="number" placeholder="kVA" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.potencia ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, potencia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
             </div>
         </div>
 
@@ -76,16 +76,16 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
                 <div>
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Cos Phi</label>
                     <input type="number" step="0.01" placeholder="0.95" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
-                        value={data.transformador?.cosFi ?? 0.95} 
-                        onChange={(e) => setData({...data, transformador: {...data.transformador!, cosFi: Number(e.target.value)}})} />
+                        value={data.transformador?.cosFi ?? ''} 
+                        onChange={(e) => setData({...data, transformador: {...data.transformador!, cosFi: e.target.value === '' ? 0 : Number(e.target.value)}})} />
                 </div>
                 <div>
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Temp. (°C)</label>
-                    <input type="number" placeholder="°C" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(data as any).tempAmbiente || ''} onChange={(e) => setData({...data, tempAmbiente: Number(e.target.value)} as any)} />
+                    <input type="number" placeholder="°C" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(data as any).tempAmbiente ?? ''} onChange={(e) => setData({...data, tempAmbiente: e.target.value === '' ? 0 : Number(e.target.value)} as any)} />
                 </div>
                 <div>
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Coef. Simult.</label>
-                    <input type="number" step="0.01" placeholder="0.0 - 1.0" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(data as any).coefSimultaneidad || ''} onChange={(e) => setData({...data, coefSimultaneidad: Number(e.target.value)} as any)} />
+                    <input type="number" step="0.01" placeholder="0.0 - 1.0" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(data as any).coefSimultaneidad ?? ''} onChange={(e) => setData({...data, coefSimultaneidad: e.target.value === '' ? 0 : Number(e.target.value)} as any)} />
                 </div>
             </div>
         </div>
@@ -94,7 +94,7 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
             <h3 className="text-lg font-semibold text-white mb-4">Distorsión Armónica (%)</h3>
             <div className="grid grid-cols-4 gap-2">
                 {(['h3','h5','h7','h9'] as const).map(h => (
-                    <input key={h} type="number" placeholder={h.toUpperCase()} className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white text-sm" value={data.armonicos?.[h] || ''} onChange={(e) => setData({...data, armonicos: {...data.armonicos, [h]: Number(e.target.value)}})} />
+                    <input key={h} type="number" placeholder={h.toUpperCase()} className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white text-sm" value={data.armonicos?.[h] ?? ''} onChange={(e) => setData({...data, armonicos: {...data.armonicos, [h]: e.target.value === '' ? 0 : Number(e.target.value)}})} />
                 ))}
             </div>
         </div>
@@ -113,7 +113,7 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
                 <option value="Iluminación">Iluminación</option>
             </select>
             <div className="col-span-1 flex items-center gap-2">
-                <input type="number" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg text-white border border-slate-600 focus:border-[var(--accent)] outline-none" placeholder="Potencia (kW)" value={t.potenciaTotal || ''} onChange={(e) => { const tabs = [...data.tableros]; tabs[idx].potenciaTotal = Number(e.target.value); setData({...data, tableros: tabs}); }} />
+                <input type="number" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg text-white border border-slate-600 focus:border-[var(--accent)] outline-none" placeholder="Potencia (kW)" value={t.potenciaTotal ?? ''} onChange={(e) => { const tabs = [...data.tableros]; tabs[idx].potenciaTotal = e.target.value === '' ? 0 : Number(e.target.value); setData({...data, tableros: tabs}); }} />
                 <button onClick={() => setData({...data, tableros: data.tableros.filter((_, i) => i !== idx)})} className="text-red-400 hover:text-red-300 p-2"><Trash2 size={18}/></button>
             </div>
           </div>
