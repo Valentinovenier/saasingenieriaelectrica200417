@@ -101,3 +101,33 @@ export async function onRequestPost(context) {
     }
     }
 
+export async function onRequestPut(context) {
+  const { request, env } = context;
+  try {
+    const user = await verifyAuth(request, env);
+    const { id, name, data } = await request.json();
+
+    const result = await env.DB.prepare('UPDATE projects SET name = ?, data = ? WHERE id = ? AND user_id = ?')
+      .bind(name, JSON.stringify(data), id, user.userId)
+      .run();
+
+    if (result.changes === 0) {
+      return new Response(JSON.stringify({ error: 'Proyecto no encontrado o no autorizado' }), { 
+        status: 404, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true }), { 
+      status: 200, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
+  } catch (e: any) {
+    const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
+    return new Response(JSON.stringify({ error: `Error en Servidor: ${e.message}` }), { 
+      status, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
+  }
+}
+

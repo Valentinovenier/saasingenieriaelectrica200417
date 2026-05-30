@@ -22,6 +22,34 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
     }));
   };
 
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/projects', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          id: data.id,
+          name: data.name,
+          data: data
+        })
+      });
+
+      if (response.ok) {
+        onSave(data);
+        alert('Proyecto guardado exitosamente');
+      } else {
+        alert('Error al guardar el proyecto');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error de conexión');
+    }
+  };
+
   return (
     <div className="space-y-8 bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
       <div className="flex justify-between items-center">
@@ -36,16 +64,19 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
             <h3 className="text-lg font-semibold text-white mb-4">Transformador</h3>
             <div className="grid grid-cols-2 gap-4">
                 <input type="number" placeholder="Potencia (kVA)" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white" value={data.transformador?.potencia || ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, potencia: Number(e.target.value)}})} />
-                <input type="number" step="0.01" placeholder="Cos Phi" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white" 
-                    value={data.transformador?.cosFi ?? 0.95} 
-                    onChange={(e) => setData({...data, transformador: {...data.transformador!, cosFi: Number(e.target.value)}})} />
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Cos Phi</label>
+                    <input type="number" step="0.01" placeholder="Cos Phi" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white w-full" 
+                        value={data.transformador?.cosFi ?? 0.95} 
+                        onChange={(e) => setData({...data, transformador: {...data.transformador!, cosFi: Number(e.target.value)}})} />
+                </div>
             </div>
         </div>
         <div>
             <h3 className="text-lg font-semibold text-white mb-4">Parámetros Generales</h3>
             <div className="grid grid-cols-2 gap-4">
-                <input type="number" placeholder="Temp. Ambiente (°C)" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white" value={data.tempAmbiente || ''} onChange={(e) => setData({...data, tempAmbiente: Number(e.target.value)})} />
-                <input type="number" step="0.01" placeholder="Coef. Simultaneidad" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white" value={data.coefSimultaneidad || ''} onChange={(e) => setData({...data, coefSimultaneidad: Number(e.target.value)})} />
+                <input type="number" placeholder="Temp. Ambiente (°C)" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white" value={(data as any).tempAmbiente || ''} onChange={(e) => setData({...data, tempAmbiente: Number(e.target.value)} as any)} />
+                <input type="number" step="0.01" placeholder="Coef. Simultaneidad" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white" value={(data as any).coefSimultaneidad || ''} onChange={(e) => setData({...data, coefSimultaneidad: Number(e.target.value)} as any)} />
             </div>
         </div>
         <div className="col-span-2">
@@ -77,7 +108,7 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
         ))}
       </section>
 
-      <button onClick={() => onSave(data)} className="bg-[var(--accent)] text-black px-6 py-2 rounded-xl font-bold">Guardar</button>
+      <button onClick={handleSave} className="bg-[var(--accent)] text-black px-6 py-2 rounded-xl font-bold">Guardar</button>
     </div>
   );
 };
