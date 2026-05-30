@@ -10,7 +10,6 @@ export interface TableroSeccional {
   name: string;
   tipo: 'Fuerza Motriz' | 'Iluminación';
   potenciaTotal: number;
-  factorK: number;
   subTableros: TableroSeccional[];
 }
 
