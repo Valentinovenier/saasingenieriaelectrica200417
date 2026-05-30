@@ -101,10 +101,6 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
                     <input type="number" placeholder="V" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.tensionSecundario ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, tensionSecundario: e.target.value === '' ? 0 : Number(e.target.value)}})} />
                 </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
-                <ProteccionFields label="Protección Cabecera" value={data.transformador?.proteccionCabecera} onChange={(p) => setData({...data, transformador: {...data.transformador!, proteccionCabecera: p}})} />
-                <ProteccionFields label="Protección Salida" value={data.transformador?.proteccionSalida} onChange={(p) => setData({...data, transformador: {...data.transformador!, proteccionSalida: p}})} />
-            </div>
         </div>
 
         {/* Parámetros Generales */}

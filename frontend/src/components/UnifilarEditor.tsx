@@ -141,6 +141,15 @@ export const UnifilarEditor = () => {
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
       <h2 className="text-lg font-semibold text-white mb-6">Configuración TGBT</h2>
       
+      {/* Nueva Sección de Protecciones TGBT */}
+      <div className="mb-6 p-4 bg-slate-900 rounded-lg">
+        <h3 className="text-md font-semibold text-white mb-2">Protecciones TGBT</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <ProteccionFields label="Cabecera" value={state.transformador?.proteccionCabecera} onChange={(p) => setState({...state, transformador: {...state.transformador!, proteccionCabecera: p}})} />
+          <ProteccionFields label="Salida" value={state.transformador?.proteccionSalida} onChange={(p) => setState({...state, transformador: {...state.transformador!, proteccionSalida: p}})} />
+        </div>
+      </div>
+      
       <div className="mb-6 p-4 bg-slate-900 rounded-lg">
         <p className="text-sm text-[var(--text-secondary)]">Potencia Total Proyecto:</p>
         <p className="text-2xl font-bold text-white">{engine.potencia.total(state.tableros || [])} kVA</p>

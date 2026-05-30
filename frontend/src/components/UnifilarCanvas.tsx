@@ -25,7 +25,7 @@ export const UnifilarCanvas = () => {
         <div style={{ position: 'absolute', left: 200, top: 40, width: 2, height: 80, backgroundColor: 'white' }} />
 
         {/* Tableros */}
-        {state?.tableros.map((tablero: any, index: number) => {
+        {(state?.tableros || []).map((tablero: any, index: number) => {
           const x = 80 + index * 60;
           return (
             <div key={tablero.id} style={{ position: 'absolute', left: x, top: 120, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
