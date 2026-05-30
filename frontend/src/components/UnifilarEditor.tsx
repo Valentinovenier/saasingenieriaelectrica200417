@@ -35,7 +35,7 @@ const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: {
           placeholder="Potencia (kVA)"
         />
       </div>
-      {tablero.subTableros.map(sub => (
+      {tablero.subTableros && tablero.subTableros.map(sub => (
         <TableroItem key={sub.id} tablero={sub} onUpdate={onUpdate} onAddSub={onAddSub} onDelete={onDelete} />
       ))}
     </div>
