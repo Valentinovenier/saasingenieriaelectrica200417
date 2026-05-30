@@ -56,7 +56,6 @@ export const UnifilarEditor = () => {
             name: `Sub ${t.subTableros.length + 1}`,
             tipo: 'Fuerza Motriz',
             potenciaTotal: 0,
-            factorK: 1,
             subTableros: []
           }]
         };
@@ -81,7 +80,6 @@ export const UnifilarEditor = () => {
         name: `Tablero ${state.tableros.length + 1}`,
         tipo: 'Fuerza Motriz',
         potenciaTotal: 0,
-        factorK: 1,
         subTableros: []
       }] 
     });
