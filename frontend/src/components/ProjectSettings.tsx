@@ -11,12 +11,15 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
   const addTablero = () => {
     const newTablero: TableroSeccional = {
       id: Date.now().toString(),
-      name: `Tablero ${data.tableros.length + 1}`,
+      name: `Tablero ${data.tableros ? data.tableros.length + 1 : 1}`,
       tipo: 'Fuerza Motriz',
       potenciaTotal: 0,
       factorK: 1
     };
-    setData({ ...data, tableros: [...data.tableros, newTablero] });
+    setData(prev => ({ 
+      ...prev, 
+      tableros: [...(prev.tableros || []), newTablero] 
+    }));
   };
 
   return (
