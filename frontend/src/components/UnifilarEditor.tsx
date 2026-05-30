@@ -117,7 +117,7 @@ export const UnifilarEditor = () => {
       {/* Resultado calculado en tiempo real */}
       <div className="mb-6 p-4 bg-slate-900 rounded-lg">
         <p className="text-sm text-[var(--text-secondary)]">Potencia Total Proyecto:</p>
-        <p className="text-2xl font-bold text-white">{engine.potencia.total(state.tableros)} kVA</p>
+        <p className="text-2xl font-bold text-white">{engine.potencia.total(state.tableros || [])} kVA</p>
       </div>
       
       {/* ... (código existente del resumen de potencia) */}
