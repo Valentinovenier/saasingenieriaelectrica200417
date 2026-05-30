@@ -1,6 +1,6 @@
 import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
-import { TransformerSymbol, BoardSymbol } from './symbols/NativeSymbols';
+import { SymbolRenderer } from './SymbolRenderer';
 
 export const UnifilarCanvas = () => {
   const { state } = useProject();

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
 import { Plus, Trash2 } from 'lucide-react';
-import { TableroSeccional, Transformador } from '../types/project';
+import { TableroSeccional, Transformador, Proteccion } from '../types/project';
 import { engine } from '../engine';
 
 const ProteccionFields = ({ label, value, onChange }: { label: string, value?: Proteccion, onChange: (p: Proteccion | undefined) => void }) => (
