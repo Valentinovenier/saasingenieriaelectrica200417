@@ -2,6 +2,7 @@ import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
 import { Plus, Trash2 } from 'lucide-react';
 import { TableroSeccional } from '../types/project';
+import { engine } from '../engine';
 
 const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: { 
   tablero: TableroSeccional; 
@@ -11,18 +12,28 @@ const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: {
 }) => {
   return (
     <div className="ml-4 mt-2 p-3 bg-[var(--bg-primary)] rounded-lg border border-slate-700">
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex flex-col gap-2 mb-2">
+        <div className="flex items-center gap-2">
+          <input 
+            value={tablero.name}
+            onChange={(e) => onUpdate(tablero.id, { name: e.target.value })}
+            className="flex-grow bg-transparent text-white border-b border-transparent focus:border-[var(--accent)] focus:outline-none"
+            placeholder="Nombre"
+          />
+          <button onClick={() => onAddSub(tablero.id)} className="text-[var(--accent)]">
+            <Plus size={16} />
+          </button>
+          <button onClick={() => onDelete(tablero.id)} className="text-red-500">
+            <Trash2 size={16} />
+          </button>
+        </div>
         <input 
-          value={tablero.name}
-          onChange={(e) => onUpdate(tablero.id, { name: e.target.value })}
-          className="bg-transparent text-white border-b border-transparent focus:border-[var(--accent)] focus:outline-none"
+          type="number"
+          value={tablero.potenciaTotal}
+          onChange={(e) => onUpdate(tablero.id, { potenciaTotal: Number(e.target.value) })}
+          className="bg-[var(--bg-secondary)] text-sm text-white rounded px-2 py-1 border border-slate-700"
+          placeholder="Potencia (kVA)"
         />
-        <button onClick={() => onAddSub(tablero.id)} className="text-[var(--accent)]">
-          <Plus size={16} />
-        </button>
-        <button onClick={() => onDelete(tablero.id)} className="text-red-500">
-          <Trash2 size={16} />
-        </button>
       </div>
       {tablero.subTableros.map(sub => (
         <TableroItem key={sub.id} tablero={sub} onUpdate={onUpdate} onAddSub={onAddSub} onDelete={onDelete} />
@@ -34,9 +45,15 @@ const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: {
 export const UnifilarEditor = () => {
   const { state, setState } = useProject();
 
-  const handlePotenciaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTransformadorChange = (field: keyof Transformador, value: number) => {
     if (!state) return;
-    setState({ ...state, transformador: { ...state.transformador!, potencia: Number(e.target.value) } });
+    setState({ 
+      ...state, 
+      transformador: { 
+        ...state.transformador!, 
+        [field]: value 
+      } 
+    });
   };
 
   const updateTableroRecursive = (tableros: TableroSeccional[], id: string, updates: Partial<TableroSeccional>): TableroSeccional[] => {
@@ -87,37 +104,69 @@ export const UnifilarEditor = () => {
 
   if (!state) return null;
 
+  // Cálculo de Intr usando el motor
+  const intr = state.transformador ? engine.transformador.calcularIntr(
+    state.transformador.potencia,
+    state.transformador.tensionSecundario
+  ) : 0;
+
   return (
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
       <h2 className="text-lg font-semibold text-white mb-6">Configuración TGBT</h2>
       
-      <div className="mb-6">
-        <label className="block text-sm text-[var(--text-secondary)] mb-2">Potencia Transformador (kVA)</label>
-        <input 
-          type="number" 
-          value={state.transformador?.potencia || ''} 
-          onChange={handlePotenciaChange}
-          className="w-full bg-[var(--bg-primary)] border border-slate-700 rounded-lg px-4 py-2 text-white"
-        />
+      {/* Resultado calculado en tiempo real */}
+      <div className="mb-6 p-4 bg-slate-900 rounded-lg">
+        <p className="text-sm text-[var(--text-secondary)]">Potencia Total Proyecto:</p>
+        <p className="text-2xl font-bold text-white">{engine.potencia.total(state.tableros)} kVA</p>
       </div>
+      
+      {/* ... (código existente del resumen de potencia) */}
 
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-md text-white">Tableros</h3>
-        <button onClick={handleAddTopTablero} className="bg-[var(--accent)] text-white p-2 rounded-lg">
-          <Plus size={16} />
-        </button>
-      </div>
-
-      <div className="space-y-2">
-        {state.tableros.map((tablero: TableroSeccional) => (
-          <TableroItem 
-            key={tablero.id} 
-            tablero={tablero} 
-            onUpdate={(id, updates) => setState({...state, tableros: updateTableroRecursive(state.tableros, id, updates)})}
-            onAddSub={(parentId) => setState({...state, tableros: addSubTableroRecursive(state.tableros, parentId)})}
-            onDelete={(id) => setState({...state, tableros: deleteTableroRecursive(state.tableros, id)})}
+      <div className="mb-6 grid grid-cols-2 gap-4">
+        <div className="col-span-2">
+          <label className="block text-sm text-[var(--text-secondary)] mb-2">Potencia Transformador (kVA)</label>
+          <input 
+            type="number" 
+            value={state.transformador?.potencia || ''} 
+            onChange={(e) => handleTransformadorChange('potencia', Number(e.target.value))}
+            className="w-full bg-[var(--bg-primary)] border border-slate-700 rounded-lg px-4 py-2 text-white"
           />
-        ))}
+        </div>
+        <div>
+          <label className="block text-sm text-[var(--text-secondary)] mb-2">V Primario (V)</label>
+          <input 
+            type="number" 
+            value={state.transformador?.tensionPrimario || ''} 
+            onChange={(e) => handleTransformadorChange('tensionPrimario', Number(e.target.value))}
+            className="w-full bg-[var(--bg-primary)] border border-slate-700 rounded-lg px-4 py-2 text-white"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-[var(--text-secondary)] mb-2">V Secundario (V)</label>
+          <input 
+            type="number" 
+            value={state.transformador?.tensionSecundario || ''} 
+            onChange={(e) => handleTransformadorChange('tensionSecundario', Number(e.target.value))}
+            className="w-full bg-[var(--bg-primary)] border border-slate-700 rounded-lg px-4 py-2 text-white"
+          />
+        </div>
+      </div>
+
+      {/* ... (código existente de tableros) */}
+
+      {/* Sección de Datos Calculados */}
+      <div className="mt-8 p-6 bg-slate-900 rounded-2xl border border-slate-700">
+        <h3 className="text-md font-semibold text-white mb-4">Datos calculados</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="p-3 bg-[var(--bg-secondary)] rounded-lg border border-slate-700">
+            <p className="text-xs text-[var(--text-secondary)]">Intr (A)</p>
+            <p className="text-lg font-bold text-white">{intr.toFixed(2)}</p>
+          </div>
+          <div className="p-3 bg-[var(--bg-secondary)] rounded-lg border border-slate-700">
+            <p className="text-xs text-[var(--text-secondary)]">Ik1 (kA)</p>
+            <p className="text-lg font-bold text-white">--</p>
+          </div>
+        </div>
       </div>
     </div>
   );

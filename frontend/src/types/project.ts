@@ -15,6 +15,8 @@ export interface TableroSeccional {
 
 export interface Transformador {
   potencia: number;
+  tensionPrimario: number;
+  tensionSecundario: number;
   cosFi: number;
 }
 
