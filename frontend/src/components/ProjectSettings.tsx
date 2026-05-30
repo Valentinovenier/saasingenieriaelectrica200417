@@ -114,7 +114,7 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
             </select>
             <div className="col-span-1 flex items-center gap-2">
                 <input type="number" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg text-white border border-slate-600 focus:border-[var(--accent)] outline-none" placeholder="Potencia (kW)" value={t.potenciaTotal ?? ''} onChange={(e) => { const tabs = [...data.tableros]; tabs[idx].potenciaTotal = e.target.value === '' ? 0 : Number(e.target.value); setData({...data, tableros: tabs}); }} />
-                <button onClick={() => setData({...data, tableros: data.tableros.filter((_, i) => i !== idx)})} className="text-red-400 hover:text-red-300 p-2"><Trash2 size={18}/></button>
+                <button onClick={() => setData({...data, tableros: (data.tableros || []).filter((_, i) => i !== idx)})} className="text-red-400 hover:text-red-300 p-2"><Trash2 size={18}/></button>
             </div>
           </div>
         ))}
