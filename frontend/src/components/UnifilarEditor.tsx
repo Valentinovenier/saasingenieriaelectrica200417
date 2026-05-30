@@ -15,7 +15,7 @@ const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: {
       <div className="flex flex-col gap-2 mb-2">
         <div className="flex items-center gap-2">
           <input 
-            value={tablero.name}
+            value={tablero.name || ''}
             onChange={(e) => onUpdate(tablero.id, { name: e.target.value })}
             className="flex-grow bg-transparent text-white border-b border-transparent focus:border-[var(--accent)] focus:outline-none"
             placeholder="Nombre"
@@ -29,13 +29,13 @@ const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: {
         </div>
         <input 
           type="number"
-          value={tablero.potenciaTotal}
+          value={tablero.potenciaTotal ?? ''}
           onChange={(e) => onUpdate(tablero.id, { potenciaTotal: Number(e.target.value) })}
           className="bg-[var(--bg-secondary)] text-sm text-white rounded px-2 py-1 border border-slate-700"
           placeholder="Potencia (kVA)"
         />
       </div>
-      {tablero.subTableros && tablero.subTableros.map(sub => (
+      {tablero.subTableros?.map(sub => (
         <TableroItem key={sub.id} tablero={sub} onUpdate={onUpdate} onAddSub={onAddSub} onDelete={onDelete} />
       ))}
     </div>
@@ -56,21 +56,21 @@ export const UnifilarEditor = () => {
     });
   };
 
-  const updateTableroRecursive = (tableros: TableroSeccional[], id: string, updates: Partial<TableroSeccional>): TableroSeccional[] => {
-    return tableros.map(t => {
+  const updateTableroRecursive = (tableros: TableroSeccional[] | undefined, id: string, updates: Partial<TableroSeccional>): TableroSeccional[] => {
+    return (tableros || []).map(t => {
       if (t.id === id) return { ...t, ...updates };
       return { ...t, subTableros: updateTableroRecursive(t.subTableros, id, updates) };
     });
   };
 
-  const addSubTableroRecursive = (tableros: TableroSeccional[], parentId: string): TableroSeccional[] => {
-    return tableros.map(t => {
+  const addSubTableroRecursive = (tableros: TableroSeccional[] | undefined, parentId: string): TableroSeccional[] => {
+    return (tableros || []).map(t => {
       if (t.id === parentId) {
         return {
           ...t,
-          subTableros: [...t.subTableros, {
+          subTableros: [...(t.subTableros || []), {
             id: Date.now().toString(),
-            name: `Sub ${t.subTableros.length + 1}`,
+            name: `Sub ${(t.subTableros?.length || 0) + 1}`,
             tipo: 'Fuerza Motriz',
             potenciaTotal: 0,
             subTableros: []
@@ -81,8 +81,8 @@ export const UnifilarEditor = () => {
     });
   };
 
-  const deleteTableroRecursive = (tableros: TableroSeccional[], id: string): TableroSeccional[] => {
-    return tableros.filter(t => t.id !== id).map(t => ({
+  const deleteTableroRecursive = (tableros: TableroSeccional[] | undefined, id: string): TableroSeccional[] => {
+    return (tableros || []).filter(t => t.id !== id).map(t => ({
       ...t,
       subTableros: deleteTableroRecursive(t.subTableros, id)
     }));
@@ -92,9 +92,9 @@ export const UnifilarEditor = () => {
     if (!state) return;
     setState({ 
       ...state, 
-      tableros: [...state.tableros, {
+      tableros: [...(state.tableros || []), {
         id: Date.now().toString(),
-        name: `Tablero ${state.tableros.length + 1}`,
+        name: `Tablero ${(state.tableros?.length || 0) + 1}`,
         tipo: 'Fuerza Motriz',
         potenciaTotal: 0,
         subTableros: []
@@ -104,7 +104,6 @@ export const UnifilarEditor = () => {
 
   if (!state) return null;
 
-  // Cálculo de Intr usando el motor
   const intr = state.transformador ? engine.transformador.calcularIntr(
     state.transformador.potencia,
     state.transformador.tensionSecundario
@@ -114,20 +113,17 @@ export const UnifilarEditor = () => {
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
       <h2 className="text-lg font-semibold text-white mb-6">Configuración TGBT</h2>
       
-      {/* Resultado calculado en tiempo real */}
       <div className="mb-6 p-4 bg-slate-900 rounded-lg">
         <p className="text-sm text-[var(--text-secondary)]">Potencia Total Proyecto:</p>
         <p className="text-2xl font-bold text-white">{engine.potencia.total(state.tableros || [])} kVA</p>
       </div>
-      
-      {/* ... (código existente del resumen de potencia) */}
 
       <div className="mb-6 grid grid-cols-2 gap-4">
         <div className="col-span-2">
           <label className="block text-sm text-[var(--text-secondary)] mb-2">Potencia Transformador (kVA)</label>
           <input 
             type="number" 
-            value={state.transformador?.potencia || ''} 
+            value={state.transformador?.potencia ?? ''} 
             onChange={(e) => handleTransformadorChange('potencia', Number(e.target.value))}
             className="w-full bg-[var(--bg-primary)] border border-slate-700 rounded-lg px-4 py-2 text-white"
           />
@@ -136,7 +132,7 @@ export const UnifilarEditor = () => {
           <label className="block text-sm text-[var(--text-secondary)] mb-2">V Primario (V)</label>
           <input 
             type="number" 
-            value={state.transformador?.tensionPrimario || ''} 
+            value={state.transformador?.tensionPrimario ?? ''} 
             onChange={(e) => handleTransformadorChange('tensionPrimario', Number(e.target.value))}
             className="w-full bg-[var(--bg-primary)] border border-slate-700 rounded-lg px-4 py-2 text-white"
           />
@@ -145,7 +141,7 @@ export const UnifilarEditor = () => {
           <label className="block text-sm text-[var(--text-secondary)] mb-2">V Secundario (V)</label>
           <input 
             type="number" 
-            value={state.transformador?.tensionSecundario || ''} 
+            value={state.transformador?.tensionSecundario ?? ''} 
             onChange={(e) => handleTransformadorChange('tensionSecundario', Number(e.target.value))}
             className="w-full bg-[var(--bg-primary)] border border-slate-700 rounded-lg px-4 py-2 text-white"
           />
@@ -160,20 +156,17 @@ export const UnifilarEditor = () => {
       </div>
 
       <div className="space-y-2">
-        {state.tableros && state.tableros.map((tablero: TableroSeccional) => (
+        {state.tableros?.map((tablero: TableroSeccional) => (
           <TableroItem 
             key={tablero.id} 
             tablero={tablero} 
-            onUpdate={(id, updates) => setState({...state, tableros: updateTableroRecursive(state.tableros || [], id, updates)})}
-            onAddSub={(parentId) => setState({...state, tableros: addSubTableroRecursive(state.tableros || [], parentId)})}
-            onDelete={(id) => setState({...state, tableros: deleteTableroRecursive(state.tableros || [], id)})}
+            onUpdate={(id, updates) => setState({...state, tableros: updateTableroRecursive(state.tableros, id, updates)})}
+            onAddSub={(parentId) => setState({...state, tableros: addSubTableroRecursive(state.tableros, parentId)})}
+            onDelete={(id) => setState({...state, tableros: deleteTableroRecursive(state.tableros, id)})}
           />
         ))}
       </div>
 
-      {/* Sección de Datos Calculados */}
-
-      {/* Sección de Datos Calculados */}
       <div className="mt-8 p-6 bg-slate-900 rounded-2xl border border-slate-700">
         <h3 className="text-md font-semibold text-white mb-4">Datos calculados</h3>
         <div className="grid grid-cols-2 gap-4">
