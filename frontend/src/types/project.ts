@@ -11,6 +11,7 @@ export interface TableroSeccional {
   tipo: 'Fuerza Motriz' | 'Iluminación';
   potenciaTotal: number;
   factorK: number;
+  subTableros: TableroSeccional[];
 }
 
 export interface Transformador {

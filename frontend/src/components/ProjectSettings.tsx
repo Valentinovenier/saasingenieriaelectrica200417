@@ -59,27 +59,40 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
         </button>
       </div>
       
-      <section className="grid grid-cols-2 gap-6">
-        <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Transformador</h3>
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Transformador */}
+        <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
+            <h3 className="text-lg font-bold text-white mb-4">Transformador</h3>
             <div className="grid grid-cols-2 gap-4">
-                <input type="number" placeholder="Potencia (kVA)" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white" value={data.transformador?.potencia || ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, potencia: Number(e.target.value)}})} />
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Potencia (kVA)</label>
+                    <input type="number" placeholder="kVA" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.potencia || ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, potencia: Number(e.target.value)}})} />
+                </div>
                 <div>
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Cos Phi</label>
-                    <input type="number" step="0.01" placeholder="Cos Phi" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white w-full" 
+                    <input type="number" step="0.01" placeholder="0.95" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
                         value={data.transformador?.cosFi ?? 0.95} 
                         onChange={(e) => setData({...data, transformador: {...data.transformador!, cosFi: Number(e.target.value)}})} />
                 </div>
             </div>
         </div>
-        <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Parámetros Generales</h3>
+
+        {/* Parámetros Generales */}
+        <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
+            <h3 className="text-xl font-bold text-white mb-4">Parámetros Generales</h3>
             <div className="grid grid-cols-2 gap-4">
-                <input type="number" placeholder="Temp. Ambiente (°C)" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white" value={(data as any).tempAmbiente || ''} onChange={(e) => setData({...data, tempAmbiente: Number(e.target.value)} as any)} />
-                <input type="number" step="0.01" placeholder="Coef. Simultaneidad" className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white" value={(data as any).coefSimultaneidad || ''} onChange={(e) => setData({...data, coefSimultaneidad: Number(e.target.value)} as any)} />
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Temp. Ambiente (°C)</label>
+                    <input type="number" placeholder="°C" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(data as any).tempAmbiente || ''} onChange={(e) => setData({...data, tempAmbiente: Number(e.target.value)} as any)} />
+                </div>
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Coef. Simultaneidad</label>
+                    <input type="number" step="0.01" placeholder="0.0 - 1.0" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(data as any).coefSimultaneidad || ''} onChange={(e) => setData({...data, coefSimultaneidad: Number(e.target.value)} as any)} />
+                </div>
             </div>
         </div>
-        <div className="col-span-2">
+        
+        <div className="col-span-1 md:col-span-2">
             <h3 className="text-lg font-semibold text-white mb-4">Distorsión Armónica (%)</h3>
             <div className="grid grid-cols-4 gap-2">
                 {(['h3','h5','h7','h9'] as const).map(h => (
@@ -95,20 +108,21 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
           <button onClick={addTablero} className="text-[var(--accent)] flex items-center gap-2"><Plus size={18} /> Agregar</button>
         </div>
         {(data.tableros || []).map((t, idx) => (
-          <div key={t.id} className="grid grid-cols-6 gap-2 mb-2 bg-[var(--bg-primary)] p-3 rounded-xl items-center">
-            <input className="col-span-1 bg-transparent text-white" value={t.name} onChange={(e) => { const tabs = [...data.tableros]; tabs[idx].name = e.target.value; setData({...data, tableros: tabs}); }} />
+          <div key={t.id} className="grid grid-cols-5 gap-2 mb-2 bg-[var(--bg-primary)] p-3 rounded-xl items-center">
+            <input className="col-span-2 bg-transparent text-white font-medium" value={t.name} onChange={(e) => { const tabs = [...data.tableros]; tabs[idx].name = e.target.value; setData({...data, tableros: tabs}); }} />
             <select className="col-span-2 bg-transparent text-white" value={t.tipo} onChange={(e) => { const tabs = [...data.tableros]; tabs[idx].tipo = e.target.value as any; setData({...data, tableros: tabs}); }}>
                 <option value="Fuerza Motriz">Fuerza Motriz</option>
                 <option value="Iluminación">Iluminación</option>
             </select>
-            <input type="number" className="col-span-1 bg-transparent text-white" placeholder="Potencia (kW)" value={t.potenciaTotal || ''} onChange={(e) => { const tabs = [...data.tableros]; tabs[idx].potenciaTotal = Number(e.target.value); setData({...data, tableros: tabs}); }} />
-            <input type="number" className="col-span-1 bg-transparent text-white" placeholder="Factor K" value={t.factorK || ''} onChange={(e) => { const tabs = [...data.tableros]; tabs[idx].factorK = Number(e.target.value); setData({...data, tableros: tabs}); }} />
-            <button onClick={() => setData({...data, tableros: data.tableros.filter((_, i) => i !== idx)})} className="text-red-400"><Trash2 size={16}/></button>
+            <div className="col-span-1 flex items-center gap-2">
+                <input type="number" className="w-full bg-transparent text-white" placeholder="Potencia (kW)" value={t.potenciaTotal || ''} onChange={(e) => { const tabs = [...data.tableros]; tabs[idx].potenciaTotal = Number(e.target.value); setData({...data, tableros: tabs}); }} />
+                <button onClick={() => setData({...data, tableros: data.tableros.filter((_, i) => i !== idx)})} className="text-red-400"><Trash2 size={16}/></button>
+            </div>
           </div>
         ))}
       </section>
 
-      <button onClick={handleSave} className="bg-[var(--accent)] text-black px-6 py-2 rounded-xl font-bold">Guardar</button>
+      <button onClick={handleSave} className="bg-[var(--accent)] text-black px-6 py-2 rounded-xl font-bold">Guardar Configuración</button>
     </div>
   );
 };

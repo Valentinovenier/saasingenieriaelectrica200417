@@ -1,6 +1,35 @@
 import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
+import { TableroSeccional } from '../types/project';
+
+const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: { 
+  tablero: TableroSeccional; 
+  onUpdate: (id: string, updates: Partial<TableroSeccional>) => void;
+  onAddSub: (parentId: string) => void;
+  onDelete: (id: string) => void;
+}) => {
+  return (
+    <div className="ml-4 mt-2 p-3 bg-[var(--bg-primary)] rounded-lg border border-slate-700">
+      <div className="flex items-center gap-2 mb-2">
+        <input 
+          value={tablero.name}
+          onChange={(e) => onUpdate(tablero.id, { name: e.target.value })}
+          className="bg-transparent text-white border-b border-transparent focus:border-[var(--accent)] focus:outline-none"
+        />
+        <button onClick={() => onAddSub(tablero.id)} className="text-[var(--accent)]">
+          <Plus size={16} />
+        </button>
+        <button onClick={() => onDelete(tablero.id)} className="text-red-500">
+          <Trash2 size={16} />
+        </button>
+      </div>
+      {tablero.subTableros.map(sub => (
+        <TableroItem key={sub.id} tablero={sub} onUpdate={onUpdate} onAddSub={onAddSub} onDelete={onDelete} />
+      ))}
+    </div>
+  );
+};
 
 export const UnifilarEditor = () => {
   const { state, setState } = useProject();
@@ -10,7 +39,40 @@ export const UnifilarEditor = () => {
     setState({ ...state, transformador: { ...state.transformador!, potencia: Number(e.target.value) } });
   };
 
-  const handleAddTablero = () => {
+  const updateTableroRecursive = (tableros: TableroSeccional[], id: string, updates: Partial<TableroSeccional>): TableroSeccional[] => {
+    return tableros.map(t => {
+      if (t.id === id) return { ...t, ...updates };
+      return { ...t, subTableros: updateTableroRecursive(t.subTableros, id, updates) };
+    });
+  };
+
+  const addSubTableroRecursive = (tableros: TableroSeccional[], parentId: string): TableroSeccional[] => {
+    return tableros.map(t => {
+      if (t.id === parentId) {
+        return {
+          ...t,
+          subTableros: [...t.subTableros, {
+            id: Date.now().toString(),
+            name: `Sub ${t.subTableros.length + 1}`,
+            tipo: 'Fuerza Motriz',
+            potenciaTotal: 0,
+            factorK: 1,
+            subTableros: []
+          }]
+        };
+      }
+      return { ...t, subTableros: addSubTableroRecursive(t.subTableros, parentId) };
+    });
+  };
+
+  const deleteTableroRecursive = (tableros: TableroSeccional[], id: string): TableroSeccional[] => {
+    return tableros.filter(t => t.id !== id).map(t => ({
+      ...t,
+      subTableros: deleteTableroRecursive(t.subTableros, id)
+    }));
+  };
+
+  const handleAddTopTablero = () => {
     if (!state) return;
     setState({ 
       ...state, 
@@ -19,7 +81,8 @@ export const UnifilarEditor = () => {
         name: `Tablero ${state.tableros.length + 1}`,
         tipo: 'Fuerza Motriz',
         potenciaTotal: 0,
-        factorK: 1
+        factorK: 1,
+        subTableros: []
       }] 
     });
   };
@@ -42,16 +105,20 @@ export const UnifilarEditor = () => {
 
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-md text-white">Tableros</h3>
-        <button onClick={handleAddTablero} className="bg-[var(--accent)] text-white p-2 rounded-lg">
+        <button onClick={handleAddTopTablero} className="bg-[var(--accent)] text-white p-2 rounded-lg">
           <Plus size={16} />
         </button>
       </div>
 
       <div className="space-y-2">
-        {state.tableros.map((tablero: any) => (
-          <div key={tablero.id} className="p-3 bg-[var(--bg-primary)] rounded-lg text-[var(--text-secondary)] text-sm">
-            {tablero.name}
-          </div>
+        {state.tableros.map((tablero: TableroSeccional) => (
+          <TableroItem 
+            key={tablero.id} 
+            tablero={tablero} 
+            onUpdate={(id, updates) => setState({...state, tableros: updateTableroRecursive(state.tableros, id, updates)})}
+            onAddSub={(parentId) => setState({...state, tableros: addSubTableroRecursive(state.tableros, parentId)})}
+            onDelete={(id) => setState({...state, tableros: deleteTableroRecursive(state.tableros, id)})}
+          />
         ))}
       </div>
     </div>
