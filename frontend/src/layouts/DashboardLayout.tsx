@@ -15,65 +15,78 @@ export const DashboardLayout = ({
 }) => {
   const { user, logout } = useAuth();
 
-  const menuItems = projectSelected 
+  // Menú global lateral
+  const sidebarItems = [
+    { icon: LayoutDashboard, label: 'Inicio', id: 'inicio' },
+    { icon: Settings, label: 'Configuración', id: 'settings' },
+  ];
+
+  // Menú contextual superior (solo si hay proyecto)
+  const headerItems = projectSelected 
     ? [
         { icon: Settings, label: 'Parámetros', id: 'parametros' },
         { icon: BarChart3, label: 'TGBT', id: 'tgbt' },
         { icon: Box, label: 'Tableros Seccionales', id: 'tableros' },
       ]
-    : [
-        { icon: LayoutDashboard, label: 'Inicio', id: 'inicio' },
-        { icon: Settings, label: 'Configuración', id: 'settings' },
-      ];
+    : [];
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col">
-      {/* Header (Top Navigation) */}
-      <header className="bg-[var(--bg-secondary)] border-b border-slate-800 p-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-[var(--accent)] px-2">
+    <div className="min-h-screen bg-[var(--bg-primary)] flex">
+      {/* Sidebar Global */}
+      <aside className="w-64 bg-[var(--bg-secondary)] border-r border-slate-800 p-6 flex flex-col">
+        <div className="flex items-center gap-2 text-[var(--accent)] mb-10 px-2">
           <Zap size={28} fill="currentColor" />
           <h1 className="text-2xl font-black tracking-tighter text-white font-sans uppercase">Check</h1>
         </div>
-        
-        <nav className="flex items-center gap-2">
-          {menuItems.map((item) => (
+        <nav className="space-y-2 flex-1">
+          {sidebarItems.map((item) => (
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                 activePage === item.id 
                   ? 'bg-[var(--bg-primary)] text-white' 
                   : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-primary)]'
               }`}
             >
-              <item.icon size={18} />
-              <span className="font-medium text-sm">{item.label}</span>
+              <item.icon size={20} />
+              <span className="font-medium">{item.label}</span>
             </button>
           ))}
         </nav>
+      </aside>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 px-3 py-1 bg-slate-800/50 rounded-lg">
-            <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
-              {user?.username?.charAt(0).toUpperCase() || 'U'}
-            </div>
-            <p className="text-sm font-medium text-white">{user?.username || 'Usuario'}</p>
+      {/* Main Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header Contextual (Solo si hay proyecto) */}
+        {projectSelected && (
+          <header className="bg-[var(--bg-secondary)] border-b border-slate-800 p-4 flex items-center justify-between">
+            <nav className="flex items-center gap-2">
+              {headerItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => onNavigate(item.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
+                    activePage === item.id 
+                      ? 'bg-[var(--bg-primary)] text-white' 
+                      : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-primary)]'
+                  }`}
+                >
+                  <item.icon size={18} />
+                  <span className="font-medium text-sm">{item.label}</span>
+                </button>
+              ))}
+            </nav>
+          </header>
+        )}
+
+        {/* Main Content */}
+        <main className="flex-1 p-8 overflow-y-auto">
+          <div className="max-w-7xl mx-auto">
+            {children}
           </div>
-          <button
-            onClick={logout}
-            className="flex items-center gap-2 px-3 py-1 rounded-lg text-[var(--text-secondary)] hover:text-red-400 hover:bg-red-400/10 transition-all duration-200"
-          >
-            <LogOut size={18} />
-          </button>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
-        <div className="max-w-7xl mx-auto">
-          {children}
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };

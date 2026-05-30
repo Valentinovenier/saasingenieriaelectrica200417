@@ -153,7 +153,10 @@ export default function App() {
               projects={projects}
               onSelectProject={(id) => {
                 const proj = projects.find(p => p.id === id);
-                if (proj) setSelectedProject(proj);
+                if (proj) {
+                  setSelectedProject(proj);
+                  setCurrentPage('parametros'); // Navegar a parámetros al entrar a un proyecto
+                }
               }}
               onAddNew={() => setIsModalOpen(true)}
               onDelete={deleteProject}
@@ -184,9 +187,9 @@ export default function App() {
           />
         );
       case 'tgbt':
-        return <UnifilarPage />; // Asumiendo que UnifilarPage contiene el TGBT
+        return <UnifilarPage />;
       case 'tableros':
-        return <ConductorCalculation project={selectedProject} />; // O el componente que corresponda a tableros
+        return <ConductorCalculation project={selectedProject} />;
       default:
         return <div className="text-white">Sección no implementada.</div>;
     }
@@ -196,7 +199,6 @@ export default function App() {
     <DashboardLayout 
       activePage={currentPage} 
       onNavigate={(page) => {
-        // Lógica de navegación adaptada
         if (page === 'inicio') setSelectedProject(null);
         setCurrentPage(page);
       }}
