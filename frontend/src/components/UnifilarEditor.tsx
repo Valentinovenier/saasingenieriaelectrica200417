@@ -4,6 +4,30 @@ import { Plus, Trash2 } from 'lucide-react';
 import { TableroSeccional, Transformador } from '../types/project';
 import { engine } from '../engine';
 
+const ProteccionFields = ({ label, value, onChange }: { label: string, value?: Proteccion, onChange: (p: Proteccion | undefined) => void }) => (
+  <div className="mt-2 p-2 bg-slate-900 rounded border border-slate-700">
+    <p className="text-xs text-[var(--text-secondary)] mb-1">{label}</p>
+    <div className="flex gap-2">
+      <select 
+        className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
+        value={value?.tipo || 'Termomagnética'}
+        onChange={(e) => onChange({ ...value, tipo: e.target.value as any, valorNominal: value?.valorNominal || 0 })}
+      >
+        <option value="Termomagnética">Termomagnética</option>
+        <option value="Fusible">Fusible</option>
+        <option value="Interruptor Automático">Int. Automático</option>
+      </select>
+      <input 
+        type="number" 
+        placeholder="A" 
+        className="w-16 bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
+        value={value?.valorNominal || ''}
+        onChange={(e) => onChange({ ...value, tipo: value?.tipo || 'Termomagnética', valorNominal: Number(e.target.value) })}
+      />
+    </div>
+  </div>
+);
+
 const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: { 
   tablero: TableroSeccional; 
   onUpdate: (id: string, updates: Partial<TableroSeccional>) => void;
@@ -34,6 +58,10 @@ const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: {
           className="bg-[var(--bg-secondary)] text-sm text-white rounded px-2 py-1 border border-slate-700"
           placeholder="Potencia (kVA)"
         />
+        <div className="grid grid-cols-2 gap-2">
+            <ProteccionFields label="Cabecera" value={tablero.proteccionCabecera} onChange={(p) => onUpdate(tablero.id, { proteccionCabecera: p })} />
+            <ProteccionFields label="Salida" value={tablero.proteccionSalida} onChange={(p) => onUpdate(tablero.id, { proteccionSalida: p })} />
+        </div>
       </div>
       {tablero.subTableros?.map(sub => (
         <TableroItem key={sub.id} tablero={sub} onUpdate={onUpdate} onAddSub={onAddSub} onDelete={onDelete} />

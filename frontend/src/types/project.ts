@@ -5,12 +5,20 @@ export interface HarmonicDistortion {
   h9: number;
 }
 
+export interface Proteccion {
+  tipo: 'Termomagnética' | 'Fusible' | 'Interruptor Automático';
+  valorNominal: number;
+  curva?: string;
+}
+
 export interface TableroSeccional {
   id: string;
   name: string;
   tipo: 'Fuerza Motriz' | 'Iluminación';
   potenciaTotal: number;
   subTableros: TableroSeccional[];
+  proteccionCabecera?: Proteccion;
+  proteccionSalida?: Proteccion;
 }
 
 export interface Transformador {
@@ -18,6 +26,8 @@ export interface Transformador {
   tensionPrimario: number;
   tensionSecundario: number;
   cosFi: number;
+  proteccionCabecera?: Proteccion;
+  proteccionSalida?: Proteccion;
 }
 
 export interface Project {

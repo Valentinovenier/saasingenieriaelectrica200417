@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Settings, Zap, LogOut, FileText, BarChart3, Box } from 'lucide-react';
+import { LayoutDashboard, Settings, Zap, LogOut, FileText, BarChart3, Box, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const DashboardLayout = ({ 
@@ -25,6 +25,7 @@ export const DashboardLayout = ({
   const headerItems = projectSelected 
     ? [
         { icon: Settings, label: 'Parámetros', id: 'parametros' },
+        { icon: ShieldAlert, label: 'Protecciones', id: 'protecciones' },
         { icon: BarChart3, label: 'TGBT', id: 'tgbt' },
         { icon: Box, label: 'Tableros Seccionales', id: 'tableros' },
       ]

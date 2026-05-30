@@ -188,6 +188,8 @@ export default function App() {
         );
       case 'tgbt':
         return <UnifilarPage />;
+      case 'protecciones':
+        return <div className="text-white">Sección de Protecciones en construcción.</div>;
       case 'tableros':
         return <ConductorCalculation project={selectedProject} />;
       default:

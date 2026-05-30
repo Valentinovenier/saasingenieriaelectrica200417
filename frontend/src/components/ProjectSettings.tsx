@@ -1,6 +1,30 @@
 import { useState } from 'react';
-import { Project, TableroSeccional } from '../types/project';
+import { Project, TableroSeccional, Proteccion } from '../types/project';
 import { Trash2, Plus } from 'lucide-react';
+
+const ProteccionFields = ({ label, value, onChange }: { label: string, value?: Proteccion, onChange: (p: Proteccion | undefined) => void }) => (
+  <div className="mt-2 p-2 bg-slate-900 rounded border border-slate-700">
+    <p className="text-xs text-[var(--text-secondary)] mb-1">{label}</p>
+    <div className="flex gap-2">
+      <select 
+        className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
+        value={value?.tipo || 'Termomagnética'}
+        onChange={(e) => onChange({ ...value, tipo: e.target.value as any, valorNominal: value?.valorNominal || 0 })}
+      >
+        <option value="Termomagnética">Termomagnética</option>
+        <option value="Fusible">Fusible</option>
+        <option value="Interruptor Automático">Int. Automático</option>
+      </select>
+      <input 
+        type="number" 
+        placeholder="A" 
+        className="w-16 bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
+        value={value?.valorNominal || ''}
+        onChange={(e) => onChange({ ...value, tipo: value?.tipo || 'Termomagnética', valorNominal: Number(e.target.value) })}
+      />
+    </div>
+  </div>
+);
 
 export const ProjectSettings = ({ project, onSave, onDelete }: { project: Project, onSave: (p: Project) => void, onDelete: () => void }) => {
   const [data, setData] = useState<Project>({
@@ -76,6 +100,10 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">V Secundario (V)</label>
                     <input type="number" placeholder="V" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.tensionSecundario ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, tensionSecundario: e.target.value === '' ? 0 : Number(e.target.value)}})} />
                 </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+                <ProteccionFields label="Protección Cabecera" value={data.transformador?.proteccionCabecera} onChange={(p) => setData({...data, transformador: {...data.transformador!, proteccionCabecera: p}})} />
+                <ProteccionFields label="Protección Salida" value={data.transformador?.proteccionSalida} onChange={(p) => setData({...data, transformador: {...data.transformador!, proteccionSalida: p}})} />
             </div>
         </div>
 
