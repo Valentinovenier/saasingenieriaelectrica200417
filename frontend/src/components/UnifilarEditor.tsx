@@ -105,8 +105,8 @@ export const UnifilarEditor = () => {
   if (!state) return null;
 
   const intr = state.transformador ? engine.transformador.calcularIntr(
-    state.transformador.potencia,
-    state.transformador.tensionSecundario
+    state.transformador.potencia ?? 0,
+    state.transformador.tensionSecundario ?? 0
   ) : 0;
 
   return (
@@ -116,36 +116,6 @@ export const UnifilarEditor = () => {
       <div className="mb-6 p-4 bg-slate-900 rounded-lg">
         <p className="text-sm text-[var(--text-secondary)]">Potencia Total Proyecto:</p>
         <p className="text-2xl font-bold text-white">{engine.potencia.total(state.tableros || [])} kVA</p>
-      </div>
-
-      <div className="mb-6 grid grid-cols-2 gap-4">
-        <div className="col-span-2">
-          <label className="block text-sm text-[var(--text-secondary)] mb-2">Potencia Transformador (kVA)</label>
-          <input 
-            type="number" 
-            value={state.transformador?.potencia ?? ''} 
-            onChange={(e) => handleTransformadorChange('potencia', Number(e.target.value))}
-            className="w-full bg-[var(--bg-primary)] border border-slate-700 rounded-lg px-4 py-2 text-white"
-          />
-        </div>
-        <div>
-          <label className="block text-sm text-[var(--text-secondary)] mb-2">V Primario (V)</label>
-          <input 
-            type="number" 
-            value={state.transformador?.tensionPrimario ?? ''} 
-            onChange={(e) => handleTransformadorChange('tensionPrimario', Number(e.target.value))}
-            className="w-full bg-[var(--bg-primary)] border border-slate-700 rounded-lg px-4 py-2 text-white"
-          />
-        </div>
-        <div>
-          <label className="block text-sm text-[var(--text-secondary)] mb-2">V Secundario (V)</label>
-          <input 
-            type="number" 
-            value={state.transformador?.tensionSecundario ?? ''} 
-            onChange={(e) => handleTransformadorChange('tensionSecundario', Number(e.target.value))}
-            className="w-full bg-[var(--bg-primary)] border border-slate-700 rounded-lg px-4 py-2 text-white"
-          />
-        </div>
       </div>
 
       <div className="flex justify-between items-center mb-4">
