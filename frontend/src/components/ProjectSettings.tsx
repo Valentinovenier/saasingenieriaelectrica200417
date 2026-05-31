@@ -85,6 +85,38 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
       </div>
       
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Parámetros Generales */}
+        <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
+            <h3 className="text-xl font-bold text-white mb-4">Parámetros Generales</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="col-span-2 md:col-span-1">
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Tipo de Instalación</label>
+                    <select 
+                        className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
+                        value={data.tipoInstalacion || 'Trifásica'} 
+                        onChange={(e) => setData({...data, tipoInstalacion: e.target.value as 'Monofásica' | 'Trifásica'})}
+                    >
+                        <option value="Trifásica">Trifásica</option>
+                        <option value="Monofásica">Monofásica</option>
+                    </select>
+                </div>
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Cos Phi</label>
+                    <input type="number" step="0.01" placeholder="0.95" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
+                        value={data.transformador?.cosFi ?? ''} 
+                        onChange={(e) => setData({...data, transformador: {...data.transformador!, cosFi: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+                </div>
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Temp. (°C)</label>
+                    <input type="number" placeholder="°C" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(data as any).tempAmbiente ?? ''} onChange={(e) => setData({...data, tempAmbiente: e.target.value === '' ? 0 : Number(e.target.value)} as any)} />
+                </div>
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Coef. Simult.</label>
+                    <input type="number" step="0.01" placeholder="0.0 - 1.0" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(data as any).coefSimultaneidad ?? ''} onChange={(e) => setData({...data, coefSimultaneidad: e.target.value === '' ? 0 : Number(e.target.value)} as any)} />
+                </div>
+            </div>
+        </div>
+
         {/* Transformador */}
         <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
             <h3 className="text-lg font-bold text-white mb-4">Transformador</h3>
@@ -104,27 +136,6 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
                 <div>
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Impedancia (Ω)</label>
                     <input type="number" step="0.001" placeholder="Ω" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.impedancia ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, impedancia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
-                </div>
-            </div>
-        </div>
-
-        {/* Parámetros Generales */}
-        <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
-            <h3 className="text-xl font-bold text-white mb-4">Parámetros Generales</h3>
-            <div className="grid grid-cols-3 gap-4">
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Cos Phi</label>
-                    <input type="number" step="0.01" placeholder="0.95" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
-                        value={data.transformador?.cosFi ?? ''} 
-                        onChange={(e) => setData({...data, transformador: {...data.transformador!, cosFi: e.target.value === '' ? 0 : Number(e.target.value)}})} />
-                </div>
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Temp. (°C)</label>
-                    <input type="number" placeholder="°C" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(data as any).tempAmbiente ?? ''} onChange={(e) => setData({...data, tempAmbiente: e.target.value === '' ? 0 : Number(e.target.value)} as any)} />
-                </div>
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Coef. Simult.</label>
-                    <input type="number" step="0.01" placeholder="0.0 - 1.0" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(data as any).coefSimultaneidad ?? ''} onChange={(e) => setData({...data, coefSimultaneidad: e.target.value === '' ? 0 : Number(e.target.value)} as any)} />
                 </div>
             </div>
         </div>

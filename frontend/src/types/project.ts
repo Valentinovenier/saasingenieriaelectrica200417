@@ -41,4 +41,5 @@ export interface Project {
   tableros: TableroSeccional[];
   tempAmbiente?: number;
   coefSimultaneidad?: number;
+  tipoInstalacion?: 'Monofásica' | 'Trifásica';
 }
