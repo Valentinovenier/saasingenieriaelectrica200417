@@ -9,3 +9,13 @@ export const calcularIntr = (potenciaKVA: number, tensionSecundarioV: number): n
   // potenciaKVA * 1000 para pasar a VA
   return (potenciaKVA * 1000) / (Math.sqrt(3) * tensionSecundarioV);
 };
+
+/**
+ * Calcula la corriente de cortocircuito (Ik1).
+ * Fórmula: Ik1 = (1.05 * 220) / Impedancia
+ * @param impedancia Ohms
+ */
+export const calcularIk1 = (impedancia: number): number => {
+  if (!impedancia || impedancia === 0) return 0;
+  return (1.05 * 220) / impedancia;
+};

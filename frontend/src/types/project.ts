@@ -26,6 +26,7 @@ export interface Transformador {
   tensionPrimario: number;
   tensionSecundario: number;
   cosFi: number;
+  impedancia: number;
   proteccionCabecera?: Proteccion;
   proteccionSalida?: Proteccion;
 }

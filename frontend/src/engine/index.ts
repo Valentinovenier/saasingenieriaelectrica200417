@@ -1,5 +1,5 @@
 import { calcularPotenciaTotal } from './formulas/potencia';
-import { calcularIntr } from './formulas/transformador';
+import { calcularIntr, calcularIk1 } from './formulas/transformador';
 
 // Aquí exportaremos todos los cálculos disponibles en el motor
 export const engine = {
@@ -8,5 +8,6 @@ export const engine = {
   },
   transformador: {
     calcularIntr,
+    calcularIk1,
   }
 };

@@ -191,6 +191,14 @@ export default function App() {
       case 'protecciones':
         return <div className="text-white">Sección de Protecciones en construcción.</div>;
       case 'tableros':
+        return (
+            <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
+                <h2 className="text-lg font-semibold text-white mb-6">Tableros Seccionales</h2>
+                {/* Aquí renderizaremos la lista de tableros sin el cálculo de conductores */}
+                {/* Puedes reutilizar parte de la lógica de UnifilarEditor aquí o crear un nuevo componente */}
+            </div>
+        );
+      case 'conductores':
         return <ConductorCalculation project={selectedProject} />;
       default:
         return <div className="text-white">Sección no implementada.</div>;

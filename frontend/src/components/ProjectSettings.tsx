@@ -100,6 +100,10 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">V Secundario (V)</label>
                     <input type="number" placeholder="V" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.tensionSecundario ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, tensionSecundario: e.target.value === '' ? 0 : Number(e.target.value)}})} />
                 </div>
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Impedancia (Ω)</label>
+                    <input type="number" step="0.001" placeholder="Ω" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.impedancia ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, impedancia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+                </div>
             </div>
         </div>
 

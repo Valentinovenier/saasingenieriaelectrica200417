@@ -137,6 +137,10 @@ export const UnifilarEditor = () => {
     state.transformador.tensionSecundario ?? 0
   ) : 0;
 
+  const ik1 = state.transformador ? engine.transformador.calcularIk1(
+    state.transformador.impedancia ?? 0
+  ) : 0;
+
   return (
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
       <h2 className="text-lg font-semibold text-white mb-6">Configuración TGBT</h2>
@@ -183,7 +187,7 @@ export const UnifilarEditor = () => {
           </div>
           <div className="p-3 bg-[var(--bg-secondary)] rounded-lg border border-slate-700">
             <p className="text-xs text-[var(--text-secondary)]">Ik1 (kA)</p>
-            <p className="text-lg font-bold text-white">--</p>
+            <p className="text-lg font-bold text-white">{ik1.toFixed(2)}</p>
           </div>
         </div>
       </div>
