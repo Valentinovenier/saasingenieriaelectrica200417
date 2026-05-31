@@ -58,9 +58,21 @@ const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: {
           className="bg-[var(--bg-secondary)] text-sm text-white rounded px-2 py-1 border border-slate-700"
           placeholder="Potencia (kVA)"
         />
-        <div className="grid grid-cols-2 gap-2">
-            <ProteccionFields label="Cabecera" value={tablero.proteccionCabecera} onChange={(p) => onUpdate(tablero.id, { proteccionCabecera: p })} />
-            <ProteccionFields label="Salida" value={tablero.proteccionSalida} onChange={(p) => onUpdate(tablero.id, { proteccionSalida: p })} />
+        <div className="space-y-2">
+            <ProteccionFields label="Protección Cabecera" value={tablero.proteccionCabecera} onChange={(p) => onUpdate(tablero.id, { proteccionCabecera: p })} />
+            
+            <div className="flex justify-between items-center">
+                <p className="text-xs text-[var(--text-secondary)]">Protecciones de Salida</p>
+                <button onClick={() => onUpdate(tablero.id, { proteccionesSalida: [...(tablero.proteccionesSalida || []), { tipo: 'Termomagnética', valorNominal: 0 }] })} className="text-[var(--accent)]"><Plus size={14}/></button>
+            </div>
+            {(tablero.proteccionesSalida || []).map((p, i) => (
+                <ProteccionFields key={i} label={`Salida ${i+1}`} value={p} onChange={(newP) => {
+                    const newSalidas = [...(tablero.proteccionesSalida || [])];
+                    if (newP) newSalidas[i] = newP;
+                    else newSalidas.splice(i, 1);
+                    onUpdate(tablero.id, { proteccionesSalida: newSalidas });
+                }} />
+            ))}
         </div>
       </div>
       {tablero.subTableros?.map(sub => (
@@ -148,9 +160,21 @@ export const UnifilarEditor = () => {
       {/* Nueva Sección de Protecciones TGBT */}
       <div className="mb-6 p-4 bg-slate-900 rounded-lg">
         <h3 className="text-md font-semibold text-white mb-2">Protecciones TGBT</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
           <ProteccionFields label="Cabecera" value={state.transformador?.proteccionCabecera} onChange={(p) => setState({...state, transformador: {...state.transformador!, proteccionCabecera: p}})} />
-          <ProteccionFields label="Salida" value={state.transformador?.proteccionSalida} onChange={(p) => setState({...state, transformador: {...state.transformador!, proteccionSalida: p}})} />
+          
+          <div className="flex justify-between items-center">
+            <p className="text-xs text-[var(--text-secondary)]">Protecciones de Salida</p>
+            <button onClick={() => setState({...state, transformador: {...state.transformador!, proteccionesSalida: [...(state.transformador?.proteccionesSalida || []), { tipo: 'Termomagnética', valorNominal: 0 }] }})} className="text-[var(--accent)]"><Plus size={14}/></button>
+          </div>
+          {(state.transformador?.proteccionesSalida || []).map((p, i) => (
+            <ProteccionFields key={i} label={`Salida ${i+1}`} value={p} onChange={(newP) => {
+                const newSalidas = [...(state.transformador?.proteccionesSalida || [])];
+                if (newP) newSalidas[i] = newP;
+                else newSalidas.splice(i, 1);
+                setState({...state, transformador: {...state.transformador!, proteccionesSalida: newSalidas}});
+            }} />
+          ))}
         </div>
       </div>
       

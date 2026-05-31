@@ -1,21 +1,34 @@
 import { useState } from 'react';
 import { Project } from '../types/project';
 
+// Definición de los tramos solicitados
+const TRAMOS_ELECTRICOS = [
+  { id: 'trafo-tgbt', label: 'Transformador - TGBT' },
+  { id: 'tgbt-barra', label: 'TGBT - Barra Omnibus' },
+  { id: 'barra-salida', label: 'Barra Omnibus - Interruptor de Salida' },
+  { id: 'salida-tablero', label: 'Interruptor de Salida - Tablero Seccional' },
+];
+
 export const ConductorCalculation = ({ project }: { project: Project }) => {
-  // Aquí irá la lógica de cálculo
   return (
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
-      <h2 className="text-2xl font-bold text-white mb-6">Cálculo de Conductores</h2>
-      <p className="text-[var(--text-secondary)]">Sección en construcción. Aquí se realizarán los cálculos basados en la configuración del proyecto.</p>
+      <h2 className="text-2xl font-bold text-white mb-6">Cálculo de Conductores por Tramo</h2>
       
-      {/* Ejemplo de estructura futura */}
-      <div className="mt-4 p-4 bg-[var(--bg-primary)] rounded-xl text-white">
-        <h4 className="font-semibold mb-2">Resumen de Tableros</h4>
-        <ul>
-          {(project.tableros || []).map(t => (
-            <li key={t.id}>{t.name} - {t.potenciaTotal} kW</li>
-          ))}
-        </ul>      </div>
+      <div className="space-y-4">
+        {TRAMOS_ELECTRICOS.map((tramo) => (
+          <div key={tramo.id} className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
+            <h3 className="text-lg font-semibold text-white mb-3">{tramo.label}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="number" placeholder="Longitud (m)" className="bg-[var(--bg-secondary)] p-2 rounded-lg text-white border border-slate-600" />
+                <select className="bg-[var(--bg-secondary)] p-2 rounded-lg text-white border border-slate-600">
+                    <option>Cobre</option>
+                    <option>Aluminio</option>
+                </select>
+                <button className="bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold">Calcular</button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

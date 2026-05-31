@@ -18,7 +18,7 @@ export interface TableroSeccional {
   potenciaTotal: number;
   subTableros: TableroSeccional[];
   proteccionCabecera?: Proteccion;
-  proteccionSalida?: Proteccion;
+  proteccionesSalida: Proteccion[]; // Cambiado a array
 }
 
 export interface Transformador {
@@ -28,7 +28,7 @@ export interface Transformador {
   cosFi: number;
   impedancia: number;
   proteccionCabecera?: Proteccion;
-  proteccionSalida?: Proteccion;
+  proteccionesSalida: Proteccion[]; // Cambiado a array
 }
 
 export interface Project {
