@@ -4,38 +4,43 @@ import { SymbolRenderer } from './SymbolRenderer';
 
 export const UnifilarCanvas = () => {
   const { state } = useProject();
+  if (!state) return null;
 
   return (
-    <div className="bg-[var(--bg-secondary)] p-8 rounded-2xl border border-slate-800 h-full relative">
+    <div className="bg-[var(--bg-secondary)] p-8 rounded-2xl border border-slate-800 h-full">
       <h2 className="text-lg font-semibold text-white mb-6">Diagrama Unifilar</h2>
       
-      {/* Contenedor SVG principal para el esquema */}
-      <div className="relative w-full h-[400px] bg-[var(--bg-primary)] rounded-lg overflow-hidden">
-        
+      <svg width="100%" height="500" viewBox="0 0 500 500" className="bg-[var(--bg-primary)] rounded-lg">
         {/* Transformador */}
-        <div style={{ position: 'absolute', left: 200, top: 40, transform: 'translate(-50%, -100%)' }}>
-          <SymbolRenderer name="transformador" className="w-16 h-16" />
-        </div>
-        <text x="200" y="30" textAnchor="middle" fill="white" fontSize="12" style={{ position: 'absolute' }}>{state?.transformador?.potencia || 0} kVA</text>
-
+        <foreignObject x="225" y="20" width="50" height="50">
+           <SymbolRenderer name="transformador" className="w-12 h-12 text-white" />
+        </foreignObject>
+        <text x="250" y="85" textAnchor="middle" fill="white" fontSize="12">{state.transformador?.potencia || 0} kVA</text>
+        
+        {/* Línea de conexión principal */}
+        <line x1="250" y1="70" x2="250" y2="120" stroke="white" strokeWidth="2" />
+        
         {/* Barra Principal */}
-        <div style={{ position: 'absolute', left: 50, top: 120, width: 300, height: 4, backgroundColor: 'white' }} />
-
-        {/* Conexión Trafo-Barra (desde el borde inferior del trafo hasta la barra) */}
-        <div style={{ position: 'absolute', left: 200, top: 40, width: 2, height: 80, backgroundColor: 'white' }} />
+        <line x1="50" y1="120" x2="450" y2="120" stroke="white" strokeWidth="4" />
 
         {/* Tableros */}
-        {(state?.tableros || []).map((tablero: any, index: number) => {
-          const x = 80 + index * 60;
+        {(state.tableros || []).map((tablero, index) => {
+          const x = 100 + index * 80;
           return (
-            <div key={tablero.id} style={{ position: 'absolute', left: x, top: 120, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ width: 2, height: 20, backgroundColor: 'white' }} />
-              <SymbolRenderer name="blindobarra" className="w-8 h-8" style={{ marginTop: -4 }} />
-              <div className="text-white text-[10px] mt-1">{tablero.name}</div>
-            </div>
+            <g key={tablero.id}>
+              {/* Conexión */}
+              <line x1={x} y1="120" x2={x} y2="150" stroke="white" strokeWidth="2" />
+              
+              {/* Protección */}
+              <foreignObject x={x - 10} y={150} width="20" height="40">
+                  <SymbolRenderer name={tablero.proteccionCabecera?.tipo === 'Fusible' ? 'fusible' : 'termomagnetica'} category="protecciones" className="w-5 h-10 text-white" />
+              </foreignObject>
+
+              <text x={x} y={210} textAnchor="middle" fill="white" fontSize="10">{tablero.name}</text>
+            </g>
           );
         })}
-      </div>
+      </svg>
     </div>
   );
 };
