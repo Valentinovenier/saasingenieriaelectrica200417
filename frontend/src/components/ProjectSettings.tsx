@@ -38,7 +38,8 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
       name: `Tablero ${data.tableros ? data.tableros.length + 1 : 1}`,
       tipo: 'Fuerza Motriz',
       potenciaTotal: 0,
-      subTableros: []
+      subTableros: [],
+      proteccionesSalida: []
     };
     setData(prev => ({ 
       ...prev, 

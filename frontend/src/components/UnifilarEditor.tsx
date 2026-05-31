@@ -113,7 +113,8 @@ export const UnifilarEditor = () => {
             name: `Sub ${(t.subTableros?.length || 0) + 1}`,
             tipo: 'Fuerza Motriz',
             potenciaTotal: 0,
-            subTableros: []
+            subTableros: [],
+            proteccionesSalida: []
           }]
         };
       }
@@ -137,7 +138,8 @@ export const UnifilarEditor = () => {
         name: `Tablero ${(state.tableros?.length || 0) + 1}`,
         tipo: 'Fuerza Motriz',
         potenciaTotal: 0,
-        subTableros: []
+        subTableros: [],
+        proteccionesSalida: []
       }] 
     });
   };
