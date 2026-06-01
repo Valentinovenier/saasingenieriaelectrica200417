@@ -7,7 +7,8 @@ import { Proteccion } from '../types/project';
 
 const ProteccionRenderer = ({ proteccion, className }: { proteccion?: Proteccion, className?: string }) => {
   if (proteccion?.tipo === 'Interruptor Automático') {
-    return <InterruptorAutomaticoUnifilar className={className} />;
+    // Ajuste de tamaño y centrado para mejor alineación
+    return <InterruptorAutomaticoUnifilar className={`${className} scale-[0.6] origin-center`} />;
   }
   if (proteccion?.tipo === 'PIA') {
     return <PIAUnifilar className={className} />;
