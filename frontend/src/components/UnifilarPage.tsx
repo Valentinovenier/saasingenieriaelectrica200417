@@ -4,7 +4,7 @@ import { UnifilarCanvas } from '../components/UnifilarCanvas';
 
 export const UnifilarPage = () => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="flex flex-col gap-8 w-full">
       <UnifilarEditor />
       <UnifilarCanvas />
     </div>
