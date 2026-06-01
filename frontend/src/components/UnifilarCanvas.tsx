@@ -15,6 +15,9 @@ const ProteccionRenderer = ({ proteccion, className }: { proteccion?: Proteccion
   }
   return <div className={`border-2 border-dashed border-white ${className}`} title={proteccion?.tipo} />; 
 };
+// Definición de tamaño base para símbolos
+const SYMBOL_SIZE = 80;
+
 export const UnifilarCanvas = () => {
   const { state } = useProject();
   if (!state) return null;
@@ -25,52 +28,54 @@ export const UnifilarCanvas = () => {
       
       <svg width="100%" height="800" viewBox="0 0 500 800" className="bg-[var(--bg-primary)] rounded-lg">
         {/* Transformador */}
-        <foreignObject x="225" y="20" width="50" height="50">
+        <foreignObject x={250 - SYMBOL_SIZE/2} y="20" width={SYMBOL_SIZE} height={SYMBOL_SIZE}>
            <TransformadorUnifilar className="w-full h-full text-white" />
         </foreignObject>
         
         {/* Línea de conexión principal */}
-        <line x1="250" y1="70" x2="250" y2="90" stroke="white" strokeWidth="2" />
+        <line x1="250" y1={20 + SYMBOL_SIZE} x2="250" y2={20 + SYMBOL_SIZE + 20} stroke="white" strokeWidth="2" />
         
-        {/* Protección Cabecera Transformador (Asumiendo Interruptor Automático por defecto o configurable) */}
-        <foreignObject x="225" y="90" width="50" height="50">
-           <ProteccionRenderer proteccion={state.transformador?.proteccionCabecera} className="w-full h-full" />
+        {/* Protección Cabecera Transformador */}
+        <foreignObject x={250 - SYMBOL_SIZE/2} y={20 + SYMBOL_SIZE + 20} width={SYMBOL_SIZE} height={SYMBOL_SIZE}>
+           <ProteccionRenderer proteccion={state.transformador?.proteccionCabecera} className="w-full h-full text-white" />
         </foreignObject>
 
         {/* Línea hacia la Barra */}
-        <line x1="250" y1="140" x2="250" y2="145" stroke="white" strokeWidth="2" />
+        <line x1="250" y1={20 + SYMBOL_SIZE*2 + 20} x2="250" y2={20 + SYMBOL_SIZE*2 + 40} stroke="white" strokeWidth="2" />
         
         {/* Barra Principal */}
-        <line x1="50" y1="145" x2="450" y2="145" stroke="white" strokeWidth="4" />
+        <line x1="50" y1={20 + SYMBOL_SIZE*2 + 40} x2="450" y2={20 + SYMBOL_SIZE*2 + 40} stroke="white" strokeWidth="4" />
 
         {/* Protecciones de Salida TGBT */}
         {(state.transformador?.proteccionesSalida || []).map((proteccion, index) => {
-          const x = 50 + index * 60; // Posicionamiento automático horizontal
+          const x = 50 + index * 100; 
+          const yBarra = 20 + SYMBOL_SIZE*2 + 40;
           return (
             <g key={index}>
-              <line x1={x} y1="145" x2={x} y2="165" stroke="white" strokeWidth="2" />
-              <foreignObject x={x - 25} y={165} width="50" height="50">
-                <ProteccionRenderer proteccion={proteccion} className="w-full h-full" />
+              <line x1={x} y1={yBarra} x2={x} y2={yBarra + 20} stroke="white" strokeWidth="2" />
+              <foreignObject x={x - SYMBOL_SIZE/2} y={yBarra + 20} width={SYMBOL_SIZE} height={SYMBOL_SIZE}>
+                <ProteccionRenderer proteccion={proteccion} className="w-full h-full text-white" />
               </foreignObject>
-              <text x={x} y={225} textAnchor="middle" fill="white" fontSize="10">{proteccion.valorNominal} A</text>
+              <text x={x} y={yBarra + 20 + SYMBOL_SIZE + 20} textAnchor="middle" fill="white" fontSize="12">{proteccion.valorNominal} A</text>
             </g>
           );
         })}
 
         {/* Tableros */}
         {(state.tableros || []).map((tablero, index) => {
-          const x = 200 + index * 80;
+          const x = 200 + index * 120;
+          const yBarra = 20 + SYMBOL_SIZE*2 + 40;
           return (
             <g key={tablero.id}>
               {/* Conexión */}
-              <line x1={x} y1="145" x2={x} y2="165" stroke="white" strokeWidth="2" />
+              <line x1={x} y1={yBarra} x2={x} y2={yBarra + 20} stroke="white" strokeWidth="2" />
               
               {/* Tablero Seccional */}
-              <foreignObject x={x - 20} y={165} width="40" height="40">
+              <foreignObject x={x - SYMBOL_SIZE/2} y={yBarra + 20} width={SYMBOL_SIZE} height={SYMBOL_SIZE}>
                   <TableroSeccionalUnifilar className="w-full h-full text-white" />
               </foreignObject>
 
-              <text x={x} y={220} textAnchor="middle" fill="white" fontSize="10">{tablero.name}</text>
+              <text x={x} y={yBarra + 20 + SYMBOL_SIZE + 20} textAnchor="middle" fill="white" fontSize="12">{tablero.name}</text>
             </g>
           );
         })}
