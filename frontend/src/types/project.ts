@@ -6,7 +6,7 @@ export interface HarmonicDistortion {
 }
 
 export interface Proteccion {
-  tipo: 'Termomagnética' | 'Fusible' | 'Interruptor Automático';
+  tipo: 'Termomagnética' | 'Fusible' | 'Interruptor Automático' | 'PIA';
   valorNominal: number;
   curva?: string;
 }
