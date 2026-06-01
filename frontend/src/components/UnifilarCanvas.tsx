@@ -1,12 +1,10 @@
 import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
 import { TransformadorUnifilar } from './symbols/TransformadorUnifilar';
-import { InterruptorAutomaticoUnifilar } from './symbols/InterruptorAutomaticoUnifilar';
 import { TableroSeccionalUnifilar } from './symbols/TableroSeccionalUnifilar';
+import { InterruptorAutomaticoUnifilar, PIAUnifilar } from './symbols/ProteccionesUnifilares';
 import { Proteccion } from '../types/project';
 
-import { PIAUnifilar } from './symbols/PIAUnifilar';
-// ... dentro de ProteccionRenderer
 const ProteccionRenderer = ({ proteccion, className }: { proteccion?: Proteccion, className?: string }) => {
   if (proteccion?.tipo === 'Interruptor Automático') {
     return <InterruptorAutomaticoUnifilar className={className} />;
@@ -16,7 +14,6 @@ const ProteccionRenderer = ({ proteccion, className }: { proteccion?: Proteccion
   }
   return <div className={`border-2 border-dashed border-white ${className}`} title={proteccion?.tipo} />; 
 };
-
 export const UnifilarCanvas = () => {
   const { state } = useProject();
   if (!state) return null;
