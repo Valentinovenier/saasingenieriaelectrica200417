@@ -1,12 +1,13 @@
 import React from 'react';
 
-// Símbolo vectorial utilizando las trayectorias originales del SVG (escaladas y transformadas para un viewBox compacto)
+// Símbolo vectorial utilizando las trayectorias originales del nuevo archivo InterruptorAutomatico.svg
 export const InterruptorAutomaticoUnifilar = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 225 225" className={className} fill="currentColor" stroke="none">
-    <g transform="translate(0, 225) scale(0.1, -0.1)">
-      <path d="M1122 1471 c-2 -91 -4 -102 -17 -91 -8 7 -15 8 -15 2 0 -5 7 -15 15 -22 14 -12 14 -15 -1 -31 -19 -21 -6 -27 14 -7 9 9 15 9 24 0 20 -20 33 -14 14 7 -15 16 -15 19 -1 31 8 7 15 17 15 23 0 5 -9 2 -20 -8 -19 -17 -19 -16 -23 91 l-3 109 -2 -104z"/>
-      <path d="M901 1347 c-1 -4 47 -103 107 -220 l107 -212 6 -125 5 -125 2 120 1 120 -114 225 c-63 124 -114 222 -114 217z"/>
-    </g>
+  <svg viewBox="0 0 800 600" className={className} fill="none" stroke="currentColor" strokeWidth="15">
+    <path d="M 526.072 214.58 L 461.75 98.7993" />
+    <path d="M 526.072 214.58 L 526.072 317.496" />
+    <path d="M 538.937 124.528 L 513.208 98.7993" />
+    <path d="M 513.208 124.528 L 538.937 98.7993" />
+    <path d="M 526.072 8.74786 L 526.072 111.664" />
   </svg>
 );
 

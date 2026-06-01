@@ -27,7 +27,6 @@ export const UnifilarCanvas = () => {
         <foreignObject x="225" y="20" width="50" height="50">
            <TransformadorUnifilar className="w-full h-full text-white" />
         </foreignObject>
-        <text x="250" y="85" textAnchor="middle" fill="white" fontSize="12">{state.transformador?.potencia || 0} kVA</text>
         
         {/* Línea de conexión principal */}
         <line x1="250" y1="70" x2="250" y2="90" stroke="white" strokeWidth="2" />

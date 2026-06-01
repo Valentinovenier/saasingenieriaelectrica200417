@@ -1,17 +1,2 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
- "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
-<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
- width="225.000000pt" height="225.000000pt" viewBox="0 0 225.000000 225.000000"
- preserveAspectRatio="xMidYMid meet">
-
-<g transform="translate(0.000000,225.000000) scale(0.100000,-0.100000)"
-fill="#000000" stroke="none">
-<path d="M1122 1471 c-2 -91 -4 -102 -17 -91 -8 7 -15 8 -15 2 0 -5 7 -15 15
--22 14 -12 14 -15 -1 -31 -19 -21 -6 -27 14 -7 9 9 15 9 24 0 20 -20 33 -14
-14 7 -15 16 -15 19 -1 31 8 7 15 17 15 23 0 5 -9 2 -20 -8 -19 -17 -19 -16
--23 91 l-3 109 -2 -104z"/>
-<path d="M901 1347 c-1 -4 47 -103 107 -220 l107 -212 6 -125 5 -125 2 120 1
-120 -114 225 c-63 124 -114 222 -114 217z"/>
-</g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" viewBox="0 0 800.0 600.0" width="800.0" height="600.0">
+    <desc>61079affdb67634e20e58d4b8b6c68dc.dxf - scale = 7.850467, origin = (-19.500000, -21.225000), method = auto</desc><rect x="0" y="0" width="800.0" height="600.0" fill="#808080"/><defs><marker id="DistanceX" orient="auto" refX="0.0" refY="0.0" style="overflow:visible"><path d="M 3,-3 L -3,3 M 0,-5 L  0,5" style="stroke:#000000; stroke-width:0.5"/></marker><pattern id="Hatch" patternUnits="userSpaceOnUse" width="8" height="8" x="0" y="0"><path d="M8 4 l-4,4" stroke="#000000" stroke-width="0.25" linecap="square"/><path d="M6 2 l-4,4" stroke="#000000" stroke-width="0.25" linecap="square"/><path d="M4 0 l-4,4" stroke="#000000" stroke-width="0.25" linecap="square"/></pattern><symbol id="*MODEL_SPACE"/><symbol id="*PAPER_SPACE"/></defs><g inkscape:groupmode="layer" inkscape:label="0"><path style="fill:none;stroke:#FFFFFF" d="M 526.072 214.58 L 461.75 98.7993"/><path style="fill:none;stroke:#FFFFFF" d="M 526.072 214.58 L 526.072 317.496"/><path style="fill:none;stroke:#FFFFFF" d="M 538.937 124.528 L 513.208 98.7993"/><path style="fill:none;stroke:#FFFFFF" d="M 513.208 124.528 L 538.937 98.7993"/><path style="fill:none;stroke:#FFFFFF" d="M 526.072 8.74786 L 526.072 111.664"/></g></svg>
