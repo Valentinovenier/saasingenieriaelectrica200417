@@ -43,25 +43,34 @@ export const UnifilarCanvas = () => {
         {/* Barra Principal */}
         <line x1="50" y1="135" x2="450" y2="135" stroke="white" strokeWidth="4" />
 
+        {/* Protecciones de Salida TGBT */}
+        {(state.transformador?.proteccionesSalida || []).map((proteccion, index) => {
+          const x = 50 + index * 60; // Posicionamiento automático horizontal
+          return (
+            <g key={index}>
+              <line x1={x} y1="135" x2={x} y2="155" stroke="white" strokeWidth="2" />
+              <foreignObject x={x - 15} y={155} width="30" height="40">
+                <ProteccionRenderer proteccion={proteccion} className="w-full h-full" />
+              </foreignObject>
+              <text x={x} y={210} textAnchor="middle" fill="white" fontSize="10">{proteccion.valorNominal} A</text>
+            </g>
+          );
+        })}
+
         {/* Tableros */}
         {(state.tableros || []).map((tablero, index) => {
-          const x = 100 + index * 80;
+          const x = 200 + index * 80;
           return (
             <g key={tablero.id}>
               {/* Conexión */}
               <line x1={x} y1="135" x2={x} y2="155" stroke="white" strokeWidth="2" />
               
-              {/* Protección Cabecera Tablero */}
-              <foreignObject x={x - 15} y={155} width="30" height="40">
-                  <ProteccionRenderer proteccion={tablero.proteccionCabecera} className="w-full h-full" />
-              </foreignObject>
-
               {/* Tablero Seccional */}
-              <foreignObject x={x - 15} y={195} width="30" height="30">
+              <foreignObject x={x - 15} y={155} width="30" height="30">
                   <TableroSeccionalUnifilar className="w-full h-full text-white" />
               </foreignObject>
 
-              <text x={x} y={245} textAnchor="middle" fill="white" fontSize="10">{tablero.name}</text>
+              <text x={x} y={200} textAnchor="middle" fill="white" fontSize="10">{tablero.name}</text>
             </g>
           );
         })}
