@@ -2,15 +2,12 @@ import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
 import { TransformadorUnifilar } from './symbols/TransformadorUnifilar';
 import { TableroSeccionalUnifilar } from './symbols/TableroSeccionalUnifilar';
-import { InterruptorAutomaticoUnifilar, PIAUnifilar } from './symbols/ProteccionesUnifilares';
+import { SvgSymbolRenderer } from './symbols/SvgSymbolRenderer';
 import { Proteccion } from '../types/project';
 
 const ProteccionRenderer = ({ proteccion, className }: { proteccion?: Proteccion, className?: string }) => {
-  if (proteccion?.tipo === 'Interruptor Automático') {
-    return <InterruptorAutomaticoUnifilar className={className} />;
-  }
-  if (proteccion?.tipo === 'PIA') {
-    return <PIAUnifilar className={className} />;
+  if (proteccion?.tipo === 'Interruptor Automático' || proteccion?.tipo === 'PIA') {
+    return <SvgSymbolRenderer type={proteccion.tipo} className={className} />;
   }
   return <div className={`border-2 border-dashed border-white ${className}`} title={proteccion?.tipo} />; 
 };
