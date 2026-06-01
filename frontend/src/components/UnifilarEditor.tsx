@@ -58,11 +58,9 @@ const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: {
           placeholder="Potencia (kVA)"
         />
         <div className="space-y-2">
-            <ProteccionFields label="Protección Cabecera" value={tablero.proteccionCabecera} onChange={(p) => onUpdate(tablero.id, { proteccionCabecera: p })} />
-            
             <div className="flex justify-between items-center">
-                <p className="text-xs text-[var(--text-secondary)]">Protecciones de Salida</p>
-                <button onClick={() => onUpdate(tablero.id, { proteccionesSalida: [...(tablero.proteccionesSalida || []), { tipo: 'Termomagnética', valorNominal: 0 }] })} className="text-[var(--accent)]"><Plus size={14}/></button>
+                <p className="text-xs text-[var(--text-secondary)]">Protección de salida TGBT</p>
+                <button onClick={() => onUpdate(tablero.id, { proteccionesSalida: [...(tablero.proteccionesSalida || []), { tipo: 'Interruptor Automático', valorNominal: 0 }] })} className="text-[var(--accent)]"><Plus size={14}/></button>
             </div>
             {(tablero.proteccionesSalida || []).map((p, i) => (
                 <ProteccionFields key={i} label={`Salida ${i+1}`} value={p} onChange={(newP) => {
@@ -157,6 +155,27 @@ export const UnifilarEditor = () => {
   return (
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
       <h2 className="text-lg font-semibold text-white mb-6">Configuración TGBT</h2>
+      
+      {/* Sección de Protecciones TGBT */}
+      <div className="mb-6 p-4 bg-slate-900 rounded-lg">
+        <h3 className="text-md font-semibold text-white mb-2">Protecciones TGBT</h3>
+        <div className="space-y-2">
+          <ProteccionFields label="Cabecera" value={state.transformador?.proteccionCabecera} onChange={(p) => setState({...state, transformador: {...state.transformador!, proteccionCabecera: p}})} />
+          
+          <div className="flex justify-between items-center">
+            <p className="text-xs text-[var(--text-secondary)]">Protecciones de Salida</p>
+            <button onClick={() => setState({...state, transformador: {...state.transformador!, proteccionesSalida: [...(state.transformador?.proteccionesSalida || []), { tipo: 'Interruptor Automático', valorNominal: 0 }] }})} className="text-[var(--accent)]"><Plus size={14}/></button>
+          </div>
+          {(state.transformador?.proteccionesSalida || []).map((p, i) => (
+            <ProteccionFields key={i} label={`Salida ${i+1}`} value={p} onChange={(newP) => {
+                const newSalidas = [...(state.transformador?.proteccionesSalida || [])];
+                if (newP) newSalidas[i] = newP;
+                else newSalidas.splice(i, 1);
+                setState({...state, transformador: {...state.transformador!, proteccionesSalida: newSalidas}});
+            }} />
+          ))}
+        </div>
+      </div>
       
       <div className="mb-6 p-4 bg-slate-900 rounded-lg">
         <p className="text-sm text-[var(--text-secondary)]">Potencia Total Proyecto:</p>
