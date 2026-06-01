@@ -2,8 +2,8 @@ import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
 import { SymbolRenderer } from './SymbolRenderer';
 import { TransformadorUnifilar } from './symbols/TransformadorUnifilar';
-import { PIAUnifilar } from './symbols/PIAUnifilar';
-import { TableroUnifilar } from './symbols/TableroUnifilar';
+import { InterruptorAutomaticoUnifilar } from './symbols/InterruptorAutomaticoUnifilar';
+import { TableroSeccionalUnifilar } from './symbols/TableroSeccionalUnifilar';
 
 export const UnifilarCanvas = () => {
   const { state } = useProject();
@@ -13,7 +13,7 @@ export const UnifilarCanvas = () => {
     <div className="bg-[var(--bg-secondary)] p-8 rounded-2xl border border-slate-800 h-full">
       <h2 className="text-lg font-semibold text-white mb-6">Diagrama Unifilar</h2>
       
-      <svg width="100%" height="500" viewBox="0 0 500 500" className="bg-[var(--bg-primary)] rounded-lg">
+      <svg width="100%" height="800" viewBox="0 0 500 800" className="bg-[var(--bg-primary)] rounded-lg">
         {/* Transformador */}
         <foreignObject x="225" y="20" width="50" height="50">
            <TransformadorUnifilar className="w-full h-full text-white" />
@@ -23,9 +23,9 @@ export const UnifilarCanvas = () => {
         {/* Línea de conexión principal */}
         <line x1="250" y1="70" x2="250" y2="90" stroke="white" strokeWidth="2" />
         
-        {/* Protección Cabecera (PIA) */}
+        {/* Protección Cabecera (Interruptor Automático) */}
         <foreignObject x="235" y="90" width="30" height="40">
-           <PIAUnifilar className="w-full h-full text-white" />
+           <InterruptorAutomaticoUnifilar className="w-full h-full text-white" />
         </foreignObject>
 
         {/* Línea hacia la Barra */}
@@ -34,7 +34,7 @@ export const UnifilarCanvas = () => {
         {/* Barra Principal */}
         <line x1="50" y1="135" x2="450" y2="135" stroke="white" strokeWidth="4" />
 
-        {/* Tableros */}
+        {/* Tableros (Renderizado plano, evitando recursión para evitar duplicados en el diagrama) */}
         {(state.tableros || []).map((tablero, index) => {
           const x = 100 + index * 80;
           return (
@@ -49,7 +49,7 @@ export const UnifilarCanvas = () => {
 
               {/* Tablero Seccional */}
               <foreignObject x={x - 15} y={195} width="30" height="30">
-                  <TableroUnifilar className="w-full h-full text-white" />
+                  <TableroSeccionalUnifilar className="w-full h-full text-white" />
               </foreignObject>
 
               <text x={x} y={245} textAnchor="middle" fill="white" fontSize="10">{tablero.name}</text>
