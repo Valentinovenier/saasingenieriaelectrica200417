@@ -32,26 +32,26 @@ export const UnifilarCanvas = () => {
         <line x1="250" y1="70" x2="250" y2="90" stroke="white" strokeWidth="2" />
         
         {/* Protección Cabecera Transformador (Asumiendo Interruptor Automático por defecto o configurable) */}
-        <foreignObject x="235" y="90" width="30" height="40">
+        <foreignObject x="225" y="90" width="50" height="50">
            <ProteccionRenderer proteccion={state.transformador?.proteccionCabecera} className="w-full h-full" />
         </foreignObject>
 
         {/* Línea hacia la Barra */}
-        <line x1="250" y1="130" x2="250" y2="135" stroke="white" strokeWidth="2" />
+        <line x1="250" y1="140" x2="250" y2="145" stroke="white" strokeWidth="2" />
         
         {/* Barra Principal */}
-        <line x1="50" y1="135" x2="450" y2="135" stroke="white" strokeWidth="4" />
+        <line x1="50" y1="145" x2="450" y2="145" stroke="white" strokeWidth="4" />
 
         {/* Protecciones de Salida TGBT */}
         {(state.transformador?.proteccionesSalida || []).map((proteccion, index) => {
           const x = 50 + index * 60; // Posicionamiento automático horizontal
           return (
             <g key={index}>
-              <line x1={x} y1="135" x2={x} y2="155" stroke="white" strokeWidth="2" />
-              <foreignObject x={x - 15} y={155} width="30" height="40">
+              <line x1={x} y1="145" x2={x} y2="165" stroke="white" strokeWidth="2" />
+              <foreignObject x={x - 25} y={165} width="50" height="50">
                 <ProteccionRenderer proteccion={proteccion} className="w-full h-full" />
               </foreignObject>
-              <text x={x} y={210} textAnchor="middle" fill="white" fontSize="10">{proteccion.valorNominal} A</text>
+              <text x={x} y={225} textAnchor="middle" fill="white" fontSize="10">{proteccion.valorNominal} A</text>
             </g>
           );
         })}
@@ -62,14 +62,14 @@ export const UnifilarCanvas = () => {
           return (
             <g key={tablero.id}>
               {/* Conexión */}
-              <line x1={x} y1="135" x2={x} y2="155" stroke="white" strokeWidth="2" />
+              <line x1={x} y1="145" x2={x} y2="165" stroke="white" strokeWidth="2" />
               
               {/* Tablero Seccional */}
-              <foreignObject x={x - 15} y={155} width="30" height="30">
+              <foreignObject x={x - 20} y={165} width="40" height="40">
                   <TableroSeccionalUnifilar className="w-full h-full text-white" />
               </foreignObject>
 
-              <text x={x} y={200} textAnchor="middle" fill="white" fontSize="10">{tablero.name}</text>
+              <text x={x} y={220} textAnchor="middle" fill="white" fontSize="10">{tablero.name}</text>
             </g>
           );
         })}
