@@ -1,7 +1,7 @@
 import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
-import { Plus, Trash2 } from 'lucide-react';
-import { TableroSeccional, Transformador, Proteccion } from '../types/project';
+import { Plus } from 'lucide-react';
+import { Transformador, Proteccion } from '../types/project';
 import { engine } from '../engine';
 
 const ProteccionFields = ({ label, value, onChange }: { label: string, value?: Proteccion, onChange: (p: Proteccion | undefined) => void }) => (
@@ -27,119 +27,8 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
   </div>
 );
 
-const TableroItem = ({ tablero, onUpdate, onAddSub, onDelete }: { 
-  tablero: TableroSeccional; 
-  onUpdate: (id: string, updates: Partial<TableroSeccional>) => void;
-  onAddSub: (parentId: string) => void;
-  onDelete: (id: string) => void;
-}) => {
-  return (
-    <div className="ml-4 mt-2 p-3 bg-[var(--bg-primary)] rounded-lg border border-slate-700">
-      <div className="flex flex-col gap-2 mb-2">
-        <div className="flex items-center gap-2">
-          <input 
-            value={tablero.name || ''}
-            onChange={(e) => onUpdate(tablero.id, { name: e.target.value })}
-            className="flex-grow bg-transparent text-white border-b border-transparent focus:border-[var(--accent)] focus:outline-none"
-            placeholder="Nombre"
-          />
-          <button onClick={() => onAddSub(tablero.id)} className="text-[var(--accent)]">
-            <Plus size={16} />
-          </button>
-          <button onClick={() => onDelete(tablero.id)} className="text-red-500">
-            <Trash2 size={16} />
-          </button>
-        </div>
-        <input 
-          type="number"
-          value={tablero.potenciaTotal ?? ''}
-          onChange={(e) => onUpdate(tablero.id, { potenciaTotal: Number(e.target.value) })}
-          className="bg-[var(--bg-secondary)] text-sm text-white rounded px-2 py-1 border border-slate-700"
-          placeholder="Potencia (kVA)"
-        />
-        <div className="space-y-2">
-            <div className="flex justify-between items-center">
-                <p className="text-xs text-[var(--text-secondary)]">Protección de salida TGBT</p>
-                <button onClick={() => onUpdate(tablero.id, { proteccionesSalida: [...(tablero.proteccionesSalida || []), { tipo: 'Interruptor Automático', valorNominal: 0 }] })} className="text-[var(--accent)]"><Plus size={14}/></button>
-            </div>
-            {(tablero.proteccionesSalida || []).map((p, i) => (
-                <ProteccionFields key={i} label={`Salida ${i+1}`} value={p} onChange={(newP) => {
-                    const newSalidas = [...(tablero.proteccionesSalida || [])];
-                    if (newP) newSalidas[i] = newP;
-                    else newSalidas.splice(i, 1);
-                    onUpdate(tablero.id, { proteccionesSalida: newSalidas });
-                }} />
-            ))}
-        </div>
-      </div>
-      {tablero.subTableros?.map(sub => (
-        <TableroItem key={sub.id} tablero={sub} onUpdate={onUpdate} onAddSub={onAddSub} onDelete={onDelete} />
-      ))}
-    </div>
-  );
-};
-
 export const UnifilarEditor = () => {
   const { state, setState } = useProject();
-
-  const handleTransformadorChange = (field: keyof Transformador, value: number) => {
-    if (!state) return;
-    setState({ 
-      ...state, 
-      transformador: { 
-        ...state.transformador!, 
-        [field]: value 
-      } 
-    });
-  };
-
-  const updateTableroRecursive = (tableros: TableroSeccional[] | undefined, id: string, updates: Partial<TableroSeccional>): TableroSeccional[] => {
-    return (tableros || []).map(t => {
-      if (t.id === id) return { ...t, ...updates };
-      return { ...t, subTableros: updateTableroRecursive(t.subTableros, id, updates) };
-    });
-  };
-
-  const addSubTableroRecursive = (tableros: TableroSeccional[] | undefined, parentId: string): TableroSeccional[] => {
-    return (tableros || []).map(t => {
-      if (t.id === parentId) {
-        return {
-          ...t,
-          subTableros: [...(t.subTableros || []), {
-            id: Date.now().toString(),
-            name: `Sub ${(t.subTableros?.length || 0) + 1}`,
-            tipo: 'Fuerza Motriz',
-            potenciaTotal: 0,
-            subTableros: [],
-            proteccionesSalida: []
-          }]
-        };
-      }
-      return { ...t, subTableros: addSubTableroRecursive(t.subTableros, parentId) };
-    });
-  };
-
-  const deleteTableroRecursive = (tableros: TableroSeccional[] | undefined, id: string): TableroSeccional[] => {
-    return (tableros || []).filter(t => t.id !== id).map(t => ({
-      ...t,
-      subTableros: deleteTableroRecursive(t.subTableros, id)
-    }));
-  };
-
-  const handleAddTopTablero = () => {
-    if (!state) return;
-    setState({ 
-      ...state, 
-      tableros: [...(state.tableros || []), {
-        id: Date.now().toString(),
-        name: `Tablero ${(state.tableros?.length || 0) + 1}`,
-        tipo: 'Fuerza Motriz',
-        potenciaTotal: 0,
-        subTableros: [],
-        proteccionesSalida: []
-      }] 
-    });
-  };
 
   if (!state) return null;
 
@@ -158,14 +47,19 @@ export const UnifilarEditor = () => {
       
       {/* Sección de Protecciones TGBT */}
       <div className="mb-6 p-4 bg-slate-900 rounded-lg">
-        <h3 className="text-md font-semibold text-white mb-2">Protecciones TGBT</h3>
+        <h3 className="text-xl font-bold text-white mb-4">Protección Cabecera</h3>
+        <ProteccionFields label="" value={state.transformador?.proteccionCabecera} onChange={(p) => setState({...state, transformador: {...state.transformador!, proteccionCabecera: p}})} />
+        
+        <div className="mt-6 flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-white">Protección de Salida TGBT</h3>
+            <button 
+                onClick={() => setState({...state, transformador: {...state.transformador!, proteccionesSalida: [...(state.transformador?.proteccionesSalida || []), { tipo: 'Interruptor Automático', valorNominal: 0 }] }})} 
+                className="bg-[var(--accent)] text-white p-3 rounded-lg hover:bg-opacity-80"
+            >
+                <Plus size={24} />
+            </button>
+        </div>
         <div className="space-y-2">
-          <ProteccionFields label="Cabecera" value={state.transformador?.proteccionCabecera} onChange={(p) => setState({...state, transformador: {...state.transformador!, proteccionCabecera: p}})} />
-          
-          <div className="flex justify-between items-center">
-            <p className="text-xs text-[var(--text-secondary)]">Protecciones de Salida</p>
-            <button onClick={() => setState({...state, transformador: {...state.transformador!, proteccionesSalida: [...(state.transformador?.proteccionesSalida || []), { tipo: 'Interruptor Automático', valorNominal: 0 }] }})} className="text-[var(--accent)]"><Plus size={14}/></button>
-          </div>
           {(state.transformador?.proteccionesSalida || []).map((p, i) => (
             <ProteccionFields key={i} label={`Salida ${i+1}`} value={p} onChange={(newP) => {
                 const newSalidas = [...(state.transformador?.proteccionesSalida || [])];
@@ -180,25 +74,6 @@ export const UnifilarEditor = () => {
       <div className="mb-6 p-4 bg-slate-900 rounded-lg">
         <p className="text-sm text-[var(--text-secondary)]">Potencia Total Proyecto:</p>
         <p className="text-2xl font-bold text-white">{engine.potencia.total(state.tableros || [])} kVA</p>
-      </div>
-
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-md text-white">Tableros</h3>
-        <button onClick={handleAddTopTablero} className="bg-[var(--accent)] text-white p-2 rounded-lg">
-          <Plus size={16} />
-        </button>
-      </div>
-
-      <div className="space-y-2">
-        {state.tableros?.map((tablero: TableroSeccional) => (
-          <TableroItem 
-            key={tablero.id} 
-            tablero={tablero} 
-            onUpdate={(id, updates) => setState({...state, tableros: updateTableroRecursive(state.tableros, id, updates)})}
-            onAddSub={(parentId) => setState({...state, tableros: addSubTableroRecursive(state.tableros, parentId)})}
-            onDelete={(id) => setState({...state, tableros: deleteTableroRecursive(state.tableros, id)})}
-          />
-        ))}
       </div>
 
       <div className="mt-8 p-6 bg-slate-900 rounded-2xl border border-slate-700">
