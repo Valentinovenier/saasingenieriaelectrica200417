@@ -10,19 +10,18 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
     <div className="flex gap-2">
       <select 
         className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
-        value={value?.tipo || 'Termomagnética'}
+        value={value?.tipo || 'Interruptor Automático'}
         onChange={(e) => onChange({ ...value, tipo: e.target.value as any, valorNominal: value?.valorNominal || 0 })}
       >
-        <option value="Termomagnética">Termomagnética</option>
-        <option value="Fusible">Fusible</option>
-        <option value="Interruptor Automático">Int. Automático</option>
+        <option value="Interruptor Automático">Interruptor Automático</option>
+        <option value="PIA">PIA</option>
       </select>
       <input 
         type="number" 
         placeholder="A" 
         className="w-16 bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
         value={value?.valorNominal || ''}
-        onChange={(e) => onChange({ ...value, tipo: value?.tipo || 'Termomagnética', valorNominal: Number(e.target.value) })}
+        onChange={(e) => onChange({ ...value, tipo: value?.tipo || 'Interruptor Automático', valorNominal: Number(e.target.value) })}
       />
     </div>
   </div>
@@ -158,27 +157,6 @@ export const UnifilarEditor = () => {
   return (
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
       <h2 className="text-lg font-semibold text-white mb-6">Configuración TGBT</h2>
-      
-      {/* Nueva Sección de Protecciones TGBT */}
-      <div className="mb-6 p-4 bg-slate-900 rounded-lg">
-        <h3 className="text-md font-semibold text-white mb-2">Protecciones TGBT</h3>
-        <div className="space-y-2">
-          <ProteccionFields label="Cabecera" value={state.transformador?.proteccionCabecera} onChange={(p) => setState({...state, transformador: {...state.transformador!, proteccionCabecera: p}})} />
-          
-          <div className="flex justify-between items-center">
-            <p className="text-xs text-[var(--text-secondary)]">Protecciones de Salida</p>
-            <button onClick={() => setState({...state, transformador: {...state.transformador!, proteccionesSalida: [...(state.transformador?.proteccionesSalida || []), { tipo: 'Termomagnética', valorNominal: 0 }] }})} className="text-[var(--accent)]"><Plus size={14}/></button>
-          </div>
-          {(state.transformador?.proteccionesSalida || []).map((p, i) => (
-            <ProteccionFields key={i} label={`Salida ${i+1}`} value={p} onChange={(newP) => {
-                const newSalidas = [...(state.transformador?.proteccionesSalida || [])];
-                if (newP) newSalidas[i] = newP;
-                else newSalidas.splice(i, 1);
-                setState({...state, transformador: {...state.transformador!, proteccionesSalida: newSalidas}});
-            }} />
-          ))}
-        </div>
-      </div>
       
       <div className="mb-6 p-4 bg-slate-900 rounded-lg">
         <p className="text-sm text-[var(--text-secondary)]">Potencia Total Proyecto:</p>

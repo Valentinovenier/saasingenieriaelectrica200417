@@ -1,9 +1,21 @@
 import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
-import { SymbolRenderer } from './SymbolRenderer';
 import { TransformadorUnifilar } from './symbols/TransformadorUnifilar';
 import { InterruptorAutomaticoUnifilar } from './symbols/InterruptorAutomaticoUnifilar';
 import { TableroSeccionalUnifilar } from './symbols/TableroSeccionalUnifilar';
+import { Proteccion } from '../types/project';
+
+import { PIAUnifilar } from './symbols/PIAUnifilar';
+// ... dentro de ProteccionRenderer
+const ProteccionRenderer = ({ proteccion, className }: { proteccion?: Proteccion, className?: string }) => {
+  if (proteccion?.tipo === 'Interruptor Automático') {
+    return <InterruptorAutomaticoUnifilar className={className} />;
+  }
+  if (proteccion?.tipo === 'PIA') {
+    return <PIAUnifilar className={className} />;
+  }
+  return <div className={`border-2 border-dashed border-white ${className}`} title={proteccion?.tipo} />; 
+};
 
 export const UnifilarCanvas = () => {
   const { state } = useProject();
@@ -23,9 +35,9 @@ export const UnifilarCanvas = () => {
         {/* Línea de conexión principal */}
         <line x1="250" y1="70" x2="250" y2="90" stroke="white" strokeWidth="2" />
         
-        {/* Protección Cabecera (Interruptor Automático) */}
+        {/* Protección Cabecera Transformador (Asumiendo Interruptor Automático por defecto o configurable) */}
         <foreignObject x="235" y="90" width="30" height="40">
-           <InterruptorAutomaticoUnifilar className="w-full h-full text-white" />
+           <ProteccionRenderer proteccion={state.transformador?.proteccionCabecera} className="w-full h-full" />
         </foreignObject>
 
         {/* Línea hacia la Barra */}
@@ -34,7 +46,7 @@ export const UnifilarCanvas = () => {
         {/* Barra Principal */}
         <line x1="50" y1="135" x2="450" y2="135" stroke="white" strokeWidth="4" />
 
-        {/* Tableros (Renderizado plano, evitando recursión para evitar duplicados en el diagrama) */}
+        {/* Tableros */}
         {(state.tableros || []).map((tablero, index) => {
           const x = 100 + index * 80;
           return (
@@ -42,9 +54,9 @@ export const UnifilarCanvas = () => {
               {/* Conexión */}
               <line x1={x} y1="135" x2={x} y2="155" stroke="white" strokeWidth="2" />
               
-              {/* Protección Salida */}
-              <foreignObject x={x - 10} y={155} width="20" height="40">
-                  <SymbolRenderer name={tablero.proteccionCabecera?.tipo === 'Fusible' ? 'fusible' : 'termomagnetica'} category="protecciones" className="w-full h-full text-white" />
+              {/* Protección Cabecera Tablero */}
+              <foreignObject x={x - 15} y={155} width="30" height="40">
+                  <ProteccionRenderer proteccion={tablero.proteccionCabecera} className="w-full h-full" />
               </foreignObject>
 
               {/* Tablero Seccional */}
