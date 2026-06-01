@@ -33,7 +33,7 @@ export const UnifilarCanvas = () => {
         </foreignObject>
         
         {/* Línea de conexión principal */}
-        <line x1="250" y1={20 + SYMBOL_SIZE} x2="250" y2={20 + SYMBOL_SIZE + 20} stroke="white" strokeWidth="2" />
+        <line x1="250" y1={20 + SYMBOL_SIZE} x2="250" y2={20 + SYMBOL_SIZE + 20} stroke="white" strokeWidth="4" />
         
         {/* Protección Cabecera Transformador */}
         <foreignObject x={250 - SYMBOL_SIZE/2} y={20 + SYMBOL_SIZE + 20} width={SYMBOL_SIZE} height={SYMBOL_SIZE}>
@@ -41,10 +41,10 @@ export const UnifilarCanvas = () => {
         </foreignObject>
 
         {/* Línea hacia la Barra */}
-        <line x1="250" y1={20 + SYMBOL_SIZE*2 + 20} x2="250" y2={20 + SYMBOL_SIZE*2 + 40} stroke="white" strokeWidth="2" />
+        <line x1="250" y1={20 + SYMBOL_SIZE*2 + 20} x2="250" y2={20 + SYMBOL_SIZE*2 + 40} stroke="white" strokeWidth="4" />
         
-        {/* Barra Principal */}
-        <line x1="50" y1={20 + SYMBOL_SIZE*2 + 40} x2="450" y2={20 + SYMBOL_SIZE*2 + 40} stroke="white" strokeWidth="4" />
+        {/* Barra Principal (Grosor aumentado a 8 para resaltar) */}
+        <line x1="50" y1={20 + SYMBOL_SIZE*2 + 40} x2="450" y2={20 + SYMBOL_SIZE*2 + 40} stroke="white" strokeWidth="8" />
 
         {/* Protecciones de Salida TGBT */}
         {(state.transformador?.proteccionesSalida || []).map((proteccion, index) => {
@@ -52,11 +52,11 @@ export const UnifilarCanvas = () => {
           const yBarra = 20 + SYMBOL_SIZE*2 + 40;
           return (
             <g key={index}>
-              <line x1={x} y1={yBarra} x2={x} y2={yBarra + 20} stroke="white" strokeWidth="2" />
-              <foreignObject x={x - SYMBOL_SIZE/2} y={yBarra + 20} width={SYMBOL_SIZE} height={SYMBOL_SIZE}>
+              <line x1={x} y1={yBarra} x2={x} y2={yBarra + 30} stroke="white" strokeWidth="4" />
+              <foreignObject x={x - SYMBOL_SIZE/2} y={yBarra + 30} width={SYMBOL_SIZE} height={SYMBOL_SIZE}>
                 <ProteccionRenderer proteccion={proteccion} className="w-full h-full text-white" />
               </foreignObject>
-              <text x={x} y={yBarra + 20 + SYMBOL_SIZE + 20} textAnchor="middle" fill="white" fontSize="12">{proteccion.valorNominal} A</text>
+              <text x={x} y={yBarra + 30 + SYMBOL_SIZE + 20} textAnchor="middle" fill="white" fontSize="14">{proteccion.valorNominal} A</text>
             </g>
           );
         })}
@@ -68,14 +68,14 @@ export const UnifilarCanvas = () => {
           return (
             <g key={tablero.id}>
               {/* Conexión */}
-              <line x1={x} y1={yBarra} x2={x} y2={yBarra + 20} stroke="white" strokeWidth="2" />
+              <line x1={x} y1={yBarra} x2={x} y2={yBarra + 30} stroke="white" strokeWidth="4" />
               
               {/* Tablero Seccional */}
-              <foreignObject x={x - SYMBOL_SIZE/2} y={yBarra + 20} width={SYMBOL_SIZE} height={SYMBOL_SIZE}>
+              <foreignObject x={x - SYMBOL_SIZE/2} y={yBarra + 30} width={SYMBOL_SIZE} height={SYMBOL_SIZE}>
                   <TableroSeccionalUnifilar className="w-full h-full text-white" />
               </foreignObject>
 
-              <text x={x} y={yBarra + 20 + SYMBOL_SIZE + 20} textAnchor="middle" fill="white" fontSize="12">{tablero.name}</text>
+              <text x={x} y={yBarra + 30 + SYMBOL_SIZE + 20} textAnchor="middle" fill="white" fontSize="14">{tablero.name}</text>
             </g>
           );
         })}
