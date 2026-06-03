@@ -118,36 +118,28 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
             </div>
         </div>
 
-        {/* Configuración de Conductores */}
-        <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700 col-span-2">
-            <h3 className="text-lg font-bold text-white mb-4">Configuración de Conductores</h3>
+        {/* Transformador y Conductores */}
+        <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
+            <h3 className="text-lg font-bold text-white mb-4">Transformador y Tramo Trafo-TGBT</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div>
+                        <label className="text-xs text-[var(--text-secondary)] mb-1 block">Potencia (kVA)</label>
+                        <input type="number" placeholder="kVA" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.potencia ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, potencia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+                    </div>
+                    <div>
+                        <label className="text-xs text-[var(--text-secondary)] mb-1 block">Impedancia (Ω)</label>
+                        <input type="number" step="0.001" placeholder="Ω" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.impedancia ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, impedancia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+                    </div>
+                </div>
                 <ConductorForm label="Tramo Trafo - TGBT" conductor={data.transformador?.conductorTrafoTGBT} onChange={(c) => setData({...data, transformador: {...data.transformador!, conductorTrafoTGBT: c}})} />
-                <ConductorForm label="Tramo TGBT - Barra Ómnibus" conductor={data.conductorTGBTBarra} onChange={(c) => setData({...data, conductorTGBTBarra: c})} />
             </div>
         </div>
 
-        {/* Transformador */}
+        {/* Conductores TGBT - Barra */}
         <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
-            <h3 className="text-lg font-bold text-white mb-4">Transformador</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Potencia (kVA)</label>
-                    <input type="number" placeholder="kVA" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.potencia ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, potencia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
-                </div>
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">V Primario (V)</label>
-                    <input type="number" placeholder="V" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.tensionPrimario ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, tensionPrimario: e.target.value === '' ? 0 : Number(e.target.value)}})} />
-                </div>
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">V Secundario (V)</label>
-                    <input type="number" placeholder="V" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.tensionSecundario ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, tensionSecundario: e.target.value === '' ? 0 : Number(e.target.value)}})} />
-                </div>
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Impedancia (Ω)</label>
-                    <input type="number" step="0.001" placeholder="Ω" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={data.transformador?.impedancia ?? ''} onChange={(e) => setData({...data, transformador: {...data.transformador!, impedancia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
-                </div>
-            </div>
+            <h3 className="text-lg font-bold text-white mb-4">Tramo TGBT - Barra Ómnibus</h3>
+            <ConductorForm label="Configuración" conductor={data.conductorTGBTBarra} onChange={(c) => setData({...data, conductorTGBTBarra: c})} />
         </div>
 
         {/* Protecciones */}

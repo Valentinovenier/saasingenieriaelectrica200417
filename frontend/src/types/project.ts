@@ -15,6 +15,7 @@ export interface Conductor {
   aislacion?: AislacionConductor;
   seccion?: number; // mm²
   longitud?: number; // m
+  metodoInstalacion?: string;
 }
 
 export interface Proteccion {
