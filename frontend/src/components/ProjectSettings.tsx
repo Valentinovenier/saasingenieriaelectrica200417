@@ -118,26 +118,28 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
             </div>
         </div>
 
-        {/* Parámetros de Protección y Cable */}
+        {/* Configuración de Conductores */}
         <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
-            <h3 className="text-lg font-bold text-white mb-4">Configuración de Tramos</h3>
+            <h3 className="text-lg font-bold text-white mb-4">Configuración de Conductores</h3>
             <div className="space-y-4">
                 <ConductorForm label="Tramo Trafo - TGBT" conductor={data.transformador?.conductorTrafoTGBT} onChange={(c) => setData({...data, transformador: {...data.transformador!, conductorTrafoTGBT: c}})} />
                 <ConductorForm label="Tramo TGBT - Barra Ómnibus" conductor={data.conductorTGBTBarra} onChange={(c) => setData({...data, conductorTGBTBarra: c})} />
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Marca Protección</label>
-                    <select 
-                        className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
-                        value={(data as any).marcaProteccion || 'Schneider'} 
-                        onChange={(e) => setData({...data, marcaProteccion: e.target.value} as any)}
-                    >
-                        <option value="Schneider">Schneider</option>
-                        <option value="ABB">ABB</option>
-                    </select>
-                </div>
+        </div>
+
+        {/* Marca de Protecciones */}
+        <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
+            <h3 className="text-lg font-bold text-white mb-4">Protecciones</h3>
+            <div>
+                <label className="text-xs text-[var(--text-secondary)] mb-1 block">Marca Protección</label>
+                <select 
+                    className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
+                    value={(data as any).marcaProteccion || 'Schneider'} 
+                    onChange={(e) => setData({...data, marcaProteccion: e.target.value} as any)}
+                >
+                    <option value="Schneider">Schneider</option>
+                    <option value="ABB">ABB</option>
+                </select>
             </div>
         </div>
 
