@@ -10,10 +10,13 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
     <div className="flex gap-2">
       <select 
         className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
-        value={value?.tipo || 'Interruptor Automático'}
+        value={value?.tipo || 'Termomagnética'}
         onChange={(e) => onChange({ ...value, tipo: e.target.value as any, valorNominal: value?.valorNominal || 0 })}
       >
-        <option value="Interruptor Automático">Interruptor Automático</option>
+        <option value="Termomagnética">Termomagnética</option>
+        <option value="Fusible">Fusible</option>
+        <option value="Interruptor Automático Abierto">Int. Aut. Abierto</option>
+        <option value="Interruptor Automático Compacto">Int. Aut. Compacto</option>
         <option value="PIA">PIA</option>
       </select>
       <input 
@@ -21,8 +24,16 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
         placeholder="A" 
         className="w-16 bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
         value={value?.valorNominal || ''}
-        onChange={(e) => onChange({ ...value, tipo: value?.tipo || 'Interruptor Automático', valorNominal: Number(e.target.value) })}
+        onChange={(e) => onChange({ ...value, tipo: value?.tipo || 'Termomagnética', valorNominal: Number(e.target.value) })}
       />
+      <select 
+        className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
+        value={value?.marca || 'Schneider'}
+        onChange={(e) => onChange({ ...value, marca: e.target.value as any })}
+      >
+        <option value="Schneider">Schneider</option>
+        <option value="ABB">ABB</option>
+      </select>
     </div>
   </div>
 );
@@ -53,7 +64,7 @@ export const UnifilarEditor = () => {
         <div className="mt-6 flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold text-white">Protección de Salida TGBT</h3>
             <button 
-                onClick={() => setState({...state, transformador: {...state.transformador!, proteccionesSalida: [...(state.transformador?.proteccionesSalida || []), { tipo: 'Interruptor Automático', valorNominal: 0 }] }})} 
+                onClick={() => setState({...state, transformador: {...state.transformador!, proteccionesSalida: [...(state.transformador?.proteccionesSalida || []), { tipo: 'Interruptor Automático Compacto', valorNominal: 0 }] }})} 
                 className="bg-[var(--accent)] text-white p-3 rounded-lg hover:bg-opacity-80"
             >
                 <Plus size={24} />

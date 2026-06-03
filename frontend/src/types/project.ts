@@ -19,9 +19,10 @@ export interface Conductor {
 }
 
 export interface Proteccion {
-  tipo: 'Termomagnética' | 'Fusible' | 'Interruptor Automático' | 'PIA';
+  tipo: 'Termomagnética' | 'Fusible' | 'Interruptor Automático Abierto' | 'Interruptor Automático Compacto' | 'PIA';
   valorNominal: number;
   curva?: string;
+  marca?: 'Schneider' | 'ABB';
 }
 
 export interface TableroSeccional {

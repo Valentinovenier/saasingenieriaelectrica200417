@@ -14,7 +14,8 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
       >
         <option value="Termomagnética">Termomagnética</option>
         <option value="Fusible">Fusible</option>
-        <option value="Interruptor Automático">Int. Automático</option>
+        <option value="Interruptor Automático Abierto">Int. Aut. Abierto</option>
+        <option value="Interruptor Automático Compacto">Int. Aut. Compacto</option>
       </select>
       <input 
         type="number" 
@@ -23,6 +24,14 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
         value={value?.valorNominal || ''}
         onChange={(e) => onChange({ ...value, tipo: value?.tipo || 'Termomagnética', valorNominal: Number(e.target.value) })}
       />
+      <select 
+        className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
+        value={value?.marca || 'Schneider'}
+        onChange={(e) => onChange({ ...value, marca: e.target.value as any })}
+      >
+        <option value="Schneider">Schneider</option>
+        <option value="ABB">ABB</option>
+      </select>
     </div>
   </div>
 );
