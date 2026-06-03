@@ -15,7 +15,7 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
               tipo: newTipo,
               material: newTipo === 'Cable' ? (conductor?.material || 'Cobre') : undefined,
               aislacion: newTipo === 'Cable' ? (conductor?.aislacion || 'PVC') : undefined,
-              seccion: newTipo === 'Cable' ? (conductor?.seccion || 0) : undefined,
+              seccion: undefined, // Asegurar que sea undefined
               metodoInstalacion: newTipo === 'Cable' ? (conductor?.metodoInstalacion || '') : undefined,
               longitud: conductor?.longitud || 0,
             };
@@ -44,13 +44,6 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
               <option value="PVC">PVC</option>
               <option value="XLPE">XLPE</option>
             </select>
-            <input 
-              type="number" 
-              placeholder="Sección (mm²)" 
-              className="bg-slate-950 text-white text-xs rounded p-1"
-              value={conductor.seccion || ''}
-              onChange={(e) => onChange({ ...conductor, seccion: Number(e.target.value) })}
-            />
             <select 
               className="bg-slate-950 text-white text-xs rounded p-1 col-span-2"
               value={conductor.metodoInstalacion || ''}
