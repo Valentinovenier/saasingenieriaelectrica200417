@@ -117,6 +117,35 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
             </div>
         </div>
 
+        {/* Parámetros de Protección y Cable */}
+        <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
+            <h3 className="text-lg font-bold text-white mb-4">Protecciones y Cables</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Marca Protección</label>
+                    <select 
+                        className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
+                        value={(data as any).marcaProteccion || 'Schneider'} 
+                        onChange={(e) => setData({...data, marcaProteccion: e.target.value} as any)}
+                    >
+                        <option value="Schneider">Schneider</option>
+                        <option value="ABB">ABB</option>
+                    </select>
+                </div>
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Aislación Cable</label>
+                    <select 
+                        className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
+                        value={(data as any).aislacionCable || 'PVC'} 
+                        onChange={(e) => setData({...data, aislacionCable: e.target.value} as any)}
+                    >
+                        <option value="PVC">PVC</option>
+                        <option value="XLPE">XLPE</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         {/* Transformador */}
         <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
             <h3 className="text-lg font-bold text-white mb-4">Transformador</h3>
