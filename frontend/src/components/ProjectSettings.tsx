@@ -10,7 +10,11 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
       <select 
         className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
         value={value?.tipo || 'Termomagnética'}
-        onChange={(e) => onChange({ ...value, tipo: e.target.value as any, valorNominal: value?.valorNominal || 0 })}
+        onChange={(e) => onChange({ 
+          ...value, 
+          tipo: (e.target.value as any) || 'Termomagnética', 
+          valorNominal: value?.valorNominal || 0 
+        })}
       >
         <option value="Termomagnética">Termomagnética</option>
         <option value="Fusible">Fusible</option>
