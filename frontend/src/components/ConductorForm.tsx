@@ -8,7 +8,14 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
         <select 
           className="bg-slate-950 text-white text-xs rounded p-1"
           value={conductor?.tipo || 'Cable'}
-          onChange={(e) => onChange({ ...conductor, tipo: (e.target.value as TipoConductor) || 'Cable', material: conductor?.material || 'Cobre', aislacion: conductor?.aislacion || 'PVC' })}
+          onChange={(e) => onChange({ 
+            ...conductor, 
+            tipo: (e.target.value as TipoConductor) || 'Cable', 
+            material: conductor?.material || 'Cobre', 
+            aislacion: conductor?.aislacion || 'PVC',
+            seccion: conductor?.seccion || 0,
+            longitud: conductor?.longitud || 0
+          })}
         >
           <option value="Cable">Cable</option>
           <option value="CEP">Blindobarra (CEP)</option>
