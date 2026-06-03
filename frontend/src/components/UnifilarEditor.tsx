@@ -24,7 +24,11 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
         placeholder="A" 
         className="w-16 bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
         value={value?.valorNominal || ''}
-        onChange={(e) => onChange({ ...value, tipo: value?.tipo || 'Termomagnética', valorNominal: Number(e.target.value) })}
+        onChange={(e) => onChange({ 
+          ...value, 
+          tipo: value?.tipo || 'Termomagnética', 
+          valorNominal: Number(e.target.value) 
+        })}
       />
       <select 
         className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"

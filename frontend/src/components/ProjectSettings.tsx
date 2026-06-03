@@ -16,15 +16,19 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
         <option value="Fusible">Fusible</option>
         <option value="Interruptor Automático Abierto">Int. Aut. Abierto</option>
         <option value="Interruptor Automático Compacto">Int. Aut. Compacto</option>
+        <option value="PIA">PIA</option>
       </select>
       <input 
         type="number" 
         placeholder="A" 
         className="w-16 bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
         value={value?.valorNominal || ''}
-        onChange={(e) => onChange({ ...value, tipo: value?.tipo || 'Termomagnética', valorNominal: Number(e.target.value) })}
+        onChange={(e) => onChange({ 
+          ...value, 
+          tipo: value?.tipo || 'Termomagnética', 
+          valorNominal: Number(e.target.value) 
+        })}
       />
-      <select 
         className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
         value={value?.marca || 'Schneider'}
         onChange={(e) => onChange({ ...value, marca: e.target.value as any })}

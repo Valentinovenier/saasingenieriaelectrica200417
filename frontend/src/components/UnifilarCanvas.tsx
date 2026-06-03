@@ -7,7 +7,7 @@ import { PIAUnifilar } from './symbols/ProteccionesUnifilares';
 import { Proteccion } from '../types/project';
 
 const ProteccionRenderer = ({ proteccion, className }: { proteccion?: Proteccion, className?: string }) => {
-  if (proteccion?.tipo === 'Interruptor Automático') {
+  if (proteccion?.tipo === 'Interruptor Automático Abierto' || proteccion?.tipo === 'Interruptor Automático Compacto') {
     return <InterruptorAutomaticoSvg className={className} />;
   }
   if (proteccion?.tipo === 'PIA') {
