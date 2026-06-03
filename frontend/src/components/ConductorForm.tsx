@@ -1,4 +1,4 @@
-import { Conductor } from '../types/project';
+import { Conductor, TipoConductor } from '../types/project';
 
 export const ConductorForm = ({ label, conductor, onChange }: { label: string, conductor?: Conductor, onChange: (c: Conductor) => void }) => {
   return (
