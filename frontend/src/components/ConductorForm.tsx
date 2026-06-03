@@ -9,11 +9,10 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
           className="bg-slate-950 text-white text-xs rounded p-1"
           value={conductor?.tipo || 'Cable'}
           onChange={(e) => onChange({ 
-            ...conductor, 
-            tipo: (e.target.value as TipoConductor) || 'Cable', 
-            material: conductor?.material || 'Cobre', 
-            aislacion: conductor?.aislacion || 'PVC',
-            seccion: conductor?.seccion || 0,
+            tipo: (e.target.value as TipoConductor),
+            material: 'Cobre',
+            aislacion: 'PVC',
+            seccion: 0,
             longitud: conductor?.longitud || 0
           })}
         >
@@ -26,7 +25,10 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
             <select 
               className="bg-slate-950 text-white text-xs rounded p-1"
               value={conductor.material || 'Cobre'}
-              onChange={(e) => onChange({ ...conductor, material: e.target.value as any })}
+              onChange={(e) => onChange({ 
+                ...conductor, 
+                material: e.target.value as any 
+              })}
             >
               <option value="Cobre">Cobre</option>
               <option value="Aluminio">Aluminio</option>
@@ -34,7 +36,10 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
             <select 
               className="bg-slate-950 text-white text-xs rounded p-1"
               value={conductor.aislacion || 'PVC'}
-              onChange={(e) => onChange({ ...conductor, aislacion: e.target.value as any })}
+              onChange={(e) => onChange({ 
+                ...conductor, 
+                aislacion: e.target.value as any 
+              })}
             >
               <option value="PVC">PVC</option>
               <option value="XLPE">XLPE</option>
@@ -44,7 +49,10 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
               placeholder="Sección (mm²)" 
               className="bg-slate-950 text-white text-xs rounded p-1"
               value={conductor.seccion || ''}
-              onChange={(e) => onChange({ ...conductor, seccion: Number(e.target.value) })}
+              onChange={(e) => onChange({ 
+                ...conductor, 
+                seccion: Number(e.target.value) 
+              })}
             />
           </>
         )}
@@ -53,7 +61,10 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
           placeholder="Longitud (m)" 
           className="bg-slate-950 text-white text-xs rounded p-1"
           value={conductor?.longitud || ''}
-          onChange={(e) => onChange({ ...conductor, longitud: Number(e.target.value) })}
+          onChange={(e) => onChange({ 
+            ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
+            longitud: Number(e.target.value) 
+          })}
         />
       </div>
     </div>
