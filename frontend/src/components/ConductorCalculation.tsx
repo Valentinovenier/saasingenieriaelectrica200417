@@ -1,15 +1,6 @@
 import { useState } from 'react';
-import { Project } from '../types/project';
-
-type TipoConductor = 'Cable' | 'CEP';
-type Material = 'Cobre' | 'Aluminio';
-
-interface ConfiguracionTramo {
-  longitud: number;
-  tipoConductor?: TipoConductor;
-  material?: Material;
-  metodoInstalacion?: string;
-}
+import { Project, Conductor } from '../types/project';
+import { ConductorForm } from './ConductorForm';
 
 const TRAMOS_ELECTRICOS = [
   { id: 'trafo-tgbt', label: 'Transformador - TGBT' },
@@ -18,21 +9,13 @@ const TRAMOS_ELECTRICOS = [
   { id: 'salida-tablero', label: 'Interruptor de Salida - Tablero Seccional' },
 ];
 
-const METODOS_INSTALACION = [
-  'Bandeja perforada',
-  'Bandeja tipo escalera',
-  'Embebido en pared',
-  'Subterráneo en ducto',
-  'Al aire libre',
-];
-
 export const ConductorCalculation = ({ project }: { project: Project }) => {
-  const [configuraciones, setConfiguraciones] = useState<Record<string, ConfiguracionTramo>>({});
+  const [conductores, setConductores] = useState<Record<string, Conductor>>({});
 
-  const updateConfig = (id: string, field: keyof ConfiguracionTramo, value: any) => {
-    setConfiguraciones(prev => ({
+  const updateConductor = (tramoId: string, conductor: Conductor) => {
+    setConductores(prev => ({
       ...prev,
-      [id]: { ...prev[id], [field]: value }
+      [tramoId]: conductor
     }));
   };
 
@@ -42,53 +25,19 @@ export const ConductorCalculation = ({ project }: { project: Project }) => {
       
       <div className="space-y-4">
         {TRAMOS_ELECTRICOS.map((tramo) => {
-          const config = configuraciones[tramo.id] || { longitud: 0 };
+          const conductor = conductores[tramo.id];
+          
           return (
             <div key={tramo.id} className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
               <h3 className="text-lg font-semibold text-white mb-3">{tramo.label}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <input 
-                  type="number" 
-                  placeholder="Longitud (m)" 
-                  className="bg-[var(--bg-secondary)] p-2 rounded-lg text-white border border-slate-600" 
-                  value={config.longitud || ''}
-                  onChange={(e) => updateConfig(tramo.id, 'longitud', Number(e.target.value))}
-                />
-                <select 
-                  className="bg-[var(--bg-secondary)] p-2 rounded-lg text-white border border-slate-600"
-                  value={config.tipoConductor || ''}
-                  onChange={(e) => updateConfig(tramo.id, 'tipoConductor', e.target.value as TipoConductor)}
-                >
-                  <option value="">Tipo Conductor</option>
-                  <option value="Cable">Cable</option>
-                  <option value="CEP">CEP</option>
-                </select>
-
-                {config.tipoConductor === 'Cable' && (
-                  <select 
-                    className="bg-[var(--bg-secondary)] p-2 rounded-lg text-white border border-slate-600"
-                    value={config.material || ''}
-                    onChange={(e) => updateConfig(tramo.id, 'material', e.target.value as Material)}
-                  >
-                    <option value="">Material</option>
-                    <option value="Cobre">Cobre</option>
-                    <option value="Aluminio">Aluminio</option>
-                  </select>
-                )}
-
-                {(config.tipoConductor === 'Cable' || config.tipoConductor === 'CEP') && (
-                  <select 
-                    className="bg-[var(--bg-secondary)] p-2 rounded-lg text-white border border-slate-600"
-                    value={config.metodoInstalacion || ''}
-                    onChange={(e) => updateConfig(tramo.id, 'metodoInstalacion', e.target.value)}
-                  >
-                    <option value="">Método de Instalación</option>
-                    {METODOS_INSTALACION.map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                )}
-                
-                <button className="bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold">Calcular</button>
-              </div>
+              
+              <ConductorForm 
+                label={`Configuración ${tramo.label}`}
+                conductor={conductor}
+                onChange={(c) => updateConductor(tramo.id, c)}
+              />
+              
+              <button className="mt-4 bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold">Calcular</button>
             </div>
           );
         })}
