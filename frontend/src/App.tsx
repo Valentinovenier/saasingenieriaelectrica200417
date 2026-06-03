@@ -3,6 +3,7 @@ import { DashboardLayout } from './layouts/DashboardLayout';
 import { ProjectList } from './components/ProjectList';
 import { NewProjectModal } from './components/NewProjectModal';
 import { ProjectSettings } from './components/ProjectSettings';
+import { ProteccionesPage } from './components/ProteccionesPage';
 import { ConductorCalculation } from './components/ConductorCalculation';
 import { LiveUnifilar } from './components/LiveUnifilar';
 import { UnifilarPage } from './components/UnifilarPage';
@@ -189,7 +190,15 @@ export default function App() {
       case 'tgbt':
         return <UnifilarPage />;
       case 'protecciones':
-        return <div className="text-white">Sección de Protecciones en construcción.</div>;
+        return (
+          <ProteccionesPage
+            project={selectedProject}
+            onSave={(updated) => {
+              setProjects(projects.map(p => p.id === updated.id ? updated : p));
+              setSelectedProject(updated);
+            }}
+          />
+        );
       case 'tableros':
         return (
             <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">

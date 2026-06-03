@@ -140,22 +140,6 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
                 </div>
             </div>
         </div>
-
-        {/* Protecciones */}
-        <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
-            <h3 className="text-lg font-bold text-white mb-4">Protecciones</h3>
-            <div>
-                <label className="text-xs text-[var(--text-secondary)] mb-1 block">Marca Protección</label>
-                <select 
-                    className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
-                    value={(data as any).marcaProteccion || 'Schneider'} 
-                    onChange={(e) => setData({...data, marcaProteccion: e.target.value} as any)}
-                >
-                    <option value="Schneider">Schneider</option>
-                    <option value="ABB">ABB</option>
-                </select>
-            </div>
-        </div>
         
         <div className="col-span-1 md:col-span-2">
             <h3 className="text-lg font-semibold text-white mb-4">Distorsión Armónica (%)</h3>
