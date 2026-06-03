@@ -26,28 +26,37 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
           <option value="CEP">Blindobarra (CEP)</option>
         </select>
 
-        {conductor?.tipo === 'Cable' && (
+        {(!conductor?.tipo || conductor.tipo === 'Cable') && (
           <>
             <select 
               className="bg-slate-950 text-white text-xs rounded p-1"
-              value={conductor.material || 'Cobre'}
-              onChange={(e) => onChange({ ...conductor, material: e.target.value as any })}
+              value={conductor?.material || 'Cobre'}
+              onChange={(e) => onChange({ 
+                ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                material: e.target.value as any 
+              })}
             >
               <option value="Cobre">Cobre</option>
               <option value="Aluminio">Aluminio</option>
             </select>
             <select 
               className="bg-slate-950 text-white text-xs rounded p-1"
-              value={conductor.aislacion || 'PVC'}
-              onChange={(e) => onChange({ ...conductor, aislacion: e.target.value as any })}
+              value={conductor?.aislacion || 'PVC'}
+              onChange={(e) => onChange({ 
+                ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                aislacion: e.target.value as any 
+              })}
             >
               <option value="PVC">PVC</option>
               <option value="XLPE">XLPE</option>
             </select>
             <select 
               className="bg-slate-950 text-white text-xs rounded p-1 col-span-2"
-              value={conductor.metodoInstalacion || ''}
-              onChange={(e) => onChange({ ...conductor, metodoInstalacion: e.target.value })}
+              value={conductor?.metodoInstalacion || ''}
+              onChange={(e) => onChange({ 
+                ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                metodoInstalacion: e.target.value 
+              })}
             >
               <option value="">Método de Instalación</option>
               <option value="Bandeja perforada">Bandeja perforada</option>
