@@ -29,6 +29,7 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
           valorNominal: Number(e.target.value) 
         })}
       />
+      <select 
         className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
         value={value?.marca || 'Schneider'}
         onChange={(e) => onChange({ ...value, marca: e.target.value as any })}
