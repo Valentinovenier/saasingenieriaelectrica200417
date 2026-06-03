@@ -5,6 +5,18 @@ export interface HarmonicDistortion {
   h9: number;
 }
 
+export type TipoConductor = 'Cable' | 'CEP';
+export type MaterialConductor = 'Cobre' | 'Aluminio';
+export type AislacionConductor = 'PVC' | 'XLPE';
+
+export interface Conductor {
+  tipo: TipoConductor;
+  material?: MaterialConductor;
+  aislacion?: AislacionConductor;
+  seccion?: number; // mm²
+  longitud?: number; // m
+}
+
 export interface Proteccion {
   tipo: 'Termomagnética' | 'Fusible' | 'Interruptor Automático' | 'PIA';
   valorNominal: number;
@@ -29,6 +41,7 @@ export interface Transformador {
   impedancia: number;
   proteccionCabecera?: Proteccion;
   proteccionesSalida: Proteccion[]; // Cambiado a array
+  conductorTrafoTGBT?: Conductor;
 }
 
 export interface Project {
@@ -39,6 +52,7 @@ export interface Project {
   transformador?: Transformador;
   armonicos: HarmonicDistortion;
   tableros: TableroSeccional[];
+  conductorTGBTBarra?: Conductor;
   tempAmbiente?: number;
   coefSimultaneidad?: number;
   tipoInstalacion?: 'Monofásica' | 'Trifásica';

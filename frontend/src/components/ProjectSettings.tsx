@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Project, TableroSeccional, Proteccion } from '../types/project';
+import { ConductorForm } from './ConductorForm';
 import { Trash2, Plus } from 'lucide-react';
 
 const ProteccionFields = ({ label, value, onChange }: { label: string, value?: Proteccion, onChange: (p: Proteccion | undefined) => void }) => (
@@ -119,8 +120,13 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
 
         {/* Parámetros de Protección y Cable */}
         <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
-            <h3 className="text-lg font-bold text-white mb-4">Protecciones y Cables</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 className="text-lg font-bold text-white mb-4">Configuración de Tramos</h3>
+            <div className="space-y-4">
+                <ConductorForm label="Tramo Trafo - TGBT" conductor={data.transformador?.conductorTrafoTGBT} onChange={(c) => setData({...data, transformador: {...data.transformador!, conductorTrafoTGBT: c}})} />
+                <ConductorForm label="Tramo TGBT - Barra Ómnibus" conductor={data.conductorTGBTBarra} onChange={(c) => setData({...data, conductorTGBTBarra: c})} />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Marca Protección</label>
                     <select 
@@ -130,17 +136,6 @@ export const ProjectSettings = ({ project, onSave, onDelete }: { project: Projec
                     >
                         <option value="Schneider">Schneider</option>
                         <option value="ABB">ABB</option>
-                    </select>
-                </div>
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Aislación Cable</label>
-                    <select 
-                        className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
-                        value={(data as any).aislacionCable || 'PVC'} 
-                        onChange={(e) => setData({...data, aislacionCable: e.target.value} as any)}
-                    >
-                        <option value="PVC">PVC</option>
-                        <option value="XLPE">XLPE</option>
                     </select>
                 </div>
             </div>
