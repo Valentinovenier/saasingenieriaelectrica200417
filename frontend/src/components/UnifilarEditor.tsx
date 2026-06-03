@@ -12,11 +12,10 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
         className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
         value={value?.tipo || 'Termomagnética'}
         onChange={(e) => onChange({ 
-          tipo: 'Termomagnética',
-          valorNominal: 0,
-          marca: 'Schneider',
-          ...value,
-          tipo: e.target.value as any 
+          tipo: e.target.value as any,
+          valorNominal: value?.valorNominal || 0,
+          marca: value?.marca || 'Schneider',
+          ...value
         })}
       >
         <option value="Termomagnética">Termomagnética</option>
@@ -31,22 +30,20 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
         className="w-16 bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
         value={value?.valorNominal || ''}
         onChange={(e) => onChange({ 
-          tipo: 'Termomagnética',
-          valorNominal: 0,
-          marca: 'Schneider',
-          ...value,
-          valorNominal: Number(e.target.value) 
+          tipo: value?.tipo || 'Termomagnética',
+          valorNominal: Number(e.target.value),
+          marca: value?.marca || 'Schneider',
+          ...value
         })}
       />
       <select 
         className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
         value={value?.marca || 'Schneider'}
         onChange={(e) => onChange({ 
-          tipo: 'Termomagnética',
-          valorNominal: 0,
-          marca: 'Schneider',
-          ...value,
-          marca: e.target.value as any 
+          tipo: value?.tipo || 'Termomagnética',
+          valorNominal: value?.valorNominal || 0,
+          marca: e.target.value as any,
+          ...value
         })}
       >
         <option value="Schneider">Schneider</option>
