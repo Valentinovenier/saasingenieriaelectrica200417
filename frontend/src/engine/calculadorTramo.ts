@@ -17,7 +17,6 @@ export const calcularConductorTramo = (
   tipoInstalacionAire: boolean,
   nCircuitosAgrupados: number
 ) => {
-  console.log("Datos de entrada:", { condiciones, Itrafo, Ik, tempAmbiente });
   const tensionNominal = condiciones.tipoInstalacion === 'Trifásica' ? 380 : 220;
   
   // 1. Obtener factores reales
@@ -29,7 +28,6 @@ export const calcularConductorTramo = (
   const f_simetria = FACTOR_SIMETRIA_PARALELO.no_cumple_disposicion; 
   
   const factorTotal = f_temp * f_agrup * f_simetria;
-  console.log("Factores:", { f_temp, f_agrup, f_simetria, factorTotal });
 
   const SECCION_MAX = 240;
 
@@ -40,13 +38,30 @@ export const calcularConductorTramo = (
       if (!cable.corrientes || typeof cable.corrientes !== 'object') continue;
       
       const I_adm_base = cable.corrientes[condiciones.metodoInstalacion!];
+      
       if (I_adm_base === undefined || I_adm_base === null) continue;
       
       const I_adm_corregida = I_adm_base * n * factorTotal;
-      
-      // LOGS PARA DIAGNÓSTICO
-      if (I_adm_corregida <= Itrafo) {
-        console.log(`Fallo I_adm: ${I_adm_corregida} <= ${Itrafo} (S:${cable.seccion})`);
-        continue;
-      }
-      // ... resto de logs ...
+      if (I_adm_corregida <= Itrafo) continue;
+
+      const K = K_VALUES[condiciones.aislacion!][condiciones.material!];
+      const capacidadCorto = Math.pow(cable.seccion * K, 2) * n; 
+      if (capacidadCorto <= Math.pow(Ik * 1000, 2) * t_apertura) continue;
+
+      const h = condiciones.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) : 2;
+      const sinPhi = Math.sqrt(1 - Math.pow(cosPhi, 2));
+      const dv = (h * Itrafo * longitudKm * (cable.R * cosPhi + cable.X * sinPhi)) / n;
+      const porcentajeCaida = (dv / tensionNominal) * 100;
+      if (porcentajeCaida > caidaMaxPermitida) continue;
+
+      return { 
+        cable, 
+        nConductores: n, 
+        porcentajeCaida,
+        I_adm_corregida 
+      };
+    }
+  }
+
+  return { error: "Ningún conductor cumple con los criterios de Corriente, Cortocircuito o Caída de Tensión." };
+};
