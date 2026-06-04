@@ -6,7 +6,7 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
       <label className="text-xs text-slate-400 mb-2 block">{label}</label>
       <div className="grid grid-cols-2 gap-2">
         <select 
-          className="bg-slate-950 text-white text-xs rounded p-1"
+          className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
           value={conductor?.tipo || 'Cable'}
           onChange={(e) => {
             const newTipo = e.target.value as TipoConductor;
@@ -15,8 +15,9 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
               tipo: newTipo,
               material: newTipo === 'Cable' ? (conductor?.material || 'Cobre') : undefined,
               aislacion: newTipo === 'Cable' ? (conductor?.aislacion || 'PVC') : undefined,
-              seccion: undefined, // Asegurar que sea undefined
+              seccion: undefined, 
               metodoInstalacion: newTipo === 'Cable' ? (conductor?.metodoInstalacion || '') : undefined,
+              agrupamiento: newTipo === 'Cable' ? (conductor?.agrupamiento || 1) : undefined,
               longitud: conductor?.longitud || 0,
             };
             onChange(newConductor);
@@ -29,7 +30,7 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
         {(!conductor?.tipo || conductor.tipo === 'Cable') && (
           <>
             <select 
-              className="bg-slate-950 text-white text-xs rounded p-1"
+              className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
               value={conductor?.material || 'Cobre'}
               onChange={(e) => onChange({ 
                 ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
@@ -40,7 +41,7 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
               <option value="Aluminio">Aluminio</option>
             </select>
             <select 
-              className="bg-slate-950 text-white text-xs rounded p-1"
+              className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
               value={conductor?.aislacion || 'PVC'}
               onChange={(e) => onChange({ 
                 ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
@@ -51,7 +52,7 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
               <option value="XLPE">XLPE</option>
             </select>
             <select 
-              className="bg-slate-950 text-white text-xs rounded p-1 col-span-2"
+              className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
               value={conductor?.metodoInstalacion || ''}
               onChange={(e) => onChange({ 
                 ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
@@ -59,18 +60,33 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
               })}
             >
               <option value="">Método de Instalación</option>
-              <option value="Bandeja perforada">Bandeja perforada</option>
-              <option value="Bandeja tipo escalera">Bandeja tipo escalera</option>
-              <option value="Embebido en pared">Embebido en pared</option>
-              <option value="Subterráneo en ducto">Subterráneo en ducto</option>
-              <option value="Al aire libre">Al aire libre</option>
+              <option value="A1">A1 - Embutida pared aislante</option>
+              <option value="A2">A2 - Embutida pared aislante</option>
+              <option value="B1">B1 - Cañería apoyada pared</option>
+              <option value="B2">B2 - Cañería apoyada pared</option>
+              <option value="C">C - Sobre pared</option>
+              <option value="D1">D1 - Enterrado en cañería</option>
+              <option value="D2">D2 - Enterrado directo</option>
+              <option value="E">E - Bandeja tipo escalera</option>
+              <option value="F">F - Tres unipolares contacto</option>
+              <option value="G">G - Tres unipolares separados</option>
             </select>
+            <input 
+              type="number" 
+              placeholder="Cant. circuitos agrupados" 
+              className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
+              value={conductor?.agrupamiento || 1}
+              onChange={(e) => onChange({ 
+                ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
+                agrupamiento: Number(e.target.value) 
+              })}
+            />
           </>
         )}
         <input 
           type="number" 
           placeholder="Longitud (m)" 
-          className="bg-slate-950 text-white text-xs rounded p-1"
+          className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
           value={conductor?.longitud || ''}
           onChange={(e) => onChange({ 
             ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
