@@ -63,6 +63,7 @@ export interface Project {
   armonicos: HarmonicDistortion;
   tableros: TableroSeccional[];
   conductorTGBTBarra?: Conductor;
+  conductores?: Record<string, Conductor>;
   tempAmbiente?: number;
   coefSimultaneidad?: number;
   tipoInstalacion?: 'Monofásica' | 'Trifásica';
