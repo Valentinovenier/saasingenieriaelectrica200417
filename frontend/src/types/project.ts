@@ -19,6 +19,13 @@ export interface Conductor {
   agrupamiento?: number;
 }
 
+export interface CondicionesTramo {
+  tipoInstalacion?: 'Monofásica' | 'Trifásica';
+  aislacion?: AislacionConductor;
+  material?: MaterialConductor;
+  metodoInstalacion?: string;
+}
+
 export interface Proteccion {
   tipo: 'Termomagnética' | 'Fusible' | 'Interruptor Automático Abierto' | 'Interruptor Automático Compacto' | 'PIA';
   valorNominal: number;
