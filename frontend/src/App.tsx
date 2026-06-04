@@ -198,7 +198,15 @@ export default function App() {
             </div>
         );
       case 'conductores':
-        return <ConductorCalculation project={selectedProject} />;
+        return (
+          <ConductorCalculation 
+            project={selectedProject}
+            onChange={(updated) => {
+              setProjects(projects.map(p => p.id === updated.id ? updated : p));
+              setSelectedProject(updated);
+            }}
+          />
+        );
       default:
         return <div className="text-white">Sección no implementada.</div>;
     }

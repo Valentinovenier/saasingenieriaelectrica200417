@@ -11,19 +11,26 @@ const TRAMOS_ELECTRICOS = [
   { id: 'salida-tablero', label: 'Interruptor de Salida - Tablero Seccional' },
 ];
 
-export const ConductorCalculation = ({ project }: { project: Project }) => {
-  const [conductores, setConductores] = useState<Record<string, Conductor>>({});
+export const ConductorCalculation = ({ project, onChange }: { project: Project, onChange: (p: Project) => void }) => {
   const [resultados, setResultados] = useState<Record<string, any>>({});
 
   const updateConductor = (tramoId: string, conductor: Conductor) => {
-    setConductores(prev => ({
-      ...prev,
-      [tramoId]: conductor
-    }));
+    // Sincronizar con el estado global del proyecto
+    onChange({
+      ...project,
+      conductores: {
+        ...(project as any).conductores,
+        [tramoId]: conductor
+      }
+    });
+  };
+
+  const getConductor = (tramoId: string): Conductor | undefined => {
+    return (project as any).conductores?.[tramoId];
   };
 
   const handleCalcular = (tramoId: string) => {
-    const conductor = conductores[tramoId];
+    const conductor = getConductor(tramoId);
     if (!conductor || !conductor.aislacion || !conductor.material || !conductor.metodoInstalacion) {
         alert("Por favor completa todos los datos del conductor");
         return;
@@ -33,9 +40,9 @@ export const ConductorCalculation = ({ project }: { project: Project }) => {
 
     const resultado = calcularConductorTramo(
         {...conductor, tipoInstalacion: project.tipoInstalacion},
-        project.transformador?.potencia || 0, // Itrafo - Esto deberá calcularse en el motor
-        50, // Ik hipotético (kA) - En una integración real vendría del cálculo de cortocircuito
-        0.1, // t_apertura hipotético (s)
+        project.transformador?.potencia || 0, // Itrafo
+        50, // Ik
+        0.1, // t_apertura
         (conductor.longitud || 0) / 1000, // km
         project.transformador?.cosFi || 0.95, 
         3, // caida 3%
@@ -54,7 +61,7 @@ export const ConductorCalculation = ({ project }: { project: Project }) => {
       
       <div className="space-y-4">
         {TRAMOS_ELECTRICOS.map((tramo) => {
-          const conductor = conductores[tramo.id];
+          const conductor = getConductor(tramo.id);
           const resultado = resultados[tramo.id];
           
           return (
