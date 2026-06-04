@@ -16,6 +16,7 @@ export interface Conductor {
   seccion?: number; // mm²
   longitud?: number; // m
   metodoInstalacion?: string;
+  agrupamiento?: number;
 }
 
 export interface Proteccion {
