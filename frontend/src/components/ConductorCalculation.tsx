@@ -59,9 +59,39 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
     setResultados(prev => ({ ...prev, [tramoId]: resultado }));
   };
 
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/projects', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          id: project.id,
+          name: project.name,
+          data: project
+        })
+      });
+
+      if (response.ok) {
+        alert('Configuración de conductores guardada exitosamente');
+      } else {
+        alert('Error al guardar la configuración');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error de conexión');
+    }
+  };
+
   return (
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
-      <h2 className="text-2xl font-bold text-white mb-6">Cálculo de Conductores por Tramo</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-white">Cálculo de Conductores por Tramo</h2>
+        <button onClick={handleSave} className="bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold">Guardar Cambios</button>
+      </div>
       
       <div className="space-y-4">
         {TRAMOS_ELECTRICOS.map((tramo) => {
@@ -80,7 +110,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
               
               <button 
                 onClick={() => handleCalcular(tramo.id)}
-                className="mt-4 bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold"
+                className="mt-4 bg-slate-700 text-white px-4 py-2 rounded-lg font-bold"
               >
                 Calcular
               </button>
