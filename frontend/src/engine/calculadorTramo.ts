@@ -36,6 +36,10 @@ export const calcularConductorTramo = (
       if (cable.seccion > SECCION_MAX) continue;
 
       const I_adm_base = cable.corrientes[condiciones.metodoInstalacion!];
+      
+      // Si el método no está soportado para este cable, saltamos a la siguiente sección
+      if (I_adm_base === undefined) continue;
+      
       const I_adm_corregida = I_adm_base * n * factorTotal;
       if (I_adm_corregida <= Itrafo) continue;
 
