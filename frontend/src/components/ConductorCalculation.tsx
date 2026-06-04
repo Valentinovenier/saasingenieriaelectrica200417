@@ -74,12 +74,12 @@ export const ConductorCalculation = ({ project }: { project: Project }) => {
                 Calcular
               </button>
 
-              {resultado === null && (
+              {resultado?.error && (
                 <div className="mt-4 p-3 bg-red-950 rounded border border-red-700 text-xs text-red-200">
-                    <p>No se encontró un conductor que cumpla con los requisitos (revisa la consola para detalles).</p>
+                    <p>{resultado.error}</p>
                 </div>
               )}
-              {resultado && (
+              {resultado && !resultado.error && (
                 <div className="mt-4 p-3 bg-slate-950 rounded border border-slate-700 text-xs text-white">
                     <p>Resultado: {resultado.cable.seccion} mm²</p>
                     <p>Cables en paralelo: {resultado.nConductores}</p>

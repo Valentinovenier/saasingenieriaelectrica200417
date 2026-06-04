@@ -44,14 +44,14 @@ export const calcularConductorTramo = (
       
       const I_adm_corregida = I_adm_base * n * factorTotal;
       if (I_adm_corregida <= Itrafo) {
-        console.log(`Fallo I_adm: ${I_adm_corregida} <= ${Itrafo} (Sección: ${cable.seccion})`);
+        // console.log(`Fallo I_adm: ${I_adm_corregida} <= ${Itrafo} (Sección: ${cable.seccion})`);
         continue;
       }
 
       const K = K_VALUES[condiciones.aislacion!][condiciones.material!];
       const capacidadCorto = Math.pow(cable.seccion * K, 2) * n; 
       if (capacidadCorto <= Math.pow(Ik * 1000, 2) * t_apertura) {
-        console.log(`Fallo Corto: ${capacidadCorto} <= ${Math.pow(Ik * 1000, 2) * t_apertura} (Sección: ${cable.seccion})`);
+        // console.log(`Fallo Corto: ${capacidadCorto} <= ${Math.pow(Ik * 1000, 2) * t_apertura} (Sección: ${cable.seccion})`);
         continue;
       }
 
@@ -60,7 +60,7 @@ export const calcularConductorTramo = (
       const dv = (h * Itrafo * longitudKm * (cable.R * cosPhi + cable.X * sinPhi)) / n;
       const porcentajeCaida = (dv / tensionNominal) * 100;
       if (porcentajeCaida > caidaMaxPermitida) {
-        console.log(`Fallo Caída: ${porcentajeCaida} > ${caidaMaxPermitida} (Sección: ${cable.seccion})`);
+        // console.log(`Fallo Caída: ${porcentajeCaida} > ${caidaMaxPermitida} (Sección: ${cable.seccion})`);
         continue;
       }
 
@@ -73,5 +73,5 @@ export const calcularConductorTramo = (
     }
   }
 
-  return null;
+  return { error: "Ningún conductor cumple con los criterios de Corriente, Cortocircuito o Caída de Tensión." };
 };
