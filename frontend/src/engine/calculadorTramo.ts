@@ -40,21 +40,29 @@ export const calcularConductorTramo = (
       
       const I_adm_base = cable.corrientes[condiciones.metodoInstalacion!];
       
-      // Si el método no está soportado para este cable, saltamos a la siguiente sección
       if (I_adm_base === undefined || I_adm_base === null) continue;
       
       const I_adm_corregida = I_adm_base * n * factorTotal;
-      if (I_adm_corregida <= Itrafo) continue;
+      if (I_adm_corregida <= Itrafo) {
+        console.log(`Fallo I_adm: ${I_adm_corregida} <= ${Itrafo} (Sección: ${cable.seccion})`);
+        continue;
+      }
 
       const K = K_VALUES[condiciones.aislacion!][condiciones.material!];
       const capacidadCorto = Math.pow(cable.seccion * K, 2) * n; 
-      if (capacidadCorto <= Math.pow(Ik * 1000, 2) * t_apertura) continue;
+      if (capacidadCorto <= Math.pow(Ik * 1000, 2) * t_apertura) {
+        console.log(`Fallo Corto: ${capacidadCorto} <= ${Math.pow(Ik * 1000, 2) * t_apertura} (Sección: ${cable.seccion})`);
+        continue;
+      }
 
       const h = condiciones.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) : 2;
       const sinPhi = Math.sqrt(1 - Math.pow(cosPhi, 2));
       const dv = (h * Itrafo * longitudKm * (cable.R * cosPhi + cable.X * sinPhi)) / n;
       const porcentajeCaida = (dv / tensionNominal) * 100;
-      if (porcentajeCaida > caidaMaxPermitida) continue;
+      if (porcentajeCaida > caidaMaxPermitida) {
+        console.log(`Fallo Caída: ${porcentajeCaida} > ${caidaMaxPermitida} (Sección: ${cable.seccion})`);
+        continue;
+      }
 
       return { 
         cable, 
