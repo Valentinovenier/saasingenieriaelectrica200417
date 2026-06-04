@@ -62,6 +62,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
+      // Aseguramos que estamos enviando el objeto 'project' tal cual con las actualizaciones
       const response = await fetch('/api/projects', {
         method: 'PUT',
         headers: {
@@ -71,18 +72,19 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
         body: JSON.stringify({
           id: project.id,
           name: project.name,
-          data: project
+          data: project // Enviamos todo el objeto proyecto actualizado
         })
       });
 
       if (response.ok) {
         alert('Configuración de conductores guardada exitosamente');
       } else {
-        alert('Error al guardar la configuración');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al guardar');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
-      alert('Error de conexión');
+      alert(`Error: ${error.message}`);
     }
   };
 
