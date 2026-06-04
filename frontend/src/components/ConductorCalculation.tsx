@@ -38,9 +38,13 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
 
     const catalogo = conductor.aislacion === 'XLPE' ? catalogoCablesXLPE : catalogoCablesPVC;
 
+    const potenciaVA = (project.transformador?.potencia || 0) * 1000;
+    const tensionSecundaria = project.transformador?.tensionSecundario || (project.tipoInstalacion === 'Trifásica' ? 380 : 220);
+    const Itrafo = potenciaVA / (project.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) * tensionSecundaria : tensionSecundaria);
+
     const resultado = calcularConductorTramo(
         {...conductor, tipoInstalacion: project.tipoInstalacion},
-        project.transformador?.potencia || 0, // Itrafo
+        Itrafo, // Itrafo
         50, // Ik
         0.1, // t_apertura
         (conductor.longitud || 0) / 1000, // km
