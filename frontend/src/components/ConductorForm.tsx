@@ -17,7 +17,6 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
               aislacion: newTipo === 'Cable' ? (conductor?.aislacion || 'PVC') : undefined,
               seccion: undefined, 
               metodoInstalacion: newTipo === 'Cable' ? (conductor?.metodoInstalacion || '') : undefined,
-              agrupamiento: newTipo === 'Cable' ? (conductor?.agrupamiento || 1) : undefined,
               longitud: conductor?.longitud || 0,
             };
             onChange(newConductor);
@@ -71,16 +70,6 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
               <option value="F">F - Tres unipolares contacto</option>
               <option value="G">G - Tres unipolares separados</option>
             </select>
-            <input 
-              type="number" 
-              placeholder="Cant. circuitos agrupados" 
-              className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
-              value={conductor?.agrupamiento || 1}
-              onChange={(e) => onChange({ 
-                ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
-                agrupamiento: Number(e.target.value) 
-              })}
-            />
           </>
         )}
         <input 
