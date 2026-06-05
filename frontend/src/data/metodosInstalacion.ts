@@ -14,7 +14,6 @@ export const METODOS_INSTALACION = {
     { value: 'C', label: 'C - Sobre pared' },
     { value: 'D1', label: 'D1 - Enterrado en cañería' },
     { value: 'D2', label: 'D2 - Enterrado directo' },
-    { value: 'E', label: 'E - Bandeja tipo escalera' },
     { value: 'F', label: 'F - Tres unipolares en contacto' },
     { value: 'G', label: 'G - Tres unipolares separados' },
   ]

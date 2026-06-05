@@ -103,14 +103,30 @@ export const calcularConductorTramo = (
         continue;
       }
       
-      const I_adm_base = cable.corrientes[condiciones.metodoInstalacion!];
-      
+      const { metodoInstalacion, tipoInstalacion, disposicion } = condiciones;
+      const metodo = metodoInstalacion! as keyof typeof cable.corrientes;
+      const esTrifasico = tipoInstalacion === 'Trifásica';
+      const tablaCorrientes = esTrifasico ? cable.corrientes.tri : cable.corrientes.mono;
+
+      const datosInstalacion = tablaCorrientes[metodo as MetodoInstalacion];
+
+      let I_adm_base: number | undefined;
+
+      if (typeof datosInstalacion === 'number') {
+        I_adm_base = datosInstalacion;
+      } else if (typeof datosInstalacion === 'object' && datosInstalacion !== null) {
+        // Lógica para métodos complejos (E, F, G)
+        const dispKey = disposicion || (esTrifasico ? 'trebol' : 'contacto');
+        I_adm_base = datosInstalacion[dispKey] || datosInstalacion['default'];
+      }
+
       if (I_adm_base === undefined || I_adm_base === null) {
-        console.log(`Cable ${cable.seccion}mm² descartado: método ${condiciones.metodoInstalacion} no encontrado en catálogo`);
+        console.log(`Cable ${cable.seccion}mm² descartado: método ${metodoInstalacion} no encontrado o valor inválido en catálogo`);
         continue;
       }
-      
-      console.log(`Debug: Sección ${cable.seccion}, Método ${condiciones.metodoInstalacion}, I_adm_base: ${I_adm_base}`);
+
+      console.log(`Debug: Sección ${cable.seccion}, Método ${metodoInstalacion}, Cargados: ${esTrifasico ? '3' : '2'}, I_adm_base: ${I_adm_base}`);
+
 
       const I_adm_corregida = I_adm_base * n * factorTotal;
       if (I_adm_corregida < Itrafo) {

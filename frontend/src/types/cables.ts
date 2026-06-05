@@ -13,6 +13,12 @@ export interface ParametrosCable {
     trifasico: number;        // 3x
     trifasico_neutro: number; // 3x / N
   };
+  // Corrientes separadas por cantidad de conductores cargados
+  // mono: 2 cargados, tri: 3 cargados
+  corrientes: {
+    mono: Record<MetodoInstalacion, number | Record<string, number>>;
+    tri: Record<MetodoInstalacion, number | Record<string, number>>;
+  };
 }
 
 export interface CorrienteAdmisible {
