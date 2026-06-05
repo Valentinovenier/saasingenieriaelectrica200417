@@ -90,3 +90,6 @@ export const calcularConductorTramo = (
       };
     }
   }
+
+  return { error: "Ningún conductor cumple con los criterios de Corriente, Cortocircuito o Caída de Tensión." };
+};
