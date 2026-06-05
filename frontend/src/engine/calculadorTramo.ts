@@ -77,7 +77,10 @@ export const calcularConductorTramo = (
       if (!cable.corrientes || typeof cable.corrientes !== 'object') continue;
       
       const I_adm_base = cable.corrientes[condiciones.metodoInstalacion!];
-      if (I_adm_base === undefined || I_adm_base === null) continue;
+      if (I_adm_base === undefined || I_adm_base === null) {
+        console.log(`Cable ${cable.seccion}mm² descartado: método ${condiciones.metodoInstalacion} no encontrado en catálogo`);
+        continue;
+      }
 
       const I_adm_corregida = I_adm_base * n * factorTotal;
       if (I_adm_corregida < Itrafo) {
