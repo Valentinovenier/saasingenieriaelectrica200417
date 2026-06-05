@@ -51,17 +51,16 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
     console.log("Parámetros de cálculo:", { Itrafo, caidaMaxPermitida, tiempoApertura });
 
     const resultado = calcularConductorTramo(
-        {...conductor, tipoInstalacion: project.tipoInstalacion},
-        Itrafo, // Itrafo
-        50, // Ik (Debería ser parametrizable en el futuro)
-        tiempoApertura, // Usar tiempo configurable
-        (conductor.longitud || 0) / 1000, // km
-        project.transformador?.cosFi || 0.95, 
-        caidaMaxPermitida, // Usar caída configurable
-        catalogo,
-        project.tempAmbiente || 40,
-        true, // tipoInstalacionAire
-        1 // nCircuitosAgrupados
+       {...conductor, tipoInstalacion: project.tipoInstalacion},
+       Itrafo, // Itrafo
+       50, // Ik (Debería ser parametrizable en el futuro)
+       tiempoApertura, // Usar tiempo configurable
+       (conductor.longitud || 0) / 1000, // km
+       project.transformador?.cosFi || 0.95,
+       caidaMaxPermitida, // Usar caída configurable
+       catalogo,
+       project.tempAmbiente || 40,
+       true // tipoInstalacionAire
     );
 
     console.log("Resultado del cálculo:", resultado);
