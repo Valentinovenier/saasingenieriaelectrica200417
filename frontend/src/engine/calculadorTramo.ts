@@ -38,7 +38,6 @@ export const calcularConductorTramo = (
       // Nueva lógica: Selección Unipolar vs Multipolar basada en sección
       const esUnipolarNecesario = cable.seccion > 95;
       if (condiciones.tipoCable === 'Multipolar' && esUnipolarNecesario) continue;
-      // Si se fuerza Unipolar, se podría filtrar aquí, pero la regla dice que >95 es obligatorio Unipolar.
 
       if (!cable.corrientes || typeof cable.corrientes !== 'object') continue;
       
@@ -47,16 +46,19 @@ export const calcularConductorTramo = (
       if (I_adm_base === undefined || I_adm_base === null) continue;
       
       const I_adm_corregida = I_adm_base * n * factorTotal;
-      if (I_adm_corregida <= Itrafo) continue;
+      // CORRECCIÓN: Si I_adm_corregida es menor que la carga, el cable NO sirve.
+      if (I_adm_corregida < Itrafo) continue;
 
       const K = K_VALUES[condiciones.aislacion!][condiciones.material!];
       const capacidadCorto = Math.pow(cable.seccion * K, 2) * n; 
-      if (capacidadCorto <= Math.pow(Ik * 1000, 2) * t_apertura) continue;
+      // CORRECCIÓN: La capacidad debe ser mayor o igual a la energía del corto
+      if (capacidadCorto < Math.pow(Ik * 1000, 2) * t_apertura) continue;
 
       const h = condiciones.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) : 2;
       const sinPhi = Math.sqrt(1 - Math.pow(cosPhi, 2));
       const dv = (h * Itrafo * longitudKm * (cable.R * cosPhi + cable.X * sinPhi)) / n;
       const porcentajeCaida = (dv / tensionNominal) * 100;
+      // CORRECCIÓN: La caída debe ser menor o igual a la permitida
       if (porcentajeCaida > caidaMaxPermitida) continue;
 
       return { 
