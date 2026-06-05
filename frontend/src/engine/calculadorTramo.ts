@@ -26,6 +26,9 @@ export const calcularConductorTramo = (
     
   const f_agrup = FACTORES_AGRUPAMIENTO_B52_17[1][nCircuitosAgrupados]; 
   const f_simetria = FACTOR_SIMETRIA_PARALELO.no_cumple_disposicion; 
+  
+  const factorTotal = f_temp * f_agrup * f_simetria;
+
   const SECCION_MAX = 240;
   console.log("Catálogo recibido:", catalogoCables);
 
