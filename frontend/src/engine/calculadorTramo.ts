@@ -9,9 +9,10 @@ import {
   FACTORES_AGRUPAMIENTO_B52_21 
 } from '../data/factoresAgrupamiento';
 import { FACTOR_SIMETRIA_PARALELO } from '../data/factoresSimetria';
+import { getAdmisible } from './corrienteProvider';
 
 export const calcularConductorTramo = (
-  condiciones: CondicionesTramo & { tipoCable?: 'Multipolar' | 'Unipolar', agrupamiento?: number },
+  condiciones: CondicionesTramo & { tipoCable?: 'Multipolar' | 'Unipolar', agrupamiento?: number, norma?: string },
   Itrafo: number,
   Ik: number, // kA
   t_apertura: number, // seg
@@ -75,72 +76,37 @@ export const calcularConductorTramo = (
 
   // 3. Iterar de 1 a 6 conductores
   let mejorResultado: any = null;
-  console.log("Iniciando simulación de cálculo...");
-  console.log("Catálogo recibido con longitud:", catalogoCables.length);
-
+  
   for (let n = 1; n <= 6; n++) { 
     const factorTotal = f_base_temp * getFsimetria(n) * getFagrup(n);
-    console.log(`Probando con n=${n} conductores, factorTotal=${factorTotal.toFixed(3)}`);
 
     for (const cable of catalogoCables) {
-      if (cable.seccion > SECCION_MAX) {
-          console.log(`Cable ${cable.seccion}mm² descartado por sección máxima`);
-          continue;
-      }
+      if (cable.seccion > SECCION_MAX) continue;
 
       // Lógica de tipo de cable: solo filtramos si el cable TIENE un tipo definido y no coincide
-      if (condiciones.tipoCable === 'Multipolar' && cable.tipo && cable.tipo !== 'Multipolar') {
-          console.log(`Cable ${cable.seccion}mm² descartado por tipo ${cable.tipo}`);
-          continue;
-      }
-      if (condiciones.tipoCable === 'Unipolar' && cable.tipo && cable.tipo !== 'Unipolar') {
-          console.log(`Cable ${cable.seccion}mm² descartado por tipo ${cable.tipo}`);
-          continue;
-      }
+      if (condiciones.tipoCable === 'Multipolar' && cable.tipo && cable.tipo !== 'Multipolar') continue;
+      if (condiciones.tipoCable === 'Unipolar' && cable.tipo && cable.tipo !== 'Unipolar') continue;
 
-      if (!cable.corrientes || typeof cable.corrientes !== 'object') {
-        console.log(`Cable ${cable.seccion}mm² descartado: sin corrientes`);
-        continue;
-      }
-      
-      const { metodoInstalacion, tipoInstalacion, disposicion } = condiciones;
-      const metodo = metodoInstalacion! as keyof typeof cable.corrientes;
-      const esTrifasico = tipoInstalacion === 'Trifásica';
-      const tablaCorrientes = esTrifasico ? cable.corrientes.tri : cable.corrientes.mono;
+      // Obtener corriente base usando el nuevo Provider
+      const I_adm_base = getAdmisible(
+          cable.seccion,
+          condiciones.metodoInstalacion!,
+          condiciones.tipoInstalacion === 'Trifásica',
+          condiciones.material!,
+          condiciones.aislacion!,
+          condiciones.disposicion,
+          condiciones.tipoCable?.toLowerCase() as 'unipolar' | 'multipolar'
+      );
 
-      const datosInstalacion = tablaCorrientes[metodo as MetodoInstalacion];
-
-      let I_adm_base: number | undefined;
-
-      if (typeof datosInstalacion === 'number') {
-        I_adm_base = datosInstalacion;
-      } else if (typeof datosInstalacion === 'object' && datosInstalacion !== null) {
-        // Lógica para métodos complejos (E, F, G)
-        const dispKey = disposicion || (esTrifasico ? 'trebol' : 'contacto');
-        I_adm_base = datosInstalacion[dispKey] || datosInstalacion['default'];
-      }
-
-      if (I_adm_base === undefined || I_adm_base === null) {
-        console.log(`Cable ${cable.seccion}mm² descartado: método ${metodoInstalacion} no encontrado o valor inválido en catálogo`);
-        continue;
-      }
-
-      console.log(`Debug: Sección ${cable.seccion}, Método ${metodoInstalacion}, Cargados: ${esTrifasico ? '3' : '2'}, I_adm_base: ${I_adm_base}`);
-
+      if (I_adm_base === undefined || I_adm_base === null) continue;
 
       const I_adm_corregida = I_adm_base * n * factorTotal;
-      if (I_adm_corregida < Itrafo) {
-        console.log(`Cable ${cable.seccion}mm² descartado por corriente: ${I_adm_corregida.toFixed(1)}A < ${Itrafo.toFixed(1)}A`);
-        continue;
-      }
+      if (I_adm_corregida < Itrafo) continue;
 
       const K = K_VALUES[condiciones.aislacion!][condiciones.material!];
       const capacidadCorto = Math.pow(cable.seccion * K, 2) * n; 
       const energiaCorto = Math.pow(Ik * 1000, 2) * t_apertura;
-      if (capacidadCorto < energiaCorto) {
-        console.log(`Cable ${cable.seccion}mm² descartado por corto: cap=${capacidadCorto.toFixed(0)} < energ=${energiaCorto.toFixed(0)}`);
-        continue;
-      }
+      if (capacidadCorto < energiaCorto) continue;
 
       const h = condiciones.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) : 2;
       const sinPhi = Math.sqrt(1 - Math.pow(cosPhi, 2));
@@ -153,30 +119,15 @@ export const calcularConductorTramo = (
       const dv = (h * Itrafo * longitudKm * (R * cosPhi + X * sinPhi)) / n;
       const porcentajeCaida = (dv / tensionNominal) * 100;
       
-      console.log(`Debug Caída: Sección ${cable.seccion}, R: ${R}, X: ${X}, dv: ${dv}, %: ${porcentajeCaida}`);
+      if (isNaN(porcentajeCaida) || porcentajeCaida > caidaMaxPermitida) continue;
 
-      if (isNaN(porcentajeCaida) || porcentajeCaida > caidaMaxPermitida) {
-        if (!isNaN(porcentajeCaida)) {
-            console.log(`Cable ${cable.seccion}mm² descartado por caída: ${porcentajeCaida.toFixed(2)}% > ${caidaMaxPermitida}%`);
-        } else {
-            console.log(`Cable ${cable.seccion}mm² descartado por caída NaN`);
-        }
-        continue;
-      }
-
-      console.log(`¡Candidato encontrado! Sección: ${cable.seccion}mm², n: ${n}`);
-      const resultadoActual = { 
+      return { 
         cable, 
         nConductores: n, 
         porcentajeCaida,
         I_adm_corregida,
         advertencia
       };
-
-      // Selección: Si encontramos un candidato para este n, es el mejor posible para este n (buscamos el menor cable).
-      // Como iteramos n de 1 a 6, el primer n que satisfaga todo suele ser el más eficiente.
-      // Retornamos inmediatamente el primero que cumple, ya que es el menor número de conductores posible.
-      return resultadoActual;
     }
   }
 
