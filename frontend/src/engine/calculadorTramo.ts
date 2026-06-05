@@ -129,9 +129,10 @@ export const calcularConductorTramo = (
       const h = condiciones.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) : 2;
       const sinPhi = Math.sqrt(1 - Math.pow(cosPhi, 2));
       
-      // Asegurarse de que R y X existen y son números
-      const R = Number(cable.R || 0);
-      const X = Number(cable.X || 0);
+      // Acceso correcto a R y X desde el catálogo
+      const R = Number(cable.resistencia || 0);
+      const tipoReactancia = condiciones.tipoInstalacion === 'Trifásica' ? 'trifasico' : 'monofasico';
+      const X = Number(cable.reactancia?.[tipoReactancia] || 0);
       
       const dv = (h * Itrafo * longitudKm * (R * cosPhi + X * sinPhi)) / n;
       const porcentajeCaida = (dv / tensionNominal) * 100;
@@ -156,16 +157,12 @@ export const calcularConductorTramo = (
         advertencia
       };
 
-      // Si encontramos una solución, comparamos:
-      // Preferimos menos conductores o menor sección.
-      // Si el factor de simetría era 0.8 y encontramos uno con 1.0 (ej. 4 conductores), es mejor.
-      if (!mejorResultado || 
-          (resultadoActual.nConductores === 4 && getFsimetria(n) === 1.0 && getFsimetria(mejorResultado.nConductores) === 0.8) ||
-          (resultadoActual.cable.seccion < mejorResultado.cable.seccion)) {
-          mejorResultado = resultadoActual;
-      }
+      // Selección: Si encontramos un candidato para este n, es el mejor posible para este n (buscamos el menor cable).
+      // Como iteramos n de 1 a 6, el primer n que satisfaga todo suele ser el más eficiente.
+      // Retornamos inmediatamente el primero que cumple, ya que es el menor número de conductores posible.
+      return resultadoActual;
     }
   }
 
-  return mejorResultado || { error: "Ningún conductor cumple con los criterios de Corriente, Cortocircuito o Caída de Tensión." };
+  return { error: "Ningún conductor cumple con los criterios de Corriente, Cortocircuito o Caída de Tensión." };
 };
