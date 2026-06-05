@@ -62,21 +62,35 @@ export const calcularConductorTramo = (
   // 3. Iterar de 1 a 6 conductores
   let mejorResultado: any = null;
   console.log("Iniciando simulación de cálculo...");
+  console.log("Catálogo recibido con longitud:", catalogoCables.length);
 
   for (let n = 1; n <= 6; n++) { 
     const factorTotal = f_base_temp * getFsimetria(n) * getFagrup(n);
     console.log(`Probando con n=${n} conductores, factorTotal=${factorTotal.toFixed(3)}`);
 
     for (const cable of catalogoCables) {
-      if (cable.seccion > SECCION_MAX) continue;
+      if (cable.seccion > SECCION_MAX) {
+          console.log(`Cable ${cable.seccion}mm² descartado por sección máxima`);
+          continue;
+      }
 
-      // (Lógica de tipo de cable omitida por brevedad en este log, pero se mantiene en el código)
-      if (condiciones.tipoCable === 'Multipolar' && cable.tipo !== 'Multipolar') continue;
-      if (condiciones.tipoCable === 'Unipolar' && cable.tipo !== 'Unipolar') continue;
+      // Lógica de tipo de cable
+      if (condiciones.tipoCable === 'Multipolar' && cable.tipo !== 'Multipolar') {
+          // console.log(`Cable ${cable.seccion}mm² descartado por tipo ${cable.tipo}`);
+          continue;
+      }
+      if (condiciones.tipoCable === 'Unipolar' && cable.tipo !== 'Unipolar') {
+          // console.log(`Cable ${cable.seccion}mm² descartado por tipo ${cable.tipo}`);
+          continue;
+      }
 
-      if (!cable.corrientes || typeof cable.corrientes !== 'object') continue;
+      if (!cable.corrientes || typeof cable.corrientes !== 'object') {
+        console.log(`Cable ${cable.seccion}mm² descartado: sin corrientes`);
+        continue;
+      }
       
       const I_adm_base = cable.corrientes[condiciones.metodoInstalacion!];
+      
       if (I_adm_base === undefined || I_adm_base === null) {
         console.log(`Cable ${cable.seccion}mm² descartado: método ${condiciones.metodoInstalacion} no encontrado en catálogo`);
         continue;
