@@ -28,6 +28,7 @@ export interface CondicionesTramo {
   aislacion?: AislacionConductor;
   material?: MaterialConductor;
   metodoInstalacion?: string;
+  disposicion?: 'trebol' | 'contacto' | 'separado';
 }
 
 export interface Proteccion {
