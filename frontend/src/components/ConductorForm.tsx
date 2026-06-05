@@ -1,6 +1,10 @@
 import { Conductor, TipoConductor } from '../types/project';
+import { METODOS_INSTALACION } from '../data/metodosInstalacion';
 
 export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: string, conductor?: Conductor, onChange: (c: Conductor) => void, tramoId?: string }) => {
+  const tipoCable = conductor?.tipoCable || 'Multipolar';
+  const metodosDisponibles = METODOS_INSTALACION[tipoCable] || [];
+
   return (
     <div className="p-3 bg-slate-900 rounded-lg border border-slate-700">
       <label className="text-xs text-slate-400 mb-2 block">{label}</label>
@@ -16,7 +20,8 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
               material: newTipo === 'Cable' ? (conductor?.material || 'Cobre') : undefined,
               aislacion: newTipo === 'Cable' ? (conductor?.aislacion || 'PVC') : undefined,
               seccion: undefined, 
-              metodoInstalacion: newTipo === 'Cable' ? (conductor?.metodoInstalacion || '') : undefined,
+              metodoInstalacion: undefined, // Resetear al cambiar tipo
+              tipoCable: 'Multipolar', // Resetear
               longitud: conductor?.longitud || 0,
             };
             onChange(newConductor);
@@ -53,10 +58,11 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
 
             <select 
               className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
-              value={conductor?.tipoCable || 'Multipolar'}
+              value={tipoCable}
               onChange={(e) => onChange({ 
                 ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                tipoCable: e.target.value as 'Multipolar' | 'Unipolar'
+                tipoCable: e.target.value as 'Multipolar' | 'Unipolar',
+                metodoInstalacion: undefined // Resetear método al cambiar tipo de cable
               })}
             >
               <option value="Multipolar">Multipolar</option>
@@ -71,17 +77,10 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
                 metodoInstalacion: e.target.value 
               })}
             >
-              <option value="">Método de Instalación</option>
-              <option value="A1">A1 - Embutida pared aislante</option>
-              <option value="A2">A2 - Embutida pared aislante</option>
-              <option value="B1">B1 - Cañería apoyada pared</option>
-              <option value="B2">B2 - Cañería apoyada pared</option>
-              <option value="C">C - Sobre pared</option>
-              <option value="D1">D1 - Enterrado en cañería</option>
-              <option value="D2">D2 - Enterrado directo</option>
-              <option value="E">E - Bandeja tipo escalera</option>
-              <option value="F">F - Tres unipolares contacto</option>
-              <option value="G">G - Tres unipolares separados</option>
+              <option value="">Selecciona Método de Instalación</option>
+              {metodosDisponibles.map(m => (
+                <option key={m.value} value={m.value}>{m.label}</option>
+              ))}
             </select>
             
             <input 
