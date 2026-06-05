@@ -42,14 +42,18 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
     const tensionSecundaria = project.transformador?.tensionSecundario || (project.tipoInstalacion === 'Trifásica' ? 380 : 220);
     const Itrafo = potenciaVA / (project.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) * tensionSecundaria : tensionSecundaria);
 
+    // Usar los nuevos parámetros del conductor o valores por defecto
+    const caidaMaxPermitida = conductor.caidaMaxPermitida || 3;
+    const tiempoApertura = tramoId === 'trafo-tgbt' ? (conductor.tiempoAperturaMT || 0.1) : 0.1;
+
     const resultado = calcularConductorTramo(
         {...conductor, tipoInstalacion: project.tipoInstalacion},
         Itrafo, // Itrafo
-        50, // Ik
-        0.1, // t_apertura
+        50, // Ik (Debería ser parametrizable en el futuro)
+        tiempoApertura, // Usar tiempo configurable
         (conductor.longitud || 0) / 1000, // km
         project.transformador?.cosFi || 0.95, 
-        3, // caida 3%
+        caidaMaxPermitida, // Usar caída configurable
         catalogo,
         project.tempAmbiente || 40,
         true, // tipoInstalacionAire
@@ -106,6 +110,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
               
               <ConductorForm 
                 label={`Configuración ${tramo.label}`}
+                tramoId={tramo.id}
                 conductor={conductor}
                 onChange={(c) => updateConductor(tramo.id, c)}
               />

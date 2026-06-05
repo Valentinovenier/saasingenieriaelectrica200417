@@ -5,7 +5,7 @@ import { FACTORES_AGRUPAMIENTO_B52_17 } from '../data/factoresAgrupamiento';
 import { FACTOR_SIMETRIA_PARALELO } from '../data/factoresSimetria';
 
 export const calcularConductorTramo = (
-  condiciones: CondicionesTramo,
+  condiciones: CondicionesTramo & { tipoCable?: 'Multipolar' | 'Unipolar' },
   Itrafo: number,
   Ik: number, // kA
   t_apertura: number, // seg
@@ -34,6 +34,11 @@ export const calcularConductorTramo = (
   for (let n = 1; n <= 4; n++) { 
     for (const cable of catalogoCables) {
       if (cable.seccion > SECCION_MAX) continue;
+      
+      // Nueva lógica: Selección Unipolar vs Multipolar basada en sección
+      const esUnipolarNecesario = cable.seccion > 95;
+      if (condiciones.tipoCable === 'Multipolar' && esUnipolarNecesario) continue;
+      // Si se fuerza Unipolar, se podría filtrar aquí, pero la regla dice que >95 es obligatorio Unipolar.
 
       if (!cable.corrientes || typeof cable.corrientes !== 'object') continue;
       

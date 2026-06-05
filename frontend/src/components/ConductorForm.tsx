@@ -1,6 +1,6 @@
 import { Conductor, TipoConductor } from '../types/project';
 
-export const ConductorForm = ({ label, conductor, onChange }: { label: string, conductor?: Conductor, onChange: (c: Conductor) => void }) => {
+export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: string, conductor?: Conductor, onChange: (c: Conductor) => void, tramoId?: string }) => {
   return (
     <div className="p-3 bg-slate-900 rounded-lg border border-slate-700">
       <label className="text-xs text-slate-400 mb-2 block">{label}</label>
@@ -50,6 +50,19 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
               <option value="PVC">PVC</option>
               <option value="XLPE">XLPE</option>
             </select>
+
+            <select 
+              className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
+              value={conductor?.tipoCable || 'Multipolar'}
+              onChange={(e) => onChange({ 
+                ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                tipoCable: e.target.value as 'Multipolar' | 'Unipolar'
+              })}
+            >
+              <option value="Multipolar">Multipolar</option>
+              <option value="Unipolar">Unipolar</option>
+            </select>
+
             <select 
               className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
               value={conductor?.metodoInstalacion || ''}
@@ -70,6 +83,30 @@ export const ConductorForm = ({ label, conductor, onChange }: { label: string, c
               <option value="F">F - Tres unipolares contacto</option>
               <option value="G">G - Tres unipolares separados</option>
             </select>
+            
+            <input 
+              type="number" 
+              placeholder="Caída tensión máx (%)" 
+              className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
+              value={conductor?.caidaMaxPermitida || ''}
+              onChange={(e) => onChange({ 
+                ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                caidaMaxPermitida: Number(e.target.value) 
+              })}
+            />
+
+            {tramoId === 'trafo-tgbt' && (
+              <input 
+                type="number" 
+                placeholder="Tiempo apertura MT (s)" 
+                className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
+                value={conductor?.tiempoAperturaMT || ''}
+                onChange={(e) => onChange({ 
+                  ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                  tiempoAperturaMT: Number(e.target.value) 
+                })}
+              />
+            )}
           </>
         )}
         <input 

@@ -17,6 +17,9 @@ export interface Conductor {
   longitud?: number; // m
   metodoInstalacion?: string;
   agrupamiento?: number;
+  tipoCable?: 'Multipolar' | 'Unipolar'; // Nuevo campo
+  caidaMaxPermitida?: number;           // Nuevo campo (en %)
+  tiempoAperturaMT?: number;            // Nuevo campo (en seg)
 }
 
 export interface CondicionesTramo {
