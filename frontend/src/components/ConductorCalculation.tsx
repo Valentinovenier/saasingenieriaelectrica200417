@@ -30,8 +30,10 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
   };
 
   const handleCalcular = (tramoId: string) => {
+    console.log("Iniciando cálculo para tramo:", tramoId);
     const conductor = getConductor(tramoId);
     if (!conductor || !conductor.aislacion || !conductor.material || !conductor.metodoInstalacion) {
+        console.log("Datos del conductor incompletos:", conductor);
         alert("Por favor completa todos los datos del conductor");
         return;
     }
@@ -45,6 +47,8 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
     // Usar los nuevos parámetros del conductor o valores por defecto
     const caidaMaxPermitida = conductor.caidaMaxPermitida || 3;
     const tiempoApertura = tramoId === 'trafo-tgbt' ? (conductor.tiempoAperturaMT || 0.1) : 0.1;
+
+    console.log("Parámetros de cálculo:", { Itrafo, caidaMaxPermitida, tiempoApertura });
 
     const resultado = calcularConductorTramo(
         {...conductor, tipoInstalacion: project.tipoInstalacion},
@@ -60,6 +64,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
         1 // nCircuitosAgrupados
     );
 
+    console.log("Resultado del cálculo:", resultado);
     setResultados(prev => ({ ...prev, [tramoId]: resultado }));
   };
 
