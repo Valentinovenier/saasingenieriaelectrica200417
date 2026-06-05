@@ -18,6 +18,7 @@ export interface Conductor {
   metodoInstalacion?: string;
   agrupamiento?: number;
   tipoCable?: 'Multipolar' | 'Unipolar'; // Nuevo campo
+  disposicion?: 'trebol' | 'contacto' | 'separado'; // Nuevo campo para unipolares
   caidaMaxPermitida?: number;           // Nuevo campo (en %)
   tiempoAperturaMT?: number;            // Nuevo campo (en seg)
 }

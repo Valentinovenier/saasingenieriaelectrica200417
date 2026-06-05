@@ -1,22 +1,21 @@
-// Definición de métodos según tipo de cable
-// Basado en las normativas estándar (ej. AEA) donde algunos métodos aplican a ambos
+// Definición de métodos según tipo de cable, basados en AEA 90364-5-52
 export const METODOS_INSTALACION = {
   Multipolar: [
-    { value: 'A1', label: 'A1 - Embutida pared aislante' },
-    { value: 'A2', label: 'A2 - Embutida pared aislante' },
-    { value: 'B1', label: 'B1 - Cañería apoyada pared' },
-    { value: 'B2', label: 'B2 - Cañería apoyada pared' },
+    { value: 'A2', label: 'A2 - Cables multipolares en cañerías embutidas' },
+    { value: 'B2', label: 'B2 - Cables multipolares en cañería apoyada' },
     { value: 'C', label: 'C - Sobre pared' },
     { value: 'D1', label: 'D1 - Enterrado en cañería' },
     { value: 'D2', label: 'D2 - Enterrado directo' },
     { value: 'E', label: 'E - Bandeja tipo escalera' },
   ],
   Unipolar: [
-    { value: 'A1', label: 'A1 - Embutida pared aislante' },
-    { value: 'B1', label: 'B1 - Cañería apoyada pared' },
+    { value: 'A1', label: 'A1 - Conductores unipolares en cañerías embutidas' },
+    { value: 'B1', label: 'B1 - Conductores unipolares en cañería apoyada' },
     { value: 'C', label: 'C - Sobre pared' },
+    { value: 'D1', label: 'D1 - Enterrado en cañería' },
+    { value: 'D2', label: 'D2 - Enterrado directo' },
     { value: 'E', label: 'E - Bandeja tipo escalera' },
-    { value: 'F', label: 'F - Tres unipolares contacto' },
+    { value: 'F', label: 'F - Tres unipolares en contacto' },
     { value: 'G', label: 'G - Tres unipolares separados' },
   ]
 };

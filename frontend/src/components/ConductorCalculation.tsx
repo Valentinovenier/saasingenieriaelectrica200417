@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Project, Conductor } from '../types/project';
 import { ConductorForm } from './ConductorForm';
 import { calcularConductorTramo } from '../engine/calculadorTramo';
-import { catalogoCablesPVC, catalogoCablesXLPE } from '../data/cables';
+import { catalogoCablesPVC, catalogoCablesXLPE, ParametrosCableCompleto } from '../data/cables';
 
 const TRAMOS_ELECTRICOS = [
   { id: 'trafo-tgbt', label: 'Transformador - TGBT' },
@@ -38,7 +38,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
         return;
     }
 
-    const catalogo = conductor.aislacion === 'XLPE' ? catalogoCablesXLPE : catalogoCablesPVC;
+    const catalogo: ParametrosCableCompleto[] = conductor.aislacion === 'XLPE' ? catalogoCablesXLPE : catalogoCablesPVC;
 
     const potenciaVA = (project.transformador?.potencia || 0) * 1000;
     const tensionSecundaria = project.transformador?.tensionSecundario || (project.tipoInstalacion === 'Trifásica' ? 380 : 220);

@@ -62,12 +62,28 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
               onChange={(e) => onChange({ 
                 ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
                 tipoCable: e.target.value as 'Multipolar' | 'Unipolar',
-                metodoInstalacion: undefined // Resetear método al cambiar tipo de cable
+                metodoInstalacion: undefined, // Resetear método al cambiar tipo de cable
+                disposicion: undefined // Resetear disposición
               })}
             >
               <option value="Multipolar">Multipolar</option>
               <option value="Unipolar">Unipolar</option>
             </select>
+
+            {tipoCable === 'Unipolar' && (
+              <select 
+                className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
+                value={conductor?.disposicion || 'trebol'}
+                onChange={(e) => onChange({ 
+                  ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                  disposicion: e.target.value as 'trebol' | 'contacto' | 'separado'
+                })}
+              >
+                <option value="trebol">Trébol (o Tresbolillo)</option>
+                <option value="contacto">En contacto</option>
+                <option value="separado">Separados (1 x De)</option>
+              </select>
+            )}
 
             <select 
               className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
