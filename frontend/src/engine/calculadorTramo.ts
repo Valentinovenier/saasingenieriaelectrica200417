@@ -90,11 +90,11 @@ export const calcularConductorTramo = (
 
       // Lógica de tipo de cable
       if (condiciones.tipoCable === 'Multipolar' && cable.tipo !== 'Multipolar') {
-          // console.log(`Cable ${cable.seccion}mm² descartado por tipo ${cable.tipo}`);
+          console.log(`Cable ${cable.seccion}mm² descartado por tipo ${cable.tipo}`);
           continue;
       }
       if (condiciones.tipoCable === 'Unipolar' && cable.tipo !== 'Unipolar') {
-          // console.log(`Cable ${cable.seccion}mm² descartado por tipo ${cable.tipo}`);
+          console.log(`Cable ${cable.seccion}mm² descartado por tipo ${cable.tipo}`);
           continue;
       }
 
