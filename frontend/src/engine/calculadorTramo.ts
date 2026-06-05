@@ -81,7 +81,7 @@ export const calcularConductorTramo = (
 
       const I_adm_corregida = I_adm_base * n * factorTotal;
       if (I_adm_corregida < Itrafo) {
-        // console.log(`Cable ${cable.seccion}mm² descartado por corriente: ${I_adm_corregida.toFixed(1)}A < ${Itrafo.toFixed(1)}A`);
+        console.log(`Cable ${cable.seccion}mm² descartado por corriente: ${I_adm_corregida.toFixed(1)}A < ${Itrafo.toFixed(1)}A`);
         continue;
       }
 
