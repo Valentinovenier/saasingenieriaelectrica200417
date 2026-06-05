@@ -109,6 +109,8 @@ export const calcularConductorTramo = (
         console.log(`Cable ${cable.seccion}mm² descartado: método ${condiciones.metodoInstalacion} no encontrado en catálogo`);
         continue;
       }
+      
+      console.log(`Debug: Sección ${cable.seccion}, Método ${condiciones.metodoInstalacion}, I_adm_base: ${I_adm_base}`);
 
       const I_adm_corregida = I_adm_base * n * factorTotal;
       if (I_adm_corregida < Itrafo) {
@@ -126,10 +128,22 @@ export const calcularConductorTramo = (
 
       const h = condiciones.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) : 2;
       const sinPhi = Math.sqrt(1 - Math.pow(cosPhi, 2));
-      const dv = (h * Itrafo * longitudKm * (cable.R * cosPhi + cable.X * sinPhi)) / n;
+      
+      // Asegurarse de que R y X existen y son números
+      const R = Number(cable.R || 0);
+      const X = Number(cable.X || 0);
+      
+      const dv = (h * Itrafo * longitudKm * (R * cosPhi + X * sinPhi)) / n;
       const porcentajeCaida = (dv / tensionNominal) * 100;
-      if (porcentajeCaida > caidaMaxPermitida) {
-        console.log(`Cable ${cable.seccion}mm² descartado por caída: ${porcentajeCaida.toFixed(2)}% > ${caidaMaxPermitida}%`);
+      
+      console.log(`Debug Caída: Sección ${cable.seccion}, R: ${R}, X: ${X}, dv: ${dv}, %: ${porcentajeCaida}`);
+
+      if (isNaN(porcentajeCaida) || porcentajeCaida > caidaMaxPermitida) {
+        if (!isNaN(porcentajeCaida)) {
+            console.log(`Cable ${cable.seccion}mm² descartado por caída: ${porcentajeCaida.toFixed(2)}% > ${caidaMaxPermitida}%`);
+        } else {
+            console.log(`Cable ${cable.seccion}mm² descartado por caída NaN`);
+        }
         continue;
       }
 
