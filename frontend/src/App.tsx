@@ -38,20 +38,29 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         
-        // Verificación estricta: asegurar que 'data' sea un array
         if (Array.isArray(data)) {
           const parsed = data.map((p: any) => {
+            // El backend parece devolver la estructura: { id, name, data: string_json }
+            // Necesitamos extraer p.data y parsearlo si es string, o usarlo directamente si ya es objeto.
+            let projectData;
             try {
-              return { ...p, data: typeof p.data === 'string' ? JSON.parse(p.data) : p.data };
+              projectData = typeof p.data === 'string' ? JSON.parse(p.data) : p.data;
             } catch (e) {
               console.error("Error al parsear el JSON de un proyecto:", p.id, e);
-              return { ...p, data: {} }; // Fallback para datos corruptos
+              projectData = {};
             }
+            
+            // Retornamos el objeto proyecto fusionando id, name y el contenido del campo data
+            return {
+              ...projectData,
+              id: p.id,
+              name: p.name
+            };
           });
           setProjects(parsed);
         } else {
           console.error("La respuesta de /api/projects no es un array:", data);
-          setProjects([]); // Estado seguro
+          setProjects([]);
         }
       } else if (res.status === 401) {
         localStorage.removeItem('token');
@@ -59,7 +68,7 @@ export default function App() {
       }
     } catch (e) {
       console.error("Error al cargar proyectos:", e);
-      setProjects([]); // Estado seguro en caso de error de red
+      setProjects([]);
     }
   };
 
