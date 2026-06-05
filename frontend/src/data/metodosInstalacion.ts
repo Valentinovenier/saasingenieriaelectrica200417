@@ -1,4 +1,5 @@
 // Definición de métodos según tipo de cable
+// Basado en las normativas estándar (ej. AEA) donde algunos métodos aplican a ambos
 export const METODOS_INSTALACION = {
   Multipolar: [
     { value: 'A1', label: 'A1 - Embutida pared aislante' },
@@ -11,6 +12,9 @@ export const METODOS_INSTALACION = {
     { value: 'E', label: 'E - Bandeja tipo escalera' },
   ],
   Unipolar: [
+    { value: 'A1', label: 'A1 - Embutida pared aislante' },
+    { value: 'B1', label: 'B1 - Cañería apoyada pared' },
+    { value: 'C', label: 'C - Sobre pared' },
     { value: 'E', label: 'E - Bandeja tipo escalera' },
     { value: 'F', label: 'F - Tres unipolares contacto' },
     { value: 'G', label: 'G - Tres unipolares separados' },

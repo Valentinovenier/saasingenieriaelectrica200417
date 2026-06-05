@@ -33,58 +33,36 @@ export const calcularConductorTramo = (
   console.log("Catálogo recibido:", catalogoCables);
 
   for (let n = 1; n <= 4; n++) { 
-    console.log(`Evaluando con n=${n} conductores en paralelo`);
     for (const cable of catalogoCables) {
-      console.log(`Evaluando cable sección: ${cable.seccion}`);
       if (cable.seccion > SECCION_MAX) continue;
 
       // Nueva lógica: Selección Unipolar vs Multipolar basada en sección
       const esUnipolarNecesario = cable.seccion > 95;
-      if (condiciones.tipoCable === 'Multipolar' && esUnipolarNecesario) {
-        console.log(`[Cable ${cable.seccion}mm²] Saltado por regla Unipolar/Multipolar`);
-        continue;
-      }
+      if (condiciones.tipoCable === 'Multipolar' && esUnipolarNecesario) continue;
 
-      if (!cable.corrientes || typeof cable.corrientes !== 'object') {
-        console.log(`[Cable ${cable.seccion}mm²] Saltado por falta de corrientes`);
-        continue;
-      }
-
+      if (!cable.corrientes || typeof cable.corrientes !== 'object') continue;
+      
       const I_adm_base = cable.corrientes[condiciones.metodoInstalacion!];
 
-      if (I_adm_base === undefined || I_adm_base === null) {
-        console.log(`[Cable ${cable.seccion}mm²] Saltado por falta de corriente base para método ${condiciones.metodoInstalacion}`);
-        continue;
-      }
+      if (I_adm_base === undefined || I_adm_base === null) continue;
 
       const I_adm_corregida = I_adm_base * n * factorTotal;
-
-      // LOGS PARA DIAGNÓSTICO
-      if (I_adm_corregida < Itrafo) {
-        console.log(`[Cable ${cable.seccion}mm²] Falla Corriente: ${I_adm_corregida.toFixed(2)}A < ${Itrafo.toFixed(2)}A`);
-        continue;
-      }
+      
+      if (I_adm_corregida < Itrafo) continue;
 
       const K = K_VALUES[condiciones.aislacion!][condiciones.material!];
       const capacidadCorto = Math.pow(cable.seccion * K, 2) * n; 
       const energiaCorto = Math.pow(Ik * 1000, 2) * t_apertura;
 
-      if (capacidadCorto < energiaCorto) {
-        console.log(`[Cable ${cable.seccion}mm²] Falla Corto: ${capacidadCorto.toFixed(0)} < ${energiaCorto.toFixed(0)}`);
-        continue;
-      }
+      if (capacidadCorto < energiaCorto) continue;
 
       const h = condiciones.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) : 2;
       const sinPhi = Math.sqrt(1 - Math.pow(cosPhi, 2));
       const dv = (h * Itrafo * longitudKm * (cable.R * cosPhi + cable.X * sinPhi)) / n;
       const porcentajeCaida = (dv / tensionNominal) * 100;
 
-      if (porcentajeCaida > caidaMaxPermitida) {
-        console.log(`[Cable ${cable.seccion}mm²] Falla Caída: ${porcentajeCaida.toFixed(2)}% > ${caidaMaxPermitida}%`);
-        continue;
-      }
+      if (porcentajeCaida > caidaMaxPermitida) continue;
 
-      console.log(`[Cable ${cable.seccion}mm²] ACEPTADO!`);
       return { 
         cable, 
         nConductores: n, 
