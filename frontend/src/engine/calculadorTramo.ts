@@ -88,12 +88,12 @@ export const calcularConductorTramo = (
           continue;
       }
 
-      // Lógica de tipo de cable
-      if (condiciones.tipoCable === 'Multipolar' && cable.tipo !== 'Multipolar') {
+      // Lógica de tipo de cable: solo filtramos si el cable TIENE un tipo definido y no coincide
+      if (condiciones.tipoCable === 'Multipolar' && cable.tipo && cable.tipo !== 'Multipolar') {
           console.log(`Cable ${cable.seccion}mm² descartado por tipo ${cable.tipo}`);
           continue;
       }
-      if (condiciones.tipoCable === 'Unipolar' && cable.tipo !== 'Unipolar') {
+      if (condiciones.tipoCable === 'Unipolar' && cable.tipo && cable.tipo !== 'Unipolar') {
           console.log(`Cable ${cable.seccion}mm² descartado por tipo ${cable.tipo}`);
           continue;
       }
