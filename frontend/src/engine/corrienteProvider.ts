@@ -10,20 +10,33 @@ export const getAdmisible = (
   tipoCable?: 'unipolar' | 'multipolar'
 ): number | undefined => {
   const nConductoresBuscado = esTrifasico ? 3 : 2;
+  const metodoNormalizado = metodo.toUpperCase().replace('METODO', '').trim();
   
-  console.log(`[DEBUG] Buscando tabla: Mat=${material}, Aisl=${aislacion}, nCargBuscado=${nConductoresBuscado}`);
+  // Mapeo de métodos E, F, G a normas B52-10 a B52-13
+  const mapaMetodoNorma: Record<string, string[]> = {
+      'E': ['B52-10', 'B52-11', 'B52-12', 'B52-13'],
+      'F': ['B52-10', 'B52-11', 'B52-12', 'B52-13'],
+      'G': ['B52-10', 'B52-11', 'B52-12', 'B52-13']
+  };
+
+  const normasPrioritarias = mapaMetodoNorma[metodoNormalizado];
 
   const tabla = TABLAS_CORRIENTE_SAEA.find(t => {
-    const coincide = t.material === material &&
-      t.aislacion === aislacion &&
-      t.nConductoresCargados === nConductoresBuscado;
-    
-    if (coincide) console.log(`[DEBUG] Tabla candidata encontrada: Norma=${t.norma}, nCarg=${t.nConductoresCargados}`);
-    return coincide;
+    // Si buscamos E, F, G, usar normas prioritarias
+    if (normasPrioritarias) {
+        if (!normasPrioritarias.includes(t.norma)) return false;
+    } else {
+        // Para otros métodos, evitar tablas B52-10 a B52-13
+        if (t.norma.startsWith('B52-1')) return false;
+    }
+
+    return t.material === material &&
+           t.aislacion === aislacion &&
+           t.nConductoresCargados === nConductoresBuscado;
   });
 
   if (!tabla) {
-      console.log(`[DEBUG] No se encontró tabla para: Mat=${material}, Aisl=${aislacion}, nCarg=${nConductoresBuscado}`);
+      console.log(`[DEBUG] No se encontró tabla para: Mat=${material}, Aisl=${aislacion}, nCarg=${nConductoresBuscado}, Metodo=${metodoNormalizado}`);
       return undefined;
   }
   
@@ -35,24 +48,18 @@ export const getAdmisible = (
   }
 
   const datosSeccion = tabla.datos[seccion];
-  const metodoNormalizado = metodo.toUpperCase().replace('METODO', '').trim();
   
   // Función auxiliar para buscar en objetos anidados
   const buscarEnObjeto = (obj: any, keyBusqueda: string, disp?: string): number | undefined => {
       if (typeof obj !== 'object' || obj === null) return undefined;
       
       const keys = Object.keys(obj);
-      console.log(`[DEBUG] Buscando "${keyBusqueda}" en objeto con keys:`, keys);
-      
+      // Buscar clave exacta o difusa del método (manejando el prefijo 'metodo' en datos)
       const keyFound = keys.find(k => k.toUpperCase().replace('METODO', '').trim() === keyBusqueda) 
                     || keys.find(k => k.toLowerCase().includes(keyBusqueda.toLowerCase()));
       
-      if (!keyFound) {
-          console.log(`[DEBUG] No se encontró clave para ${keyBusqueda}`);
-          return undefined;
-      }
+      if (!keyFound) return undefined;
       
-      console.log(`[DEBUG] Clave encontrada: ${keyFound}`);
       const valor = obj[keyFound];
       if (typeof valor === 'number') return valor;
       
@@ -72,10 +79,8 @@ export const getAdmisible = (
   };
 
   if (tipoCable && datosSeccion[tipoCable]) {
-      console.log(`[DEBUG] Estructura anidada para ${tipoCable}`);
       return buscarEnObjeto(datosSeccion[tipoCable], metodoNormalizado, disposicion);
   }
 
-  console.log(`[DEBUG] Estructura directa`);
   return buscarEnObjeto(datosSeccion, metodoNormalizado, disposicion);
 };
