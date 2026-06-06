@@ -46,9 +46,11 @@ export const getAdmisible = (
        if (valores[disposicion]) return valores[disposicion];
        // Intento de búsqueda difusa
        const key = Object.keys(valores).find(k => k.toLowerCase().includes(disposicion.toLowerCase()));
-       if (key) return valores[key];
+       if (key && typeof valores[key] === 'number') return valores[key];
+       
        // Si es un objeto, intentar devolver el primer valor si la disposición no coincide
-       return Object.values(valores)[0];
+       const firstValue = Object.values(valores)[0];
+       return typeof firstValue === 'number' ? firstValue : undefined;
     }
   }
 
@@ -60,8 +62,10 @@ export const getAdmisible = (
     if (datosTipo[metodoKey]) {
       const valores = datosTipo[metodoKey];
       if (typeof valores === 'number') return valores;
-      if (disposicion && valores[disposicion]) return valores[disposicion];
-      return Object.values(valores)[0]; // Fallback
+      if (disposicion && valores[disposicion] && typeof valores[disposicion] === 'number') return valores[disposicion];
+      
+      const firstValue = Object.values(valores)[0];
+      return typeof firstValue === 'number' ? firstValue : undefined; // Fallback
     }
   }
 
