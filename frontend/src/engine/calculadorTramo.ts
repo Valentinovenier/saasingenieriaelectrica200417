@@ -122,6 +122,15 @@ export const calcularConductorTramo = (
       const dv = (h * Itrafo * longitudKm * (R * cosPhi + X * sinPhi)) / n;
       const porcentajeCaida = (dv / tensionNominal) * 100;
 
+      if (cable.seccion === 95) {
+          console.log(`[DEBUG 95mm²] n=${n}`, {
+              I_adm_base,
+              factorTotal,
+              I_adm_corregida,
+              Itrafo
+          });
+      }
+
       if (I_adm_corregida < Itrafo || capacidadCorto < energiaCorto || isNaN(porcentajeCaida) || porcentajeCaida > caidaMaxPermitida) {
           console.log(`[DEBUG] Descartado cable Secc=${cable.seccion} (n=${n}):`, {
               I_adm_corregida, Itrafo, 
