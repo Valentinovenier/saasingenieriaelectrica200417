@@ -15,10 +15,19 @@ export const getAdmisible = (
     (esTrifasico ? t.nConductoresCargados === 3 : t.nConductoresCargados === 2)
   );
 
-  if (!tabla || !tabla.datos[seccion]) return undefined;
+  if (!tabla) {
+      console.log(`[DEBUG] No se encontró tabla para: Mat=${material}, Aisl=${aislacion}, Trifasico=${esTrifasico}`);
+      return undefined;
+  }
+  
+  if (!tabla.datos[seccion]) {
+      console.log(`[DEBUG] No se encontró sección ${seccion} en la tabla para: Mat=${material}, Aisl=${aislacion}`);
+      return undefined;
+  }
 
   const datosSeccion = tabla.datos[seccion];
   const metodoNormalizado = metodo.toUpperCase().replace('METODO', '').trim();
+  console.log(`[DEBUG] Buscando Metodo=${metodoNormalizado}, TipoCable=${tipoCable}, DatosSeccion=`, datosSeccion);
 
   // Función auxiliar para buscar en objetos anidados
   const buscarEnObjeto = (obj: any, keyBusqueda: string, disp?: string): number | undefined => {
@@ -26,11 +35,17 @@ export const getAdmisible = (
       
       // Buscar clave exacta o difusa del método
       const keys = Object.keys(obj);
+      console.log(`[DEBUG] Keys disponibles en objeto:`, keys);
+      
       const keyFound = keys.find(k => k.toUpperCase().replace('METODO', '').trim() === keyBusqueda) 
                     || keys.find(k => k.toLowerCase().includes(keyBusqueda.toLowerCase()));
       
-      if (!keyFound) return undefined;
+      if (!keyFound) {
+          console.log(`[DEBUG] No se encontró clave para ${keyBusqueda}`);
+          return undefined;
+      }
       
+      console.log(`[DEBUG] Clave encontrada: ${keyFound}`);
       const valor = obj[keyFound];
       if (typeof valor === 'number') return valor;
       
