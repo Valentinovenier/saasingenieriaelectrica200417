@@ -22,39 +22,46 @@ export const getAdmisible = (
   const normasPrioritarias = mapaMetodoNorma[metodoNormalizado];
 
   const tabla = TABLAS_CORRIENTE_SAEA.find(t => {
-    // Si buscamos E, F, G, usar normas prioritarias
-    if (normasPrioritarias) {
-        if (!normasPrioritarias.includes(t.norma)) return false;
-    } else {
-        // Para otros métodos, evitar tablas B52-10 a B52-13
-        if (t.norma.startsWith('B52-1')) return false;
+    // 1. Caso Aislación Mineral: Priorizar B52-8/B52-9
+    if (aislacion === 'Mineral') {
+        return (t.norma === 'B52-8' || t.norma === 'B52-9') && t.material === material;
     }
 
-    return t.material === material &&
-           t.aislacion === aislacion &&
+    // 2. Si buscamos E, F, G, forzar uso de tablas de la serie B52-1X
+    if (normasPrioritarias) {
+        return normasPrioritarias.includes(t.norma) && t.material === material && t.aislacion === aislacion;
+    } 
+    
+    // 3. Para otros métodos, evitar tablas B52-10 a B52-13
+    if (t.norma.startsWith('B52-1')) return false;
+    
+    return t.material === material && 
+           t.aislacion === aislacion && 
            t.nConductoresCargados === nConductoresBuscado;
   });
 
   if (!tabla) {
-      console.log(`[DEBUG] No se encontró tabla para: Mat=${material}, Aisl=${aislacion}, nCarg=${nConductoresBuscado}, Metodo=${metodoNormalizado}`);
+      console.log(`[DEBUG] No se encontró tabla para: Mat=${material}, Aisl=${aislacion}, Metodo=${metodoNormalizado}`);
       return undefined;
   }
   
-  console.log(`[DEBUG] Tabla seleccionada: Norma=${tabla.norma}, Mat=${tabla.material}, Aisl=${tabla.aislacion}, nCarg=${tabla.nConductoresCargados}`);
+  console.log(`[DEBUG] Tabla seleccionada: Norma=${tabla.norma}, Mat=${tabla.material}, Aisl=${tabla.aislacion}`);
 
-  if (!tabla.datos[seccion]) {
-      console.log(`[DEBUG] No se encontró sección ${seccion} en la tabla ${tabla.norma}`);
-      return undefined;
-  }
+  if (!tabla.datos[seccion]) return undefined;
 
   const datosSeccion = tabla.datos[seccion];
   
-  // Función auxiliar para buscar en objetos anidados
+  // Función auxiliar mejorada para buscar en objetos anidados
   const buscarEnObjeto = (obj: any, keyBusqueda: string, disp?: string): number | undefined => {
       if (typeof obj !== 'object' || obj === null) return undefined;
       
+      // Manejo específico para estructura Mineral (E_F como clave)
+      if (tabla.aislacion === 'Mineral' && keyBusqueda === 'E' && obj['E_F']) {
+          return buscarEnObjeto(obj['E_F'], 'E_F', disp);
+      }
+      
       const keys = Object.keys(obj);
-      // Buscar clave exacta o difusa del método (manejando el prefijo 'metodo' en datos)
+      // Buscar clave exacta o difusa
       const keyFound = keys.find(k => k.toUpperCase().replace('METODO', '').trim() === keyBusqueda) 
                     || keys.find(k => k.toLowerCase().includes(keyBusqueda.toLowerCase()));
       
@@ -64,11 +71,18 @@ export const getAdmisible = (
       if (typeof valor === 'number') return valor;
       
       if (typeof valor === 'object' && disp) {
+          // Búsqueda de disposición
           if (valor[disp]) return valor[disp];
           
           const dispKeys = Object.keys(valor);
           const dispFound = dispKeys.find(k => k.toLowerCase().includes(disp.toLowerCase()));
           if (dispFound) return valor[dispFound];
+          
+          // Fallback para trifásico en tablas 10+
+          if (esTrifasico) {
+              const kTrifasico = dispKeys.find(k => k.toLowerCase().includes('3c'));
+              if (kTrifasico) return valor[kTrifasico];
+          }
       }
       
       if (typeof valor === 'object') {
@@ -78,8 +92,9 @@ export const getAdmisible = (
       return undefined;
   };
 
-  if (tipoCable && datosSeccion[tipoCable]) {
-      return buscarEnObjeto(datosSeccion[tipoCable], metodoNormalizado, disposicion);
+  // En las tablas 10-13, la estructura es: seccion -> [tipoCable] -> [metodo] -> [disposicion]
+  if (tabla.norma.startsWith('B52-1') && tipoCable && datosSeccion[tipoCable]) {
+      return buscarEnObjeto(datosSeccion[tipoCable], metodoNormalizado, esTrifasico ? '3C' : '2C');
   }
 
   return buscarEnObjeto(datosSeccion, metodoNormalizado, disposicion);
