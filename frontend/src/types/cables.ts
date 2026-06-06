@@ -15,7 +15,7 @@ export interface ParametrosCable {
   };
   // Corrientes separadas por cantidad de conductores cargados
   // mono: 2 cargados, tri: 3 cargados
-  corrientes: {
+  corrientes: Record<string, number> | {
     mono: Record<MetodoInstalacion, number | Record<string, number>>;
     tri: Record<MetodoInstalacion, number | Record<string, number>>;
   };
