@@ -32,16 +32,17 @@ export const getAdmisible = (
         return normasPrioritarias.includes(t.norma) && t.material === material && t.aislacion === aislacion;
     } 
     
-    // 3. Para otros métodos, evitar tablas B52-10 a B52-13
+    // 3. Para otros métodos: evitar tablas B52-10 a B52-13 (especiales)
     if (t.norma.startsWith('B52-1')) return false;
     
+    // Buscar en tablas estándar
     return t.material === material && 
            t.aislacion === aislacion && 
            t.nConductoresCargados === nConductoresBuscado;
   });
 
   if (!tabla) {
-      console.log(`[DEBUG] No se encontró tabla para: Mat=${material}, Aisl=${aislacion}, Metodo=${metodoNormalizado}`);
+      console.log(`[DEBUG] No se encontró tabla para: Mat=${material}, Aisl=${aislacion}, nCarg=${nConductoresBuscado}, Metodo=${metodoNormalizado}`);
       return undefined;
   }
   
@@ -98,5 +99,6 @@ export const getAdmisible = (
   }
 
   // Búsqueda estándar (incluye A, B, C, D)
+  // Nota: En tablas estándar, los datos ya están en el nivel método
   return buscarEnObjeto(datosSeccion, metodoNormalizado, disposicion);
 };
