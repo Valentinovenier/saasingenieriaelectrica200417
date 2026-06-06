@@ -40,23 +40,25 @@ export const getAdmisible = (
   if (tipoCable && datosSeccion[tipoCable]) {
     const datosTipo = datosSeccion[tipoCable] as any;
     
-    // Primero, intentar buscar por el nombre de método directo (ej. 'F', 'G')
-    // A veces los datos tienen claves como 'metodoF' o directamente 'F'
-    const valorDirecto = datosTipo[metodo] || datosTipo[`metodo${metodo.toUpperCase()}`];
+    // Normalizar el nombre del método recibido: eliminar 'metodo' si existe
+    const normalizedMetodo = metodo.toLowerCase().replace('metodo', ''); // 'metodoF' -> 'f'
     
-    if (valorDirecto) {
+    // Buscar claves en datosTipo que coincidan de forma flexible
+    const key = Object.keys(datosTipo).find(k => {
+        const kNormalized = k.toLowerCase().replace('metodo', '');
+        return kNormalized === normalizedMetodo;
+    });
+    
+    if (key && datosTipo[key]) {
+        const valorDirecto = datosTipo[key];
         if (typeof valorDirecto === 'number') return valorDirecto;
         if (disposicion && valorDirecto[disposicion]) return valorDirecto[disposicion];
-        return Object.values(valorDirecto)[0] as number;
-    }
-    
-    // Si no se encontró, buscar por la clave estandarizada 'metodoX'
-    const metodoKey = `metodo${metodo.toUpperCase()}`;
-    if (datosTipo[metodoKey]) {
-      const valores = datosTipo[metodoKey];
-      if (typeof valores === 'number') return valores;
-      if (disposicion && valores[disposicion]) return valores[disposicion];
-      return Object.values(valores)[0] as number;
+        
+        // Fallback: tomar el primer valor numérico del objeto
+        const values = Object.values(valorDirecto);
+        const firstNum = values.find(v => typeof v === 'number');
+        if (typeof firstNum === 'number') return firstNum;
+        return values[0] as number;
     }
   }
 
