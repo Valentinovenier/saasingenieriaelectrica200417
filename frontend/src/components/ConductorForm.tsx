@@ -2,11 +2,12 @@ import { Conductor, TipoConductor } from '../types/project';
 import { getMetodosValidos } from '../engine/metodosProvider';
 
 export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: string, conductor?: Conductor, onChange: (c: Conductor) => void, tramoId?: string }) => {
+  const tipoCable = conductor?.tipoCable || 'Multipolar';
   const aislacion = conductor?.aislacion || 'PVC';
   const material = conductor?.material || 'Cobre';
   
   // Filtrado dinámico
-  const metodosDisponibles = getMetodosValidos(aislacion as any, material as any);
+  const metodosDisponibles = getMetodosValidos(aislacion as any, material as any, tipoCable);
 
   return (
     <div className="p-3 bg-slate-900 rounded-lg border border-slate-700">
@@ -72,7 +73,7 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
 
             <select 
               className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
-              value={conductor?.tipoCable || 'Multipolar'}
+              value={tipoCable}
               onChange={(e) => {
                 const newTipoCable = e.target.value as 'Multipolar' | 'Unipolar';
                 const newConductor = {
@@ -88,7 +89,7 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
               <option value="Unipolar">Unipolar</option>
             </select>
 
-            {conductor?.tipoCable === 'Unipolar' && (
+            {tipoCable === 'Unipolar' && (
               <select 
                 className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
                 value={conductor?.disposicion || 'trebol'}
