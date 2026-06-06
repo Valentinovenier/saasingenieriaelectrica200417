@@ -2,19 +2,18 @@ import { Conductor, TipoConductor } from '../types/project';
 import { getMetodosValidos } from '../engine/metodosProvider';
 
 export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: string, conductor?: Conductor, onChange: (c: Conductor) => void, tramoId?: string }) => {
-  const tipoCable = conductor?.tipoCable || 'Multipolar';
   const aislacion = conductor?.aislacion || 'PVC';
   const material = conductor?.material || 'Cobre';
   
   // Filtrado dinámico
-  const metodosDisponibles = getMetodosValidos(aislacion as any, material as any, tipoCable);
+  const metodosDisponibles = getMetodosValidos(aislacion as any, material as any);
 
   return (
     <div className="p-3 bg-slate-900 rounded-lg border border-slate-700">
       <label className="text-xs text-slate-400 mb-2 block">{label}</label>
       <div className="grid grid-cols-2 gap-2">
         <select 
-          className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
+          className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
           value={conductor?.tipo || 'Cable'}
           onChange={(e) => {
             const newTipo = e.target.value as TipoConductor;
@@ -73,7 +72,7 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
 
             <select 
               className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
-              value={tipoCable}
+              value={conductor?.tipoCable || 'Multipolar'}
               onChange={(e) => {
                 const newTipoCable = e.target.value as 'Multipolar' | 'Unipolar';
                 const newConductor = {
@@ -89,7 +88,7 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
               <option value="Unipolar">Unipolar</option>
             </select>
 
-            {tipoCable === 'Unipolar' && (
+            {conductor?.tipoCable === 'Unipolar' && (
               <select 
                 className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
                 value={conductor?.disposicion || 'trebol'}
@@ -98,9 +97,9 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
                   disposicion: e.target.value as 'trebol' | 'contacto' | 'separado'
                 })}
               >
-                <option value="trebol">Trébol (o Tresbolillo)</option>
+                <option value="trebol">Trébol</option>
                 <option value="contacto">En contacto</option>
-                <option value="separado">Separados (1 x De)</option>
+                <option value="separado">Separados</option>
               </select>
             )}
 
