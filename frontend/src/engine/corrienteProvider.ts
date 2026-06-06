@@ -27,15 +27,15 @@ export const getAdmisible = (
         return (t.norma === 'B52-8' || t.norma === 'B52-9') && t.material === material;
     }
 
-    // 2. Si buscamos E, F, G, forzar uso de tablas de la serie B52-1X
-    if (normasPrioritarias) {
-        return normasPrioritarias.includes(t.norma) && t.material === material && t.aislacion === aislacion;
-    } 
-    
-    // 3. Para otros métodos: evitar tablas B52-10 a B52-13 (especiales)
-    if (t.norma.startsWith('B52-1')) return false;
-    
-    // Buscar en tablas estándar
+    const isB52_10_13 = ['B52-10', 'B52-11', 'B52-12', 'B52-13'].includes(t.norma);
+    const isMetodoE_F_G = ['E', 'F', 'G'].includes(metodoNormalizado);
+
+    // 2. Si buscamos E, F, G, solo usar B52-10 a 13
+    if (isMetodoE_F_G && !isB52_10_13) return false;
+    // 3. Si NO buscamos E, F, G, evitar B52-10 a 13
+    if (!isMetodoE_F_G && isB52_10_13) return false;
+
+    // 4. Filtro base
     return t.material === material && 
            t.aislacion === aislacion && 
            t.nConductoresCargados === nConductoresBuscado;
