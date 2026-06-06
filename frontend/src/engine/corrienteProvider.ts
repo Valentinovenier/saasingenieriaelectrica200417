@@ -38,10 +38,11 @@ export const getAdmisible = (
     if (tipoCable === 'unipolar') {
         if (metodoNormalizado === 'F') {
             // Claves reales: '3C_tresbolillo_cuadrete', '3C_contacto', '2C_contacto'
+            console.log(`[DEBUG] Método F, disposicion recibida: ${disposicion}`);
             const keyMap: Record<string, string> = esTrifasico 
                 ? { 'trebol': '3C_tresbolillo_cuadrete', 'contacto': '3C_contacto' }
                 : { 'trebol': '2C_contacto', 'contacto': '2C_contacto' };
-            const key = disposicion ? keyMap[disposicion] : undefined;
+            const key = disposicion ? keyMap[disposicion.toLowerCase()] : undefined; // Asegurar minúsculas
             console.log(`[DEBUG] Método F, Key buscada: ${key}`);
             return (datosSeccion.unipolar as any)?.metodoF?.[key || ''];
         }
