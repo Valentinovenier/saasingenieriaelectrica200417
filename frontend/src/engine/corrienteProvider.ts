@@ -20,22 +20,22 @@ export const getAdmisible = (
       return undefined;
   }
   
+  console.log(`[DEBUG] Tabla seleccionada: Norma=${tabla.norma}, Mat=${tabla.material}, Aisl=${tabla.aislacion}, nCarg=${tabla.nConductoresCargados}`);
+
   if (!tabla.datos[seccion]) {
-      console.log(`[DEBUG] No se encontró sección ${seccion} en la tabla para: Mat=${material}, Aisl=${aislacion}`);
+      console.log(`[DEBUG] No se encontró sección ${seccion} en la tabla ${tabla.norma}`);
       return undefined;
   }
 
   const datosSeccion = tabla.datos[seccion];
   const metodoNormalizado = metodo.toUpperCase().replace('METODO', '').trim();
-  console.log(`[DEBUG] Buscando Metodo=${metodoNormalizado}, TipoCable=${tipoCable}, DatosSeccion=`, datosSeccion);
-
+  
   // Función auxiliar para buscar en objetos anidados
   const buscarEnObjeto = (obj: any, keyBusqueda: string, disp?: string): number | undefined => {
       if (typeof obj !== 'object' || obj === null) return undefined;
       
-      // Buscar clave exacta o difusa del método
       const keys = Object.keys(obj);
-      console.log(`[DEBUG] Keys disponibles en objeto:`, keys);
+      console.log(`[DEBUG] Buscando "${keyBusqueda}" en objeto con keys:`, keys);
       
       const keyFound = keys.find(k => k.toUpperCase().replace('METODO', '').trim() === keyBusqueda) 
                     || keys.find(k => k.toLowerCase().includes(keyBusqueda.toLowerCase()));
@@ -50,16 +50,13 @@ export const getAdmisible = (
       if (typeof valor === 'number') return valor;
       
       if (typeof valor === 'object' && disp) {
-          // Intentar buscar disposición exacta
           if (valor[disp]) return valor[disp];
           
-          // Búsqueda difusa de disposición
           const dispKeys = Object.keys(valor);
           const dispFound = dispKeys.find(k => k.toLowerCase().includes(disp.toLowerCase()));
           if (dispFound) return valor[dispFound];
       }
       
-      // Si es objeto pero no se encontró disposición específica, retornar el primer valor numérico
       if (typeof valor === 'object') {
           return Object.values(valor).find(v => typeof v === 'number') as number | undefined;
       }
@@ -67,11 +64,11 @@ export const getAdmisible = (
       return undefined;
   };
 
-  // 1. Si hay tipo de cable (Estructuras anidadas unipolar/multipolar)
   if (tipoCable && datosSeccion[tipoCable]) {
+      console.log(`[DEBUG] Estructura anidada para ${tipoCable}`);
       return buscarEnObjeto(datosSeccion[tipoCable], metodoNormalizado, disposicion);
   }
 
-  // 2. Intento de búsqueda directa en el nivel superior (ej. tablas Mineral)
+  console.log(`[DEBUG] Estructura directa`);
   return buscarEnObjeto(datosSeccion, metodoNormalizado, disposicion);
 };
