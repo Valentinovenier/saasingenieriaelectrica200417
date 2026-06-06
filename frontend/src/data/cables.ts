@@ -2,7 +2,10 @@ import { ParametrosCable } from '../types/cables';
 
 // Definimos una interfaz extendida que sí tiene 'corrientes'
 export interface ParametrosCableCompleto extends ParametrosCable {
-  corrientes: Record<string, number>; // Método -> Amperios
+  corrientes: Record<string, number> | {
+    mono: Record<string, number | Record<string, number>>;
+    tri: Record<string, number | Record<string, number>>;
+  };
 }
 
 // Estos datos deberían ser cargados de forma real, esto es un MOCK para corregir el error de ejecución
