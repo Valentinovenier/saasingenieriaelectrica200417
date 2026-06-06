@@ -98,9 +98,22 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
                   disposicion: e.target.value as 'trebol' | 'contacto' | 'separado'
                 })}
               >
-                <option value="trebol">Trébol</option>
-                <option value="contacto">En contacto</option>
-                {conductor?.aislacion !== 'Mineral' && <option value="separado">Separados</option>}
+                {(!conductor?.metodoInstalacion || (conductor.metodoInstalacion !== 'F' && conductor.metodoInstalacion !== 'G')) && (
+                    <>
+                        <option value="trebol">Trébol</option>
+                        <option value="contacto">En contacto</option>
+                        {conductor?.aislacion !== 'Mineral' && <option value="separado">Separados</option>}
+                    </>
+                )}
+                {conductor?.metodoInstalacion === 'F' && (
+                    <>
+                        <option value="trebol">Trébol</option>
+                        <option value="contacto">En contacto</option>
+                    </>
+                )}
+                {conductor?.metodoInstalacion === 'G' && (
+                    <option value="separado">Separados</option>
+                )}
               </select>
             )}
             <select 
