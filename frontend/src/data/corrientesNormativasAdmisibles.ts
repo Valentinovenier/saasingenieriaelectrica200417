@@ -1,4 +1,4 @@
-export type ValorCorriente = number | Record<string, number>;
+export type ValorCorriente = number | Record<string, any>;
 
 export interface TablaCorriente {
   norma: string;
@@ -11,6 +11,7 @@ export interface TablaCorriente {
   metodosSoportados: Record<string, 'unipolar' | 'multipolar' | 'ambos'>;
   disposiciones?: Record<string, string[]>;
   // Seccion -> { Método: CorrienteDirecta o { Disposición: Corriente } }
+  // Usamos 'any' para acomodar estructuras anidadas complejas
   datos: Record<number, Record<string, ValorCorriente>>;
 }
 
@@ -438,4 +439,3 @@ export const TABLAS_CORRIENTE_SAEA: TablaCorriente[] = [
     }
   }
 ];
-
