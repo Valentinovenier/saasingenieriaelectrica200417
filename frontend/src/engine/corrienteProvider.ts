@@ -40,25 +40,30 @@ export const getAdmisible = (
   if (tipoCable && datosSeccion[tipoCable]) {
     const datosTipo = datosSeccion[tipoCable] as any;
     
-    // Normalizar el nombre del método recibido: eliminar 'metodo' si existe
-    const normalizedMetodo = metodo.toLowerCase().replace('metodo', ''); // 'metodoF' -> 'f'
+    // Normalizar el método de búsqueda
+    const metodoNormalizado = metodo.toUpperCase().replace('METODO', '');
     
-    // Buscar claves en datosTipo que coincidan de forma flexible
+    // Buscar la clave de forma flexible
     const key = Object.keys(datosTipo).find(k => {
-        const kNormalized = k.toLowerCase().replace('metodo', '');
-        return kNormalized === normalizedMetodo;
+        const kNormalizada = k.toUpperCase().replace('METODO', '');
+        return kNormalizada === metodoNormalizado;
     });
     
     if (key && datosTipo[key]) {
-        const valorDirecto = datosTipo[key];
-        if (typeof valorDirecto === 'number') return valorDirecto;
-        if (disposicion && valorDirecto[disposicion]) return valorDirecto[disposicion];
+        const valorEcontrado = datosTipo[key];
+        if (typeof valorEcontrado === 'number') return valorEcontrado;
         
-        // Fallback: tomar el primer valor numérico del objeto
-        const values = Object.values(valorDirecto);
-        const firstNum = values.find(v => typeof v === 'number');
-        if (typeof firstNum === 'number') return firstNum;
-        return values[0] as number;
+        // Si es un objeto, buscar la disposición
+        if (typeof valorEcontrado === 'object') {
+            if (disposicion && valorEcontrado[disposicion]) return valorEcontrado[disposicion];
+            
+            // Si la disposición no coincide o no hay, buscar la primera clave que contenga '2C' o '3C'
+            // O simplemente tomar el primer valor numérico disponible
+            const valores = Object.values(valorEcontrado);
+            const firstNum = valores.find(v => typeof v === 'number');
+            if (typeof firstNum === 'number') return firstNum;
+            return valores[0] as number;
+        }
     }
   }
 
@@ -66,15 +71,17 @@ export const getAdmisible = (
   if (datosSeccion[metodo]) {
     const valor = datosSeccion[metodo];
     if (typeof valor === 'number') return valor;
+    
     if (disposicion && typeof valor === 'object' && !Array.isArray(valor)) {
        // Buscar por disposición dentro de las sub-estructuras
        const valores = valor as Record<string, any>;
        if (valores[disposicion]) return valores[disposicion];
-       // Intento de búsqueda difusa
+       
+       // Fallback: búsqueda difusa
        const key = Object.keys(valores).find(k => k.toLowerCase().includes(disposicion?.toLowerCase() || ''));
        if (key && typeof valores[key] === 'number') return valores[key];
        
-       // Si es un objeto, intentar devolver el primer valor si la disposición no coincide
+       // Intentar el primer valor si la disposición no coincide
        const firstValue = Object.values(valores)[0];
        return typeof firstValue === 'number' ? firstValue : undefined;
     }
