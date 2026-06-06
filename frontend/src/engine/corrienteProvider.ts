@@ -21,6 +21,21 @@ export const getAdmisible = (
 
   const datosSeccion = tabla.datos[seccion];
 
+  // Caso especial para Mineral (B52-6, B52-7, B52-8, B52-9)
+  if (aislacion === 'Mineral') {
+    const valor = datosSeccion[metodo] || datosSeccion[metodo.replace('_', '')] || datosSeccion['C'] || datosSeccion['E_F'] || datosSeccion['F'] || datosSeccion['G'];
+    if (typeof valor === 'number') return valor;
+    
+    if (disposicion && typeof valor === 'object') {
+       // Buscar por disposición dentro de las sub-estructuras
+       const valores = valor as Record<string, any>;
+       if (valores[disposicion]) return valores[disposicion];
+       // Intento de búsqueda difusa si la disposición no coincide exacto
+       const key = Object.keys(valores).find(k => k.toLowerCase().includes(disposicion.toLowerCase()));
+       if (key) return valores[key];
+    }
+  }
+
   // Caso para las tablas con estructura unipolar/multipolar (ej. B52-10)
   if (tipoCable && datosSeccion[tipoCable]) {
     const datosTipo = datosSeccion[tipoCable] as any;

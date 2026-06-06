@@ -1,5 +1,5 @@
 // frontend/src/types/cables.ts
-export type Aislacion = 'PVC' | 'XLPE';
+export type Aislacion = 'PVC' | 'XLPE' | 'Mineral';
 export type MaterialConductor = 'Cobre' | 'Aluminio';
 export type MetodoInstalacion = 'A1' | 'A2' | 'B1' | 'B2' | 'C' | 'D1' | 'D2' | 'E' | 'F' | 'G';
 

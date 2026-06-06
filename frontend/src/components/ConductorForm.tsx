@@ -1,9 +1,13 @@
 import { Conductor, TipoConductor } from '../types/project';
-import { METODOS_INSTALACION } from '../data/metodosInstalacion';
+import { getMetodosValidos } from '../engine/metodosProvider';
 
 export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: string, conductor?: Conductor, onChange: (c: Conductor) => void, tramoId?: string }) => {
   const tipoCable = conductor?.tipoCable || 'Multipolar';
-  const metodosDisponibles = METODOS_INSTALACION[tipoCable] || [];
+  const aislacion = conductor?.aislacion || 'PVC';
+  const material = conductor?.material || 'Cobre';
+  
+  // Filtrado dinámico
+  const metodosDisponibles = getMetodosValidos(aislacion as any, material as any, tipoCable);
 
   return (
     <div className="p-3 bg-slate-900 rounded-lg border border-slate-700">
@@ -20,8 +24,8 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
               material: newTipo === 'Cable' ? (conductor?.material || 'Cobre') : undefined,
               aislacion: newTipo === 'Cable' ? (conductor?.aislacion || 'PVC') : undefined,
               seccion: undefined, 
-              metodoInstalacion: undefined, // Resetear al cambiar tipo
-              tipoCable: 'Multipolar', // Resetear
+              metodoInstalacion: undefined, 
+              tipoCable: 'Multipolar', 
               longitud: conductor?.longitud || 0,
             };
             onChange(newConductor);
@@ -35,36 +39,51 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
           <>
             <select 
               className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
-              value={conductor?.material || 'Cobre'}
-              onChange={(e) => onChange({ 
-                ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                material: e.target.value as any 
-              })}
+              value={material}
+              onChange={(e) => {
+                const newMaterial = e.target.value as any;
+                const newConductor = {
+                  ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                  material: newMaterial,
+                  metodoInstalacion: undefined
+                };
+                onChange(newConductor);
+              }}
             >
               <option value="Cobre">Cobre</option>
               <option value="Aluminio">Aluminio</option>
             </select>
             <select 
               className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
-              value={conductor?.aislacion || 'PVC'}
-              onChange={(e) => onChange({ 
-                ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                aislacion: e.target.value as any 
-              })}
+              value={aislacion}
+              onChange={(e) => {
+                const newAislacion = e.target.value as any;
+                const newConductor = {
+                  ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                  aislacion: newAislacion,
+                  metodoInstalacion: undefined
+                };
+                onChange(newConductor);
+              }}
             >
               <option value="PVC">PVC</option>
               <option value="XLPE">XLPE</option>
+              <option value="Mineral">Mineral</option>
             </select>
 
             <select 
               className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
               value={tipoCable}
-              onChange={(e) => onChange({ 
-                ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                tipoCable: e.target.value as 'Multipolar' | 'Unipolar',
-                metodoInstalacion: undefined, // Resetear método al cambiar tipo de cable
-                disposicion: undefined // Resetear disposición
-              })}
+              onChange={(e) => {
+                const newTipoCable = e.target.value as 'Multipolar' | 'Unipolar';
+                const newConductor = {
+                  ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                  tipoCable: newTipoCable,
+                  metodoInstalacion: undefined, 
+                  disposicion: undefined 
+                };
+                onChange(newConductor);
+              }}
             >
               <option value="Multipolar">Multipolar</option>
               <option value="Unipolar">Unipolar</option>
@@ -138,4 +157,3 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
     </div>
   );
 };
-

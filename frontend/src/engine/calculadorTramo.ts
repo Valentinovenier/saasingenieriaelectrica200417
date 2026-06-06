@@ -26,9 +26,14 @@ export const calcularConductorTramo = (
   const tensionNominal = condiciones.tipoInstalacion === 'Trifásica' ? 380 : 220;
   
   // 1. Factores base (Temperatura y Simetría)
-  const f_temp = tipoInstalacionAire 
-    ? FACTORES_TEMPERATURA_AIRE[condiciones.aislacion!][tempAmbiente] 
-    : FACTORES_TEMPERATURA_TIERRA[condiciones.aislacion!][tempAmbiente];
+  let aisKey = condiciones.aislacion!;
+  if (aisKey === 'Mineral') {
+      // Ajuste para mineral, asumiendo Mineral_70 si no se especifica, se podría mejorar pasando este detalle
+      aisKey = 'Mineral_70'; 
+  }
+
+  const tempMap = tipoInstalacionAire ? FACTORES_TEMPERATURA_AIRE : FACTORES_TEMPERATURA_TIERRA;
+  const f_temp = tempMap[aisKey]?.[tempAmbiente] || 1.0;
     
   // Refactor: Calcular factor de simetría dinámico
   const getFsimetria = (nCond: number) => {
