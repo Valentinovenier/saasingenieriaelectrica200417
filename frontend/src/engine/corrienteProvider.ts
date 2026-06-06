@@ -17,13 +17,11 @@ export const getAdmisible = (
     if (aislacion === 'Mineral') {
         return (t.norma === 'B52-8' || t.norma === 'B52-9') && t.material === material;
     }
-    const isB52_10_13 = ['B52-10', 'B52-11', 'B52-12', 'B52-13'].includes(t.norma);
-    const isMetodoE_F_G = ['E', 'F', 'G'].includes(metodoNormalizado);
-    if (isMetodoE_F_G && !isB52_10_13) return false;
-    if (!isMetodoE_F_G && isB52_10_13) return false;
+    // Filtrado universal: coincide material, aislación, número de conductores y el método es soportado
     return t.material === material && 
            t.aislacion === aislacion && 
-           t.nConductoresCargados === nConductoresBuscado;
+           t.nConductoresCargados === nConductoresBuscado &&
+           !!t.metodosSoportados[metodoNormalizado];
   });
 
   if (!tabla || !tabla.datos[seccion]) return undefined;
