@@ -14,57 +14,65 @@ const TRAMOS_ELECTRICOS = [
 export const ConductorCalculation = ({ project, onChange }: { project: Project, onChange: (p: Project) => void }) => {
   const [resultados, setResultados] = useState<Record<string, any>>({});
 
-  const updateConductor = (tramoId: string, conductor: Conductor) => {
-    // Sincronizar con el estado global del proyecto
-    onChange({
-      ...project,
-      conductores: {
-        ...(project as any).conductores,
-        [tramoId]: conductor
-      }
-    });
-  };
-
   const getConductor = (tramoId: string): Conductor | undefined => {
     return (project as any).conductores?.[tramoId];
   };
 
-  const handleCalcular = (tramoId: string) => {
+  const realizarCalculo = (tramoId: string, conductor: Conductor, currentProject: Project) => {
     console.log("Iniciando cálculo para tramo:", tramoId);
-    const conductor = getConductor(tramoId);
     if (!conductor || !conductor.aislacion || !conductor.material || !conductor.metodoInstalacion) {
         console.log("Datos del conductor incompletos:", conductor);
-        alert("Por favor completa todos los datos del conductor");
-        return;
+        return; 
     }
 
     const catalogo: ParametrosCableCompleto[] = conductor.aislacion === 'XLPE' ? catalogoCablesXLPE : catalogoCablesPVC;
 
-    const potenciaVA = (project.transformador?.potencia || 0) * 1000;
-    const tensionSecundaria = project.transformador?.tensionSecundario || (project.tipoInstalacion === 'Trifásica' ? 380 : 220);
-    const Itrafo = potenciaVA / (project.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) * tensionSecundaria : tensionSecundaria);
+    const potenciaVA = (currentProject.transformador?.potencia || 0) * 1000;
+    const tensionSecundaria = currentProject.transformador?.tensionSecundario || (currentProject.tipoInstalacion === 'Trifásica' ? 380 : 220);
+    const Itrafo = potenciaVA / (currentProject.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) * tensionSecundaria : tensionSecundaria);
 
-    // Usar los nuevos parámetros del conductor o valores por defecto
     const caidaMaxPermitida = conductor.caidaMaxPermitida || 3;
     const tiempoApertura = tramoId === 'trafo-tgbt' ? (conductor.tiempoAperturaMT || 0.1) : 0.1;
 
     console.log("Parámetros de cálculo:", { Itrafo, caidaMaxPermitida, tiempoApertura });
 
     const resultado = calcularConductorTramo(
-       {...conductor, tipoInstalacion: project.tipoInstalacion},
-       Itrafo, // Itrafo
-       50, // Ik (Debería ser parametrizable en el futuro)
-       tiempoApertura, // Usar tiempo configurable
-       (conductor.longitud || 0) / 1000, // km
-       project.transformador?.cosFi || 0.95,
-       caidaMaxPermitida, // Usar caída configurable
+       {...conductor, tipoInstalacion: currentProject.tipoInstalacion},
+       Itrafo, 
+       50, 
+       tiempoApertura, 
+       (conductor.longitud || 0) / 1000, 
+       currentProject.transformador?.cosFi || 0.95,
+       caidaMaxPermitida, 
        catalogo,
-       project.tempAmbiente || 40,
-       true // tipoInstalacionAire
+       (currentProject as any).tempAmbiente || 40,
+       true 
     );
 
     console.log("Resultado del cálculo:", resultado);
     setResultados(prev => ({ ...prev, [tramoId]: resultado }));
+  };
+
+  const updateConductor = (tramoId: string, conductor: Conductor) => {
+    const newProject = {
+      ...project,
+      conductores: {
+        ...(project as any).conductores,
+        [tramoId]: conductor
+      }
+    };
+    onChange(newProject);
+    realizarCalculo(tramoId, conductor, newProject);
+  };
+
+  const handleCalcular = (tramoId: string) => {
+    const conductor = getConductor(tramoId);
+    if (!conductor || !conductor.aislacion || !conductor.material || !conductor.metodoInstalacion) {
+        console.log("Datos del conductor incompletos:", conductor);
+        alert("Por favor completa todos los datos del conductor");
+        return;
+    }
+    realizarCalculo(tramoId, conductor, project);
   };
 
   const handleSave = async () => {
