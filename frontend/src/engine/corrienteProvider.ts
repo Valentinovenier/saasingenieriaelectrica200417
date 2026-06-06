@@ -9,14 +9,15 @@ export const getAdmisible = (
   disposicion?: string,
   tipoCable?: 'unipolar' | 'multipolar'
 ): number | undefined => {
+  const nConductoresBuscado = esTrifasico ? 3 : 2;
   const tabla = TABLAS_CORRIENTE_SAEA.find(t =>
     t.material === material &&
     t.aislacion === aislacion &&
-    (esTrifasico ? t.nConductoresCargados === 3 : t.nConductoresCargados === 2)
+    t.nConductoresCargados === nConductoresBuscado
   );
 
   if (!tabla) {
-      console.log(`[DEBUG] No se encontró tabla para: Mat=${material}, Aisl=${aislacion}, Trifasico=${esTrifasico}`);
+      console.log(`[DEBUG] No se encontró tabla para: Mat=${material}, Aisl=${aislacion}, nCarg=${nConductoresBuscado}`);
       return undefined;
   }
   
