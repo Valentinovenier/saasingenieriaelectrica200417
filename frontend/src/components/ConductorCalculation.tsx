@@ -49,7 +49,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
     const tiempoApertura = tramoId === 'trafo-tgbt' ? (conductor.tiempoAperturaMT || 0.1) : 0.1;
 
     const resultado = calcularConductorTramo(
-       {...conductor, tipoInstalacion: project.tipoInstalacion},
+       {...conductor, tipoInstalacion: project.tipoInstalacion, plano: conductor.plano},
        Itrafo, 
        50, 
        tiempoApertura, 

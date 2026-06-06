@@ -90,31 +90,48 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
             </select>
 
             {tipoCable === 'Unipolar' && (
-              <select
-                className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
-                value={conductor?.disposicion || 'trebol'}
-                onChange={(e) => onChange({
-                  ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                  disposicion: e.target.value as 'trebol' | 'contacto' | 'separado'
-                })}
-              >
-                {(!conductor?.metodoInstalacion || (conductor.metodoInstalacion !== 'F' && conductor.metodoInstalacion !== 'G')) && (
-                    <>
-                        <option value="trebol">Trébol</option>
-                        <option value="contacto">En contacto</option>
-                        {conductor?.aislacion !== 'Mineral' && <option value="separado">Separados</option>}
-                    </>
+              <div className="flex flex-col gap-2">
+                <select
+                  className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
+                  value={conductor?.disposicion || 'trebol'}
+                  onChange={(e) => onChange({
+                    ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                    disposicion: e.target.value as 'trebol' | 'contacto' | 'separado',
+                    plano: undefined // Resetear plano al cambiar disposición
+                  })}
+                >
+                  {(!conductor?.metodoInstalacion || (conductor.metodoInstalacion !== 'F' && conductor.metodoInstalacion !== 'G')) && (
+                      <>
+                          <option value="trebol">Trébol</option>
+                          <option value="contacto">En contacto</option>
+                          {conductor?.aislacion !== 'Mineral' && <option value="separado">Separados</option>}
+                      </>
+                  )}
+                  {conductor?.metodoInstalacion === 'F' && (
+                      <>
+                          <option value="trebol">Trébol</option>
+                          <option value="contacto">En contacto</option>
+                      </>
+                  )}
+                  {conductor?.metodoInstalacion === 'G' && (
+                      <option value="separado">Separados</option>
+                  )}
+                </select>
+                
+                {conductor?.metodoInstalacion === 'G' && conductor?.disposicion === 'separado' && (
+                    <select
+                        className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
+                        value={conductor?.plano || 'horizontal'}
+                        onChange={(e) => onChange({
+                            ...conductor,
+                            plano: e.target.value as 'horizontal' | 'vertical'
+                        })}
+                    >
+                        <option value="horizontal">Plano Horizontal</option>
+                        <option value="vertical">Plano Vertical</option>
+                    </select>
                 )}
-                {conductor?.metodoInstalacion === 'F' && (
-                    <>
-                        <option value="trebol">Trébol</option>
-                        <option value="contacto">En contacto</option>
-                    </>
-                )}
-                {conductor?.metodoInstalacion === 'G' && (
-                    <option value="separado">Separados</option>
-                )}
-              </select>
+              </div>
             )}
             <select 
               className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"

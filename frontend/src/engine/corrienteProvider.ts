@@ -7,7 +7,8 @@ export const getAdmisible = (
   material: 'Cobre' | 'Aluminio',
   aislacion: 'PVC' | 'XLPE' | 'Mineral',
   disposicion?: string,
-  tipoCable?: 'unipolar' | 'multipolar'
+  tipoCable?: 'unipolar' | 'multipolar',
+  plano?: 'horizontal' | 'vertical'
 ): number | undefined => {
   const nConductoresBuscado = esTrifasico ? 3 : 2;
   const metodoNormalizado = metodo.toUpperCase().replace('METODO', '').trim();
@@ -37,12 +38,18 @@ export const getAdmisible = (
     }
     if (tipoCable === 'unipolar') {
         if (metodoNormalizado === 'F') {
-            const key = esTrifasico ? '3C_contacto' : '2C_contacto';
-            return (datosSeccion.unipolar as any)?.metodoF?.[key];
+            // Mapeo dinámico para Método F basado en disposición
+            const keyMap: Record<string, string> = esTrifasico 
+                ? { 'trebol': '3C_tresbolillo_cuadrete', 'contacto': '3C_contacto' }
+                : { 'trebol': '2C_contacto', 'contacto': '2C_contacto' }; // Ajustar si es necesario
+            const key = disposicion ? keyMap[disposicion] : undefined;
+            return (datosSeccion.unipolar as any)?.metodoF?.[key || ''];
         }
         if (metodoNormalizado === 'G') {
-            // Mapeo explícito según disposición para Método G
-            const key = esTrifasico && disposicion === 'separado' ? '3C_plano_horizontal_separado_1D' : undefined;
+            // Mapeo dinámico para Método G basado en disposición y plano
+            const key = esTrifasico && disposicion === 'separado' 
+                ? (plano === 'horizontal' ? '3C_plano_horizontal_separado_1D' : '3C_plano_vertical_separado_1D') 
+                : undefined;
             return (datosSeccion.unipolar as any)?.metodoG?.[key || ''];
         }
     }

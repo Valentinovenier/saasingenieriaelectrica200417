@@ -100,7 +100,8 @@ export const calcularConductorTramo = (
           condiciones.material!,
           condiciones.aislacion!,
           condiciones.disposicion,
-          condiciones.tipoCable?.toLowerCase() as 'unipolar' | 'multipolar'
+          condiciones.tipoCable?.toLowerCase() as 'unipolar' | 'multipolar',
+          (condiciones as any).plano
       );
 
       if (I_adm_base === undefined || I_adm_base === null) {
