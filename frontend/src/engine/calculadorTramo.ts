@@ -104,7 +104,7 @@ export const calcularConductorTramo = (
       );
 
       if (I_adm_base === undefined || I_adm_base === null) {
-          // console.log(`[DEBUG] No se encontró I_adm para: Secc=${cable.seccion}, Metodo=${condiciones.metodoInstalacion}, Aisl=${condiciones.aislacion}`);
+          console.log(`[DEBUG] No se encontró I_adm para: Secc=${cable.seccion}, Metodo=${condiciones.metodoInstalacion}, Aisl=${condiciones.aislacion}, Mat=${condiciones.material}`);
           continue;
       }
 
@@ -123,13 +123,11 @@ export const calcularConductorTramo = (
       const porcentajeCaida = (dv / tensionNominal) * 100;
 
       if (I_adm_corregida < Itrafo || capacidadCorto < energiaCorto || isNaN(porcentajeCaida) || porcentajeCaida > caidaMaxPermitida) {
-          /*
           console.log(`[DEBUG] Descartado cable Secc=${cable.seccion} (n=${n}):`, {
               I_adm_corregida, Itrafo, 
               capacidadCorto, energiaCorto,
               porcentajeCaida, caidaMaxPermitida
           });
-          */
           continue;
       }
 
