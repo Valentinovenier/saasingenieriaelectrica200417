@@ -26,7 +26,7 @@ export const calcularConductorTramo = (
   const tensionNominal = condiciones.tipoInstalacion === 'Trifásica' ? 380 : 220;
   
   // 1. Factores base (Temperatura y Simetría)
-  let aisKey = condiciones.aislacion!;
+  let aisKey: string = condiciones.aislacion!;
   if (aisKey === 'Mineral') {
       // Ajuste para mineral, asumiendo Mineral_70 si no se especifica, se podría mejorar pasando este detalle
       aisKey = 'Mineral_70'; 

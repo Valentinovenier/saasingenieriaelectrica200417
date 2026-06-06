@@ -7,7 +7,7 @@ export interface HarmonicDistortion {
 
 export type TipoConductor = 'Cable' | 'CEP';
 export type MaterialConductor = 'Cobre' | 'Aluminio';
-export type AislacionConductor = 'PVC' | 'XLPE';
+export type AislacionConductor = 'PVC' | 'XLPE' | 'Mineral';
 
 export interface Conductor {
   tipo: TipoConductor;
