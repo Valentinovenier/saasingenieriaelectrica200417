@@ -19,6 +19,7 @@ export interface Conductor {
   agrupamiento?: number;
   tipoCable?: 'Multipolar' | 'Unipolar'; // Nuevo campo
   disposicion?: 'trebol' | 'contacto' | 'separado'; // Nuevo campo para unipolares
+  plano?: 'horizontal' | 'vertical'; // Nuevo campo para método G
   caidaMaxPermitida?: number;           // Nuevo campo (en %)
   tiempoAperturaMT?: number;            // Nuevo campo (en seg)
 }
@@ -29,6 +30,7 @@ export interface CondicionesTramo {
   material?: MaterialConductor;
   metodoInstalacion?: string;
   disposicion?: 'trebol' | 'contacto' | 'separado';
+  plano?: 'horizontal' | 'vertical'; // Nuevo campo para método G
 }
 
 export interface Proteccion {
