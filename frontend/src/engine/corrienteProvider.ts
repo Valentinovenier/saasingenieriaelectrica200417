@@ -36,7 +36,23 @@ export const getAdmisible = (
     }
   }
 
-  // Caso para las tablas con estructura unipolar/multipolar (ej. B52-10)
+  // Caso para las tablas con estructura estándar (métodos directos como A1, F, etc.)
+  if (datosSeccion[metodo]) {
+    const valor = datosSeccion[metodo];
+    if (typeof valor === 'number') return valor;
+    if (disposicion && typeof valor === 'object' && !Array.isArray(valor)) {
+       // Buscar por disposición dentro de las sub-estructuras
+       const valores = valor as Record<string, any>;
+       if (valores[disposicion]) return valores[disposicion];
+       // Intento de búsqueda difusa
+       const key = Object.keys(valores).find(k => k.toLowerCase().includes(disposicion.toLowerCase()));
+       if (key) return valores[key];
+       // Si es un objeto, intentar devolver el primer valor si la disposición no coincide
+       return Object.values(valores)[0];
+    }
+  }
+
+  // Caso para las tablas con estructura unipolar/multipolar (ej. B52-10, B52-11)
   if (tipoCable && datosSeccion[tipoCable]) {
     const datosTipo = datosSeccion[tipoCable] as any;
     // Buscamos por nombre de método, ej: 'metodoE'
@@ -45,15 +61,7 @@ export const getAdmisible = (
       const valores = datosTipo[metodoKey];
       if (typeof valores === 'number') return valores;
       if (disposicion && valores[disposicion]) return valores[disposicion];
-    }
-  }
-
-  // Caso para tablas con estructura anterior (métodos directos)
-  if (datosSeccion[metodo]) {
-    const valor = datosSeccion[metodo];
-    if (typeof valor === 'number') return valor;
-    if (disposicion && typeof valor === 'object' && !Array.isArray(valor)) {
-      return (valor as Record<string, number>)[disposicion];
+      return Object.values(valores)[0]; // Fallback
     }
   }
 
