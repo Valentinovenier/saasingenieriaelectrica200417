@@ -96,7 +96,7 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
                   value={conductor?.disposicion || 'trebol'}
                   onChange={(e) => onChange({
                     ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                    disposicion: e.target.value as 'trebol' | 'contacto' | 'separado',
+                    disposicion: (e.target.value as 'trebol' | 'contacto' | 'separado') || 'trebol',
                     plano: undefined // Resetear plano al cambiar disposición
                   })}
                 >
@@ -136,10 +136,20 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
             <select 
               className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
               value={conductor?.metodoInstalacion || ''}
-              onChange={(e) => onChange({ 
-                ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                metodoInstalacion: e.target.value 
-              })}
+              onChange={(e) => {
+                const newMetodo = e.target.value;
+                let newDisposicion = conductor?.disposicion;
+                
+                // Si el método cambia a F o G, asegurar una disposición válida
+                if (newMetodo === 'F') newDisposicion = 'trebol';
+                if (newMetodo === 'G') newDisposicion = 'separado';
+
+                onChange({ 
+                  ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                  metodoInstalacion: newMetodo,
+                  disposicion: newDisposicion
+                });
+              }}
             >
               <option value="">Selecciona Método de Instalación</option>
               {metodosDisponibles.map(m => (
