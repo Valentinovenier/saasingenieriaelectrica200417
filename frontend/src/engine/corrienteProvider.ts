@@ -36,6 +36,30 @@ export const getAdmisible = (
     }
   }
 
+  // Caso para las tablas con estructura anidada (unipolar/multipolar -> métodos)
+  if (tipoCable && datosSeccion[tipoCable]) {
+    const datosTipo = datosSeccion[tipoCable] as any;
+    
+    // Primero, intentar buscar por el nombre de método directo (ej. 'F', 'G')
+    // A veces los datos tienen claves como 'metodoF' o directamente 'F'
+    const valorDirecto = datosTipo[metodo] || datosTipo[`metodo${metodo.toUpperCase()}`];
+    
+    if (valorDirecto) {
+        if (typeof valorDirecto === 'number') return valorDirecto;
+        if (disposicion && valorDirecto[disposicion]) return valorDirecto[disposicion];
+        return Object.values(valorDirecto)[0] as number;
+    }
+    
+    // Si no se encontró, buscar por la clave estandarizada 'metodoX'
+    const metodoKey = `metodo${metodo.toUpperCase()}`;
+    if (datosTipo[metodoKey]) {
+      const valores = datosTipo[metodoKey];
+      if (typeof valores === 'number') return valores;
+      if (disposicion && valores[disposicion]) return valores[disposicion];
+      return Object.values(valores)[0] as number;
+    }
+  }
+
   // Caso para las tablas con estructura estándar (métodos directos como A1, F, etc.)
   if (datosSeccion[metodo]) {
     const valor = datosSeccion[metodo];
@@ -45,27 +69,12 @@ export const getAdmisible = (
        const valores = valor as Record<string, any>;
        if (valores[disposicion]) return valores[disposicion];
        // Intento de búsqueda difusa
-       const key = Object.keys(valores).find(k => k.toLowerCase().includes(disposicion.toLowerCase()));
+       const key = Object.keys(valores).find(k => k.toLowerCase().includes(disposicion?.toLowerCase() || ''));
        if (key && typeof valores[key] === 'number') return valores[key];
        
        // Si es un objeto, intentar devolver el primer valor si la disposición no coincide
        const firstValue = Object.values(valores)[0];
        return typeof firstValue === 'number' ? firstValue : undefined;
-    }
-  }
-
-  // Caso para las tablas con estructura unipolar/multipolar (ej. B52-10, B52-11)
-  if (tipoCable && datosSeccion[tipoCable]) {
-    const datosTipo = datosSeccion[tipoCable] as any;
-    // Buscamos por nombre de método, ej: 'metodoE'
-    const metodoKey = `metodo${metodo.toUpperCase()}`;
-    if (datosTipo[metodoKey]) {
-      const valores = datosTipo[metodoKey];
-      if (typeof valores === 'number') return valores;
-      if (disposicion && valores[disposicion] && typeof valores[disposicion] === 'number') return valores[disposicion];
-      
-      const firstValue = Object.values(valores)[0];
-      return typeof firstValue === 'number' ? firstValue : undefined; // Fallback
     }
   }
 
