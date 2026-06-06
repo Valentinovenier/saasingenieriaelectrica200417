@@ -19,9 +19,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
   };
 
   const realizarCalculo = (tramoId: string, conductor: Conductor, currentProject: Project) => {
-    console.log("Iniciando cálculo para tramo:", tramoId);
     if (!conductor || !conductor.aislacion || !conductor.material || !conductor.metodoInstalacion) {
-        console.log("Datos del conductor incompletos:", conductor);
         return; 
     }
 
@@ -33,8 +31,6 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
 
     const caidaMaxPermitida = conductor.caidaMaxPermitida || 3;
     const tiempoApertura = tramoId === 'trafo-tgbt' ? (conductor.tiempoAperturaMT || 0.1) : 0.1;
-
-    console.log("Parámetros de cálculo:", { Itrafo, caidaMaxPermitida, tiempoApertura });
 
     const resultado = calcularConductorTramo(
        {...conductor, tipoInstalacion: currentProject.tipoInstalacion},
@@ -49,30 +45,31 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
        true 
     );
 
-    console.log("Resultado del cálculo:", resultado);
     setResultados(prev => ({ ...prev, [tramoId]: resultado }));
   };
 
   const updateConductor = (tramoId: string, conductor: Conductor) => {
-    const newProject = {
+    onChange({
       ...project,
       conductores: {
         ...(project as any).conductores,
         [tramoId]: conductor
       }
-    };
-    onChange(newProject);
-    realizarCalculo(tramoId, conductor, newProject);
+    });
   };
 
   const handleCalcular = (tramoId: string) => {
     const conductor = getConductor(tramoId);
     if (!conductor || !conductor.aislacion || !conductor.material || !conductor.metodoInstalacion) {
-        console.log("Datos del conductor incompletos:", conductor);
         alert("Por favor completa todos los datos del conductor");
         return;
     }
-    realizarCalculo(tramoId, conductor, project);
+    
+    // Limpiamos el resultado previo para forzar un re-renderizado
+    setResultados(prev => ({ ...prev, [tramoId]: null }));
+    
+    // Calculamos tras un breve instante
+    setTimeout(() => realizarCalculo(tramoId, conductor, project), 0);
   };
 
   const handleSave = async () => {
