@@ -90,20 +90,19 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
             </select>
 
             {tipoCable === 'Unipolar' && (
-              <select 
+              <select
                 className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
                 value={conductor?.disposicion || 'trebol'}
-                onChange={(e) => onChange({ 
+                onChange={(e) => onChange({
                   ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
                   disposicion: e.target.value as 'trebol' | 'contacto' | 'separado'
                 })}
               >
                 <option value="trebol">Trébol</option>
                 <option value="contacto">En contacto</option>
-                <option value="separado">Separados</option>
+                {conductor?.aislacion !== 'Mineral' && <option value="separado">Separados</option>}
               </select>
             )}
-
             <select 
               className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
               value={conductor?.metodoInstalacion || ''}

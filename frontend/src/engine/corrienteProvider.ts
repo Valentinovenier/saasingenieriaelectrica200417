@@ -97,5 +97,6 @@ export const getAdmisible = (
       return buscarEnObjeto(datosSeccion[tipoCable], metodoNormalizado, esTrifasico ? '3C' : '2C');
   }
 
+  // Búsqueda estándar (incluye A, B, C, D)
   return buscarEnObjeto(datosSeccion, metodoNormalizado, disposicion);
 };
