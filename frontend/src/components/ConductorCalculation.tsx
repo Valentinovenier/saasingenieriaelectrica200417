@@ -18,36 +18,6 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
     return (project as any).conductores?.[tramoId];
   };
 
-  const realizarCalculo = (tramoId: string, conductor: Conductor, currentProject: Project) => {
-    if (!conductor || !conductor.aislacion || !conductor.material || !conductor.metodoInstalacion) {
-        return; 
-    }
-
-    const catalogo: ParametrosCableCompleto[] = conductor.aislacion === 'XLPE' ? catalogoCablesXLPE : catalogoCablesPVC;
-
-    const potenciaVA = (currentProject.transformador?.potencia || 0) * 1000;
-    const tensionSecundaria = currentProject.transformador?.tensionSecundario || (currentProject.tipoInstalacion === 'Trifásica' ? 380 : 220);
-    const Itrafo = potenciaVA / (currentProject.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) * tensionSecundaria : tensionSecundaria);
-
-    const caidaMaxPermitida = conductor.caidaMaxPermitida || 3;
-    const tiempoApertura = tramoId === 'trafo-tgbt' ? (conductor.tiempoAperturaMT || 0.1) : 0.1;
-
-    const resultado = calcularConductorTramo(
-       {...conductor, tipoInstalacion: currentProject.tipoInstalacion},
-       Itrafo, 
-       50, 
-       tiempoApertura, 
-       (conductor.longitud || 0) / 1000, 
-       currentProject.transformador?.cosFi || 0.95,
-       caidaMaxPermitida, 
-       catalogo,
-       (currentProject as any).tempAmbiente || 40,
-       true 
-    );
-
-    setResultados(prev => ({ ...prev, [tramoId]: resultado }));
-  };
-
   const updateConductor = (tramoId: string, conductor: Conductor) => {
     onChange({
       ...project,
@@ -68,8 +38,30 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
     // Limpiamos el resultado previo para forzar un re-renderizado
     setResultados(prev => ({ ...prev, [tramoId]: null }));
     
-    // Calculamos tras un breve instante
-    setTimeout(() => realizarCalculo(tramoId, conductor, project), 0);
+    // Ejecución directa del cálculo
+    const catalogo: ParametrosCableCompleto[] = conductor.aislacion === 'XLPE' ? catalogoCablesXLPE : catalogoCablesPVC;
+
+    const potenciaVA = (project.transformador?.potencia || 0) * 1000;
+    const tensionSecundaria = project.transformador?.tensionSecundario || (project.tipoInstalacion === 'Trifásica' ? 380 : 220);
+    const Itrafo = potenciaVA / (project.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) * tensionSecundaria : tensionSecundaria);
+
+    const caidaMaxPermitida = conductor.caidaMaxPermitida || 3;
+    const tiempoApertura = tramoId === 'trafo-tgbt' ? (conductor.tiempoAperturaMT || 0.1) : 0.1;
+
+    const resultado = calcularConductorTramo(
+       {...conductor, tipoInstalacion: project.tipoInstalacion},
+       Itrafo, 
+       50, 
+       tiempoApertura, 
+       (conductor.longitud || 0) / 1000, 
+       project.transformador?.cosFi || 0.95,
+       caidaMaxPermitida, 
+       catalogo,
+       (project as any).tempAmbiente || 40,
+       true 
+    );
+    
+    setResultados(prev => ({ ...prev, [tramoId]: resultado }));
   };
 
   const handleSave = async () => {
