@@ -103,28 +103,35 @@ export const calcularConductorTramo = (
           condiciones.tipoCable?.toLowerCase() as 'unipolar' | 'multipolar'
       );
 
-      if (I_adm_base === undefined || I_adm_base === null) continue;
+      if (I_adm_base === undefined || I_adm_base === null) {
+          // console.log(`[DEBUG] No se encontró I_adm para: Secc=${cable.seccion}, Metodo=${condiciones.metodoInstalacion}, Aisl=${condiciones.aislacion}`);
+          continue;
+      }
 
       const I_adm_corregida = I_adm_base * n * factorTotal;
-      if (I_adm_corregida < Itrafo) continue;
-
+      
       const K = K_VALUES[condiciones.aislacion!][condiciones.material!];
       const capacidadCorto = Math.pow(cable.seccion * K, 2) * n; 
       const energiaCorto = Math.pow(Ik * 1000, 2) * t_apertura;
-      if (capacidadCorto < energiaCorto) continue;
 
       const h = condiciones.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) : 2;
       const sinPhi = Math.sqrt(1 - Math.pow(cosPhi, 2));
-      
-      // Acceso correcto a R y X desde el catálogo
       const R = Number(cable.resistencia || 0);
       const tipoReactancia = condiciones.tipoInstalacion === 'Trifásica' ? 'trifasico' : 'monofasico';
       const X = Number(cable.reactancia?.[tipoReactancia] || 0);
-      
       const dv = (h * Itrafo * longitudKm * (R * cosPhi + X * sinPhi)) / n;
       const porcentajeCaida = (dv / tensionNominal) * 100;
-      
-      if (isNaN(porcentajeCaida) || porcentajeCaida > caidaMaxPermitida) continue;
+
+      if (I_adm_corregida < Itrafo || capacidadCorto < energiaCorto || isNaN(porcentajeCaida) || porcentajeCaida > caidaMaxPermitida) {
+          /*
+          console.log(`[DEBUG] Descartado cable Secc=${cable.seccion} (n=${n}):`, {
+              I_adm_corregida, Itrafo, 
+              capacidadCorto, energiaCorto,
+              porcentajeCaida, caidaMaxPermitida
+          });
+          */
+          continue;
+      }
 
       return { 
         cable, 
