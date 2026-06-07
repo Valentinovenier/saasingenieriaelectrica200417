@@ -15,6 +15,9 @@ export const getAdmisible = (
   
   const tablas = TABLAS_CORRIENTE_SAEA.filter(t => {
     if (aislacion === 'Mineral') {
+        if (metodoNormalizado === 'C') {
+             return (t.norma === 'B52-6' || t.norma === 'B52-7') && t.material === material;
+        }
         return (t.norma === 'B52-8' || t.norma === 'B52-9') && t.material === material;
     }
     // Filtrado universal: coincide material, aislación, número de conductores y el método es soportado
@@ -74,7 +77,16 @@ export const getAdmisible = (
     }
     return undefined;
   }
-
+  
   // Búsqueda estándar (A, B, C, D)
-  return (datosSeccion as any)[metodoNormalizado];
+  const valor = (datosSeccion as any)[metodoNormalizado];
+  
+  // Si es Método C y aislación Mineral, el valor es un objeto con disposiciones
+  if (metodoNormalizado === 'C' && aislacion === 'Mineral' && typeof valor === 'object') {
+       // Buscar la disposición correcta (por ahora asumimos una lógica simple o la primera)
+       // Esto necesitaría mayor refinamiento si el usuario puede elegir la disposición para Mineral C.
+       return Object.values(valor)[0] as number;
+  }
+
+  return valor;
 };
