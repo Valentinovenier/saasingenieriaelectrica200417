@@ -54,8 +54,22 @@ export const getAdmisible = (
             const key = esTrifasico && disposicion === 'separado' 
                 ? (plano === 'horizontal' ? '3C_plano_horizontal_separado_1D' : '3C_plano_vertical_separado_1D') 
                 : undefined;
+            
             console.log(`[DEBUG] Método G, Key buscada: ${key}`);
-            return (datosSeccion.unipolar as any)?.metodoG?.[key || ''];
+            
+            if (key) {
+                const metodoGData = (datosSeccion.unipolar as any)?.metodoG;
+                if (metodoGData) {
+                    // Try exact key first
+                    if (metodoGData[key] !== undefined) return metodoGData[key];
+
+                    // Fallback: try removing '_separado_1D'
+                    const fallbackKey = key.replace('_separado_1D', '');
+                    console.log(`[DEBUG] Clave exacta no encontrada, probando fallback: ${fallbackKey}`);
+                    return metodoGData[fallbackKey];
+                }
+            }
+            return undefined;
         }
     }
     return undefined;
