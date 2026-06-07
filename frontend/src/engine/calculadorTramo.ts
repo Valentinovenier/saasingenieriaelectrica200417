@@ -99,6 +99,7 @@ export const calcularConductorTramo = (
           condiciones.tipoInstalacion === 'Trifásica',
           condiciones.material!,
           condiciones.aislacion!,
+          undefined, // normaMineral
           condiciones.disposicion,
           condiciones.tipoCable?.toLowerCase() as 'unipolar' | 'multipolar',
           (condiciones as any).plano
