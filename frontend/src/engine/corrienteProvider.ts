@@ -13,7 +13,7 @@ export const getAdmisible = (
   const nConductoresBuscado = esTrifasico ? 3 : 2;
   const metodoNormalizado = metodo.toUpperCase().replace('METODO', '').trim();
   
-  const tabla = TABLAS_CORRIENTE_SAEA.find(t => {
+  const tablas = TABLAS_CORRIENTE_SAEA.filter(t => {
     if (aislacion === 'Mineral') {
         return (t.norma === 'B52-8' || t.norma === 'B52-9') && t.material === material;
     }
@@ -24,7 +24,10 @@ export const getAdmisible = (
            !!t.metodosSoportados[metodoNormalizado];
   });
 
-  if (!tabla || !tabla.datos[seccion]) return undefined;
+  // Find the first table that actually has data for this section
+  const tabla = tablas.find(t => !!t.datos[seccion]);
+
+  if (!tabla) return undefined;
   
   const datosSeccion = tabla.datos[seccion];
 
