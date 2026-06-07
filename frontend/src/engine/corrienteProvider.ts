@@ -6,6 +6,7 @@ export const getAdmisible = (
   esTrifasico: boolean,
   material: 'Cobre' | 'Aluminio',
   aislacion: 'PVC' | 'XLPE' | 'Mineral',
+  normaMineral?: 'B52-8' | 'B52-9', // Nuevo parámetro
   disposicion?: string,
   tipoCable?: 'unipolar' | 'multipolar',
   plano?: 'horizontal' | 'vertical'
@@ -15,12 +16,22 @@ export const getAdmisible = (
   
   const tablas = TABLAS_CORRIENTE_SAEA.filter(t => {
     if (aislacion === 'Mineral') {
+        // Para Mineral, verificar que la tabla soporta el método solicitado
+        if (!t.metodosSoportados[metodoNormalizado]) return false;
+        
         if (metodoNormalizado === 'C') {
              return (t.norma === 'B52-6' || t.norma === 'B52-7') && t.material === material;
         }
+        
+        // Para E, F, G usar normaMineral explícita
+        if (normaMineral) {
+            return t.norma === normaMineral && t.material === material;
+        }
+        
+        // Fallback si no se especificó normaMineral para E, F, G
         return (t.norma === 'B52-8' || t.norma === 'B52-9') && t.material === material;
     }
-    // Filtrado universal: coincide material, aislación, número de conductores y el método es soportado
+    // Filtrado universal
     return t.material === material && 
            t.aislacion === aislacion && 
            t.nConductoresCargados === nConductoresBuscado &&
