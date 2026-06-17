@@ -84,10 +84,11 @@ export default function App() {
     );
   }
 
-  const createProject = async (name: string) => {
+  const createProject = async (name: string, projectType: string) => {
     const newProject: Project = {
       id: Date.now().toString(),
       name,
+      projectType,
       createdAt: new Date().toISOString().split('T')[0],
       status: 'draft',
       tableros: [],
@@ -125,6 +126,7 @@ export default function App() {
       alert(`Error al crear el proyecto: ${error.message}`);
     }
   };
+
 
   const deleteProject = async (id: string) => {
     if (!confirm('¿Estás seguro de que quieres eliminar este proyecto?')) return;

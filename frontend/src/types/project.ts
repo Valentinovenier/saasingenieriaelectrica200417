@@ -64,6 +64,7 @@ export interface Transformador {
 export interface Project {
   id: string;
   name: string;
+  projectType: string;
   createdAt: string;
   status: 'draft' | 'completed';
   transformador?: Transformador;
