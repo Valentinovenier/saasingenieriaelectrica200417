@@ -124,7 +124,9 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
                 className="w-full flex justify-between items-center p-4 hover:bg-slate-800/50 transition-colors"
               >
                 <h3 className="text-lg font-semibold text-white">{tramo.label}</h3>
-                {isExpanded ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
+                <div className="p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700 transition-all">
+                  {isExpanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+                </div>
               </button>
               
               {isExpanded && (
