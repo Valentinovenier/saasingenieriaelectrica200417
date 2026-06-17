@@ -3,6 +3,7 @@ import { Project, Conductor } from '../types/project';
 import { ConductorForm } from './ConductorForm';
 import { calcularConductorTramo } from '../engine/calculadorTramo';
 import { catalogoCablesPVC, catalogoCablesXLPE, ParametrosCableCompleto } from '../data/cables';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const TRAMOS_ELECTRICOS = [
   { id: 'trafo-tgbt', label: 'Transformador - TGBT' },
@@ -13,6 +14,16 @@ const TRAMOS_ELECTRICOS = [
 
 export const ConductorCalculation = ({ project, onChange }: { project: Project, onChange: (p: Project) => void }) => {
   const [resultados, setResultados] = useState<Record<string, any>>({});
+  const [expandedTramos, setExpandedTramos] = useState<Record<string, boolean>>({
+    'trafo-tgbt': true // El primero empieza expandido por defecto
+  });
+
+  const toggleTramo = (id: string) => {
+    setExpandedTramos(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
 
   const getConductor = (tramoId: string): Conductor | undefined => {
     return (project as any).conductores?.[tramoId];
@@ -104,35 +115,46 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
         {TRAMOS_ELECTRICOS.map((tramo) => {
           const conductor = getConductor(tramo.id);
           const resultado = resultados[tramo.id];
+          const isExpanded = expandedTramos[tramo.id] !== false;
           
           return (
-            <div key={tramo.id} className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
-              <h3 className="text-lg font-semibold text-white mb-3">{tramo.label}</h3>
-              
-              <ConductorForm 
-                label={`Configuración ${tramo.label}`}
-                tramoId={tramo.id}
-                conductor={conductor}
-                onChange={(c) => updateConductor(tramo.id, c)}
-              />
-              
+            <div key={tramo.id} className="bg-[var(--bg-primary)] rounded-xl border border-slate-700 overflow-hidden transition-all">
               <button 
-                onClick={() => handleCalcular(tramo.id)}
-                className="mt-4 bg-slate-700 text-white px-4 py-2 rounded-lg font-bold"
+                onClick={() => toggleTramo(tramo.id)}
+                className="w-full flex justify-between items-center p-4 hover:bg-slate-800/50 transition-colors"
               >
-                Calcular
+                <h3 className="text-lg font-semibold text-white">{tramo.label}</h3>
+                {isExpanded ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
               </button>
+              
+              {isExpanded && (
+                <div className="p-4 pt-0 space-y-4">
+                  <ConductorForm 
+                    label={`Configuración ${tramo.label}`}
+                    tramoId={tramo.id}
+                    conductor={conductor}
+                    onChange={(c) => updateConductor(tramo.id, c)}
+                  />
+                  
+                  <button 
+                    onClick={() => handleCalcular(tramo.id)}
+                    className="w-full bg-slate-700 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-600 transition-colors"
+                  >
+                    Calcular
+                  </button>
 
-              {resultado?.error && (
-                <div className="mt-4 p-3 bg-red-950 rounded border border-red-700 text-xs text-red-200">
-                    <p>{resultado.error}</p>
-                </div>
-              )}
-              {resultado && !resultado.error && (
-                <div className="mt-4 p-3 bg-slate-950 rounded border border-slate-700 text-xs text-white">
-                    <p>Resultado: {resultado.cable.seccion} mm²</p>
-                    <p>Cables en paralelo: {resultado.nConductores}</p>
-                    <p>Caída de tensión: {resultado.porcentajeCaida.toFixed(2)}%</p>
+                  {resultado?.error && (
+                    <div className="p-3 bg-red-950 rounded border border-red-700 text-xs text-red-200">
+                        <p>{resultado.error}</p>
+                    </div>
+                  )}
+                  {resultado && !resultado.error && (
+                    <div className="p-3 bg-slate-950 rounded border border-slate-700 text-xs text-white">
+                        <p>Resultado: {resultado.cable.seccion} mm²</p>
+                        <p>Cables en paralelo: {resultado.nConductores}</p>
+                        <p>Caída de tensión: {resultado.porcentajeCaida.toFixed(2)}%</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
