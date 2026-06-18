@@ -53,14 +53,19 @@ export const getAdmisible = (
 
   // Lógica de selección explícita para E, F, G
   if (['E', 'F', 'G'].includes(metodoNormalizado)) {
-    console.log(`[DEBUG] Buscando Método ${metodoNormalizado}, Unipolar: ${tipoCable === 'unipolar'}, Trifasico: ${esTrifasico}`);
-    if (tipoCable === 'multipolar' && metodoNormalizado === 'E') {
+    console.log(`[DEBUG] Buscando Método ${metodoNormalizado}, TipoCable=${tipoCable}, Trifasico=${esTrifasico}`);
+    
+    // Corregido: permitir Método E tanto para multipolar como unipolar si los datos existen
+    if (metodoNormalizado === 'E') {
+        const data = (datosSeccion.multipolar as any)?.metodoE || (datosSeccion.unipolar as any)?.metodoE;
+        if (!data) return undefined;
         const key = esTrifasico ? '3C' : '2C';
-        return (datosSeccion.multipolar as any)?.metodoE?.[key];
+        return data[key];
     }
+    
     if (tipoCable === 'unipolar') {
         if (metodoNormalizado === 'F') {
-            // Claves reales: '3C_tresbolillo_cuadrete', '3C_contacto', '2C_contacto'
+            // ... (resto del código igual) ...
             console.log(`[DEBUG] Método F, disposicion recibida: ${disposicion}`);
             const keyMap: Record<string, string> = esTrifasico 
                 ? { 'trebol': '3C_tresbolillo_cuadrete', 'contacto': '3C_contacto' }
@@ -70,7 +75,7 @@ export const getAdmisible = (
             return (datosSeccion.unipolar as any)?.metodoF?.[key || ''];
         }
         if (metodoNormalizado === 'G') {
-            // Claves reales: '3C_plano_horizontal_separado_1D', '3C_plano_vertical_separado_1D'
+            // ... (resto del código igual) ...
             const key = esTrifasico && disposicion === 'separado' 
                 ? (plano === 'horizontal' ? '3C_plano_horizontal_separado_1D' : '3C_plano_vertical_separado_1D') 
                 : undefined;
