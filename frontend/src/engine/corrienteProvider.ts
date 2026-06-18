@@ -17,7 +17,9 @@ export const getAdmisible = (
   const tablas = TABLAS_CORRIENTE_SAEA.filter(t => {
     if (aislacion === 'Mineral') {
         // Para Mineral, verificar que la tabla soporta el método solicitado
-        if (!t.metodosSoportados[metodoNormalizado]) return false;
+        // Se usa split('_') para manejar claves como 'E_F'
+        const soportaMetodo = Object.keys(t.metodosSoportados).some(key => key.split('_').includes(metodoNormalizado));
+        if (!soportaMetodo) return false;
         
         if (metodoNormalizado === 'C') {
              return (t.norma === 'B52-6' || t.norma === 'B52-7') && t.material === material;
@@ -32,10 +34,11 @@ export const getAdmisible = (
         return (t.norma === 'B52-8' || t.norma === 'B52-9') && t.material === material;
     }
     // Filtrado universal
+    const soportaMetodo = Object.keys(t.metodosSoportados).some(key => key.split('_').includes(metodoNormalizado));
     return t.material === material && 
            t.aislacion === aislacion && 
            t.nConductoresCargados === nConductoresBuscado &&
-           !!t.metodosSoportados[metodoNormalizado];
+           soportaMetodo;
   });
 
   // Find the first table that actually has data for this section

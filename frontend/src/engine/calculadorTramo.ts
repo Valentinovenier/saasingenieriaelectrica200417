@@ -55,25 +55,33 @@ export const calcularConductorTramo = (
       // Si solo hay 1 conductor en paralelo O solo hay 1 circuito total, no hay reducción por agrupamiento
       if (nCond === 1 || nCircuitos === 1) return 1.0;
       
-      // Con más de un conductor y más de un circuito, aplicamos el factor de agrupamiento
-      const nCirc = nCircuitos > 6 ? 6 : nCircuitos;
       const disp = condiciones.disposicion || 'en_contacto';
 
       if (metodo?.startsWith('D2')) {
+          const nCirc = nCircuitos > 6 ? 6 : nCircuitos;
           const tabla = FACTORES_AGRUPAMIENTO_B52_18[nCirc] || FACTORES_AGRUPAMIENTO_B52_18[2];
           return tabla[disp] || tabla['en_contacto'] || 0.5;
       }
       if (metodo?.startsWith('D1')) {
+          const nCirc = nCircuitos > 6 ? 6 : nCircuitos;
           const tabla = FACTORES_AGRUPAMIENTO_B52_19[nCirc] || FACTORES_AGRUPAMIENTO_B52_19[2];
           return tabla[disp] || tabla['en_contacto'] || 0.6;
       }
-      if (metodo === 'E') return FACTORES_AGRUPAMIENTO_B52_20[0][nCirc - 1] || 0.7;
+      if (metodo === 'E') {
+          const nCirc = nCircuitos > 6 ? 6 : nCircuitos;
+          return FACTORES_AGRUPAMIENTO_B52_20[0][nCirc - 1] || 0.7;
+      }
       if (condiciones.tipoCable === 'Unipolar' && (metodo === 'F' || metodo === 'G')) {
+          const nCirc = nCircuitos > 3 ? 3 : nCircuitos;
           return FACTORES_AGRUPAMIENTO_B52_21[1][nCirc - 1] || 0.8;
       }
       
-      // Default (B52-17 para A, B, C)
-      return FACTORES_AGRUPAMIENTO_B52_17[1][nCircuitos > 12 ? 11 : nCirc - 1] || 0.5;
+      // Default (B52-17 para A, B, C) - Soporta hasta 20 circuitos
+      const mapaCircuitos = [1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16, 20];
+      let idx = mapaCircuitos.findIndex(c => c >= nCircuitos);
+      if (idx === -1) idx = mapaCircuitos.length - 1;
+      
+      return FACTORES_AGRUPAMIENTO_B52_17[1][idx] || 0.5;
   };
 
   const SECCION_MAX = 240;
