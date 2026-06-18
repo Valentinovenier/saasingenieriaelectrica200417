@@ -13,17 +13,8 @@ const TRAMOS_ELECTRICOS = [
 ];
 
 export const ConductorCalculation = ({ project, onChange }: { project: Project, onChange: (p: Project) => void }) => {
+  const [selectedTramoId, setSelectedTramoId] = useState<string>(TRAMOS_ELECTRICOS[0].id);
   const [resultados, setResultados] = useState<Record<string, any>>({});
-  const [expandedTramos, setExpandedTramos] = useState<Record<string, boolean>>({
-    'trafo-tgbt': true // El primero empieza expandido por defecto
-  });
-
-  const toggleTramo = (id: string) => {
-    setExpandedTramos(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
 
   const getConductor = (tramoId: string): Conductor | undefined => {
     return (project as any).conductores?.[tramoId];
@@ -39,17 +30,16 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
     });
   };
 
-  const handleCalcular = (tramoId: string) => {
+  const handleCalcular = () => {
+    const tramoId = selectedTramoId;
     const conductor = getConductor(tramoId);
     if (!conductor || !conductor.aislacion || !conductor.material || !conductor.metodoInstalacion) {
         alert("Por favor completa todos los datos del conductor");
         return;
     }
     
-    // Limpiamos el resultado previo para forzar un re-renderizado
     setResultados(prev => ({ ...prev, [tramoId]: null }));
     
-    // Ejecución directa del cálculo
     const catalogo: ParametrosCableCompleto[] = conductor.aislacion === 'XLPE' ? catalogoCablesXLPE : catalogoCablesPVC;
 
     const potenciaVA = (project.transformador?.potencia || 0) * 1000;
@@ -78,7 +68,6 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
-      // Aseguramos que estamos enviando el objeto 'project' tal cual con las actualizaciones
       const response = await fetch('/api/projects', {
         method: 'PUT',
         headers: {
@@ -88,7 +77,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
         body: JSON.stringify({
           id: project.id,
           name: project.name,
-          data: project // Enviamos todo el objeto proyecto actualizado
+          data: project
         })
       });
 
@@ -104,64 +93,62 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
     }
   };
 
+  const currentConductor = getConductor(selectedTramoId);
+  const currentResultado = resultados[selectedTramoId];
+  const currentTramoLabel = TRAMOS_ELECTRICOS.find(t => t.id === selectedTramoId)?.label || '';
+
   return (
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Cálculo de Conductores por Tramo</h2>
+        <h2 className="text-2xl font-bold text-white">Cálculo de Conductores</h2>
         <button onClick={handleSave} className="bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold">Guardar Cambios</button>
       </div>
       
-      <div className="space-y-4">
-        {TRAMOS_ELECTRICOS.map((tramo) => {
-          const conductor = getConductor(tramo.id);
-          const resultado = resultados[tramo.id];
-          const isExpanded = expandedTramos[tramo.id] !== false;
-          
-          return (
-            <div key={tramo.id} className="bg-[var(--bg-primary)] rounded-xl border border-slate-700 overflow-hidden transition-all">
-              <button 
-                onClick={() => toggleTramo(tramo.id)}
-                className="w-full flex justify-between items-center p-4 hover:bg-slate-800/50 transition-colors"
-              >
-                <h3 className="text-lg font-semibold text-white">{tramo.label}</h3>
-                <div className="p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700 transition-all">
-                  {isExpanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
-                </div>
-              </button>
-              
-              {isExpanded && (
-                <div className="p-4 pt-0 space-y-4">
-                  <ConductorForm 
-                    label={`Configuración ${tramo.label}`}
-                    tramoId={tramo.id}
-                    conductor={conductor}
-                    onChange={(c) => updateConductor(tramo.id, c)}
-                  />
-                  
-                  <button 
-                    onClick={() => handleCalcular(tramo.id)}
-                    className="w-full bg-slate-700 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-600 transition-colors"
-                  >
-                    Calcular
-                  </button>
+      <div className="space-y-6">
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">
+            Seleccionar Tramo
+          </label>
+          <select 
+            className="bg-slate-950 text-white text-sm rounded-lg p-3 border border-slate-700 hover:border-slate-500 transition-colors w-full md:w-1/3"
+            value={selectedTramoId}
+            onChange={(e) => setSelectedTramoId(e.target.value)}
+          >
+            {TRAMOS_ELECTRICOS.map(tramo => (
+              <option key={tramo.id} value={tramo.id}>{tramo.label}</option>
+            ))}
+          </select>
+        </div>
 
-                  {resultado?.error && (
-                    <div className="p-3 bg-red-950 rounded border border-red-700 text-xs text-red-200">
-                        <p>{resultado.error}</p>
-                    </div>
-                  )}
-                  {resultado && !resultado.error && (
-                    <div className="p-3 bg-slate-950 rounded border border-slate-700 text-xs text-white">
-                        <p>Resultado: {resultado.cable.seccion} mm²</p>
-                        <p>Cables en paralelo: {resultado.nConductores}</p>
-                        <p>Caída de tensión: {resultado.porcentajeCaida.toFixed(2)}%</p>
-                    </div>
-                  )}
-                </div>
-              )}
+        <div className="bg-[var(--bg-primary)] rounded-xl border border-slate-700 p-6 space-y-6 transition-all">
+          <ConductorForm 
+            label={`Configuración: ${currentTramoLabel}`}
+            tramoId={selectedTramoId}
+            conductor={currentConductor}
+            onChange={(c) => updateConductor(selectedTramoId, c)}
+          />
+          
+          <button 
+            onClick={handleCalcular}
+            className="w-full bg-slate-700 text-white px-4 py-3 rounded-lg font-bold hover:bg-slate-600 transition-colors"
+          >
+            Calcular Conductor
+          </button>
+
+          {currentResultado?.error && (
+            <div className="p-3 bg-red-950 rounded border border-red-700 text-xs text-red-200">
+                <p>{currentResultado.error}</p>
             </div>
-          );
-        })}
+          )}
+          {currentResultado && !currentResultado.error && (
+            <div className="p-4 bg-slate-950 rounded border border-slate-700 text-sm text-white space-y-1">
+                <p className="font-bold text-slate-400 uppercase text-[10px] mb-2">Resultado del Cálculo</p>
+                <p>Sección: <span className="text-[var(--accent)] font-bold">{currentResultado.cable.seccion} mm²</span></p>
+                <p>Cables en paralelo: <span className="text-[var(--accent)] font-bold">{currentResultado.nConductores}</span></p>
+                <p>Caída de tensión: <span className="text-[var(--accent)] font-bold">{currentResultado.porcentajeCaida.toFixed(2)}%</span></p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
