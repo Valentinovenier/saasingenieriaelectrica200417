@@ -11,6 +11,8 @@ export const getAdmisible = (
   tipoCable?: 'unipolar' | 'multipolar',
   plano?: 'horizontal' | 'vertical'
 ): number | undefined => {
+  console.log(`[DEBUG] getAdmisible - Buscando: Seccion=${seccion}, Metodo=${metodo}, Aislacion=${aislacion}, Material=${material}, Trifasico=${esTrifasico}, TipoCable=${tipoCable}`);
+  
   const nConductoresBuscado = esTrifasico ? 3 : 2;
   const metodoNormalizado = metodo.toUpperCase().replace('METODO', '').trim();
   
