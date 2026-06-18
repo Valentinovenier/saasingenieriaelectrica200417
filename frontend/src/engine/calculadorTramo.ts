@@ -134,12 +134,13 @@ export const calcularConductorTramo = (
       }
 
       if (I_adm_corregida < Itrafo || capacidadCorto < energiaCorto || isNaN(porcentajeCaida) || porcentajeCaida > caidaMaxPermitida) {
-          console.log(`[DEBUG] Descartado cable Secc=${cable.seccion} (n=${n}):`, {
-              I_adm_corregida, Itrafo, 
-              capacidadCorto, energiaCorto,
-              porcentajeCaida, caidaMaxPermitida
-          });
-          continue;
+        let motivo = "";
+        if (I_adm_corregida < Itrafo) motivo += `[Corriente: ${I_adm_corregida.toFixed(1)} < ${Itrafo.toFixed(1)}] `;
+        if (capacidadCorto < energiaCorto) motivo += `[Corto: ${capacidadCorto.toFixed(0)} < ${energiaCorto.toFixed(0)}] `;
+        if (isNaN(porcentajeCaida) || porcentajeCaida > caidaMaxPermitida) motivo += `[Caída: ${porcentajeCaida.toFixed(2)}% > ${caidaMaxPermitida}%] `;
+
+        console.log(`[DEBUG] Descartado cable Secc=${cable.seccion} (n=${n}): ${motivo}`);
+        continue;
       }
 
       return { 
