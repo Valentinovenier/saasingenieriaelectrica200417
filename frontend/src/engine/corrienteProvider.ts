@@ -3,16 +3,17 @@ import { TABLAS_CORRIENTE_SAEA } from '../data/corrientesNormativasAdmisibles';
 export const getAdmisible = (
   seccion: number,
   metodo: string,
-  esTrifasico: boolean,
+  tipoInstalacion: 'Trifásica' | 'Monofásica', // Cambiado de booleano a string
   material: 'Cobre' | 'Aluminio',
   aislacion: 'PVC' | 'XLPE' | 'Mineral',
-  normaMineral?: 'B52-8' | 'B52-9', // Nuevo parámetro
+  normaMineral?: 'B52-8' | 'B52-9',
   disposicion?: string,
   tipoCable?: 'unipolar' | 'multipolar',
   plano?: 'horizontal' | 'vertical'
 ): number | undefined => {
-  console.log(`[DEBUG] getAdmisible - Buscando: Seccion=${seccion}, Metodo=${metodo}, Aislacion=${aislacion}, Material=${material}, Trifasico=${esTrifasico}, TipoCable=${tipoCable}`);
+  console.log(`[DEBUG] getAdmisible - Buscando: Seccion=${seccion}, Metodo=${metodo}, Aislacion=${aislacion}, Material=${material}, Instalacion=${tipoInstalacion}, TipoCable=${tipoCable}`);
   
+  const esTrifasico = tipoInstalacion === 'Trifásica';
   const nConductoresBuscado = esTrifasico ? 3 : 2;
   const metodoNormalizado = metodo.toUpperCase().replace('METODO', '').trim();
   

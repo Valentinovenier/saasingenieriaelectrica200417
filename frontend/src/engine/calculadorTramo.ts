@@ -104,7 +104,7 @@ export const calcularConductorTramo = (
       const I_adm_base = getAdmisible(
           cable.seccion,
           condiciones.metodoInstalacion!,
-          condiciones.tipoInstalacion === 'Trifásica',
+          condiciones.tipoInstalacion || 'Trifásica', // Pasamos el string directamente
           condiciones.material!,
           condiciones.aislacion!,
           undefined, // normaMineral
