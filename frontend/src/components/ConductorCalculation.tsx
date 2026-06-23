@@ -6,10 +6,10 @@ import { catalogoCablesPVC, catalogoCablesXLPE, ParametrosCableCompleto } from '
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const TRAMOS_ELECTRICOS = [
-  { id: 'trafo-tgbt', label: 'Transformador - TGBT' },
-  { id: 'tgbt-barra', label: 'TGBT - Barra Omnibus' },
-  { id: 'barra-salida', label: 'Barra Omnibus - Interruptor de Salida' },
-  { id: 'salida-tablero', label: 'Interruptor de Salida - Tablero Seccional' },
+  { id: 'trafo-tgbt', label: 'Transformador - Interruptor Cabecera TGBT' },
+  { id: 'tgbt-barra', label: 'Interruptor Cabecera TGBT - Barra Omnibus' },
+  { id: 'barra-salida', label: 'Barra Omnibus - Interruptor de salida TGBT' },
+  { id: 'salida-tablero', label: 'Interruptor de salida TGBT - Tablero Seccional' },
 ];
 
 export const ConductorCalculation = ({ project, onChange }: { project: Project, onChange: (p: Project) => void }) => {
@@ -72,13 +72,57 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
       I_neutro = 3 * Inominal * (I3 + I9);
     }
 
+    // --- Cálculo de Ik (Cortocircuito) con impedancias acumuladas ---
+    let total_R = 0;
+    let total_X = project.transformador?.impedancia || 0; // Ztrafo (asumido mayormente reactivo)
+
+    const tramoIndex = TRAMOS_ELECTRICOS.findIndex(t => t.id === tramoId);
+    
+    for (let i = 0; i < tramoIndex; i++) {
+        const tramoAnteriorId = TRAMOS_ELECTRICOS[i].id;
+        const resAnterior = resultados[tramoAnteriorId];
+        const condAnterior = getConductor(tramoAnteriorId);
+        
+        if (!resAnterior || !resAnterior.cable || !condAnterior) {
+             alert(`Para calcular este tramo y su Ik, primero debes calcular el tramo aguas arriba: ${TRAMOS_ELECTRICOS[i].label}`);
+             return;
+        }
+
+        const longitudKm = (condAnterior.longitud || 0) / 1000;
+        const n = resAnterior.nConductores;
+        const R = Number(resAnterior.cable.resistencia || 0);
+        
+        let X = 0;
+        if (condAnterior.tipoCable === 'Unipolar' && condAnterior.disposicion === 'trebol') {
+            X = Number(resAnterior.cable.reactancia?.['unipolar_trebol'] || 0);
+        } else if (condAnterior.tipoCable === 'Unipolar' && condAnterior.disposicion === 'contacto') {
+            X = Number(resAnterior.cable.reactancia?.['unipolar_contacto'] || 0);
+        } else {
+            X = Number(resAnterior.cable.reactancia?.[project.tipoInstalacion === 'Trifásica' ? 'trifasico' : 'monofasico'] || 0);
+        }
+
+        total_R += (R * longitudKm) / n;
+        total_X += (X * longitudKm) / n;
+    }
+
+    const Z_total = Math.sqrt(total_R ** 2 + total_X ** 2);
+    
+    let Ik_calculado = 50; // Fallback
+    if (Z_total > 0) {
+        if (project.tipoInstalacion === 'Trifásica') {
+            Ik_calculado = tensionSecundaria / (Math.sqrt(3) * Z_total) / 1000; // en kA
+        } else {
+            Ik_calculado = tensionSecundaria / (2 * Z_total) / 1000; // en kA
+        }
+    }
+
     const caidaMaxPermitida = conductor.caidaMaxPermitida || 3;
     const tiempoApertura = tramoId === 'trafo-tgbt' ? (conductor.tiempoAperturaMT || 0.1) : 0.1;
 
     const resultado = calcularConductorTramo(
        {...conductor, tipoInstalacion: project.tipoInstalacion, plano: conductor.plano},
-       I_fase,  // <-- Se usa la corriente con armónicos (o nominal si está deshabilitado)
-       50, 
+       I_fase,  
+       Ik_calculado, // Ik real acumulado 
        tiempoApertura, 
        (conductor.longitud || 0) / 1000, 
        project.transformador?.cosFi || 0.95,
@@ -87,8 +131,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
        (project as any).tempAmbiente || 40,
        true 
     );
-    
-    setResultados(prev => ({ ...prev, [tramoId]: { ...resultado, I_nominal: Inominal, I_fase, I_neutro, armonicosActivos: armonicos?.habilitado ?? false } }));
+    setResultados(prev => ({ ...prev, [tramoId]: { ...resultado, I_nominal: Inominal, I_fase, I_neutro, armonicosActivos: armonicos?.habilitado ?? false, Ik: Ik_calculado } }));
   };
 
 
@@ -193,6 +236,10 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
                 <div className="flex justify-between items-center">
                   <span className="text-slate-400">Corriente nominal (I<sub>nom</sub>):</span>
                   <span className="font-bold text-white">{currentResultado.I_nominal?.toFixed(1)} A</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">Ik (Corriente de Cortocircuito):</span>
+                  <span className="font-bold text-red-400">{currentResultado.Ik?.toFixed(2)} kA</span>
                 </div>
                 {currentResultado.armonicosActivos && (
                   <>
