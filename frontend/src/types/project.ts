@@ -64,6 +64,12 @@ export interface Transformador {
   conductorTrafoTGBT?: Conductor;
 }
 
+export interface TableroSeccionalSimple {
+  id: string;
+  nombre: string;
+  potencia: number; // kVA
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -73,6 +79,7 @@ export interface Project {
   transformador?: Transformador;
   armonicos: HarmonicDistortion;
   tableros: TableroSeccional[];
+  tablerosSeccionales?: TableroSeccionalSimple[]; // Nuevo: lista de tableros con nombre y potencia
   conductorTGBTBarra?: Conductor;
   conductores?: Record<string, Conductor>;
   tempAmbiente?: number;
