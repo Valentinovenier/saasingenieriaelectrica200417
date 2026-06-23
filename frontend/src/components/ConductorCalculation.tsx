@@ -16,8 +16,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
 
   const [selectedTramoId, setSelectedTramoId] = useState<string>(TRAMOS_ELECTRICOS[0].id);
   const [selectedTableroId, setSelectedTableroId] = useState<string>(tablerosSec[0]?.id || '');
-  const [resultados, setResultados] = useState<Record<string, any>>({});
-
+  
   const tramoActual = TRAMOS_ELECTRICOS.find(t => t.id === selectedTramoId)!;
   const esTramoDeTablero = !tramoActual.usaPotenciaTrafo;
   const tableroSeleccionado: TableroSeccionalSimple | undefined = tablerosSec.find(t => t.id === selectedTableroId);
@@ -80,8 +79,6 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
       return;
     }
 
-    setResultados(prev => ({ ...prev, [currentTramoKey]: null }));
-
     const catalogo: ParametrosCableCompleto[] =
       conductor.aislacion === 'XLPE' ? catalogoCablesXLPE : catalogoCablesPVC;
 
@@ -108,8 +105,6 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
     }
 
     // --- Ik acumulado ---
-    // Para calcular el Ik en el inicio del tramo actual, acumulamos la Z de todos
-    // los tramos anteriores (usando la misma key de tablero donde aplique).
     let total_R = 0;
     let total_X = Number(project.transformador?.impedancia) || 0;
 
@@ -123,7 +118,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
         : `${tramoPrev.id}__${selectedTableroId}`;
 
       const condAnterior = getConductor(prevKey);
-      const resAnterior = resultados[prevKey] || condAnterior?.resultadoCalculo;
+      const resAnterior = condAnterior?.resultadoCalculo; // <--- USAR resultadoCalculo DIRECTAMENTE
 
       if (!resAnterior || !resAnterior.cable || !condAnterior) {
         alert(
@@ -188,7 +183,6 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
       Ik: Ik_calculado,
     };
 
-    setResultados(prev => ({ ...prev, [currentTramoKey]: resultadoCompleto }));
     updateConductor(currentTramoKey, { ...conductor, resultadoCalculo: resultadoCompleto });
   };
 
@@ -213,7 +207,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
   };
 
   const currentConductor = getConductor(currentTramoKey);
-  const currentResultado = resultados[currentTramoKey];
+  const currentResultado = currentConductor?.resultadoCalculo;
   const currentTramoLabel = tramoActual.label;
 
   return (
