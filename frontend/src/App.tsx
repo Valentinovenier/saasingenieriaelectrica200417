@@ -4,6 +4,7 @@ import { ProjectList } from './components/ProjectList';
 import { NewProjectModal } from './components/NewProjectModal';
 import { ProjectSettings } from './components/ProjectSettings';
 import { ConductorCalculation } from './components/ConductorCalculation';
+import { ProjectReport } from './components/ProjectReport';
 import { LiveUnifilar } from './components/LiveUnifilar';
 import { UnifilarPage } from './components/UnifilarPage';
 import { Project } from './types/project';
@@ -209,14 +210,7 @@ export default function App() {
           />
         );
       case 'informe':
-        return (
-          <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 space-y-6">
-            <h2 className="text-2xl font-bold text-white">Informe del Proyecto</h2>
-            <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 text-sm text-slate-300">
-              <p>Esta sección contendrá el informe técnico detallado de los conductores calculados y parámetros del transformador.</p>
-            </div>
-          </div>
-        );
+        return <ProjectReport project={selectedProject} />;
       default:
         return <div className="text-white">Sección no implementada.</div>;
     }

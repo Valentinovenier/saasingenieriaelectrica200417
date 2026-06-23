@@ -24,6 +24,7 @@ export interface Conductor {
   plano?: 'horizontal' | 'vertical'; // Nuevo campo para método G
   caidaMaxPermitida?: number;           // Nuevo campo (en %)
   tiempoAperturaMT?: number;            // Nuevo campo (en seg)
+  resultadoCalculo?: any;               // Resultado del cálculo (cable seleccionado, Ik, etc.)
 }
 
 export interface CondicionesTramo {

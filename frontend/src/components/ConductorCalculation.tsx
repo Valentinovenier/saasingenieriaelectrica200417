@@ -80,8 +80,8 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
     
     for (let i = 0; i < tramoIndex; i++) {
         const tramoAnteriorId = TRAMOS_ELECTRICOS[i].id;
-        const resAnterior = resultados[tramoAnteriorId];
         const condAnterior = getConductor(tramoAnteriorId);
+        const resAnterior = resultados[tramoAnteriorId] || condAnterior?.resultadoCalculo;
         
         if (!resAnterior || !resAnterior.cable || !condAnterior) {
              alert(`Para calcular este tramo y su Ik, primero debes calcular el tramo aguas arriba: ${TRAMOS_ELECTRICOS[i].label}`);
@@ -131,7 +131,12 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
        (project as any).tempAmbiente || 40,
        true 
     );
-    setResultados(prev => ({ ...prev, [tramoId]: { ...resultado, I_nominal: Inominal, I_fase, I_neutro, armonicosActivos: armonicos?.habilitado ?? false, Ik: Ik_calculado } }));
+    
+    const resultadoCompleto = { ...resultado, I_nominal: Inominal, I_fase, I_neutro, armonicosActivos: armonicos?.habilitado ?? false, Ik: Ik_calculado };
+    setResultados(prev => ({ ...prev, [tramoId]: resultadoCompleto }));
+    
+    // Guardar el resultado en el conductor para persistencia
+    updateConductor(tramoId, { ...conductor, resultadoCalculo: resultadoCompleto });
   };
 
 
