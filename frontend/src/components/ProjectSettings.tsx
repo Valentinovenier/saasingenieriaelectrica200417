@@ -127,11 +127,11 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Cos Phi</label>
                     <input type="number" step="0.01" placeholder="0.95" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" 
                         value={project.transformador?.cosFi ?? ''} 
-                        onChange={(e) => onChange({...project, transformador: {...project.transformador!, cosFi: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+                        onChange={(e) => onChange({...project, transformador: {...project.transformador!, cosFi: e.target.value as any}})} />
                 </div>
                 <div className="col-span-2 md:col-span-2">
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Temperatura Ambiente °C</label>
-                    <input type="number" placeholder="°C" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(project as any).tempAmbiente ?? ''} onChange={(e) => onChange({...project, tempAmbiente: e.target.value === '' ? 0 : Number(e.target.value)} as any)} />
+                    <input type="number" placeholder="°C" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(project as any).tempAmbiente ?? ''} onChange={(e) => onChange({...project, tempAmbiente: e.target.value as any})} />
                 </div>
             </div>
         </div>
@@ -142,15 +142,15 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Potencia (kVA)</label>
-                    <input type="number" placeholder="kVA" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={project.transformador?.potencia ?? ''} onChange={(e) => onChange({...project, transformador: {...project.transformador!, potencia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+                    <input type="number" placeholder="kVA" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={project.transformador?.potencia ?? ''} onChange={(e) => onChange({...project, transformador: {...project.transformador!, potencia: e.target.value as any}})} />
                 </div>
                 <div>
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">V Secundario (V)</label>
-                    <input type="number" placeholder="V" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={project.transformador?.tensionSecundario ?? ''} onChange={(e) => onChange({...project, transformador: {...project.transformador!, tensionSecundario: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+                    <input type="number" placeholder="V" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={project.transformador?.tensionSecundario ?? ''} onChange={(e) => onChange({...project, transformador: {...project.transformador!, tensionSecundario: e.target.value as any}})} />
                 </div>
                 <div>
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Impedancia (Ω)</label>
-                    <input type="number" step="0.001" placeholder="Ω" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={project.transformador?.impedancia ?? ''} onChange={(e) => onChange({...project, transformador: {...project.transformador!, impedancia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
+                    <input type="number" step="0.001" placeholder="Ω" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={project.transformador?.impedancia ?? ''} onChange={(e) => onChange({...project, transformador: {...project.transformador!, impedancia: e.target.value as any}})} />
                 </div>
             </div>
         </div>
@@ -244,7 +244,7 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
                               ...project,
                               armonicos: {
                                 ...project.armonicos,
-                                [h]: e.target.value === '' ? 0 : Number(e.target.value)
+                                [h]: e.target.value as any
                               }
                             })}
                           />

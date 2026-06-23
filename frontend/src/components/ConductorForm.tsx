@@ -190,7 +190,7 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
                 value={conductor?.caidaMaxPermitida || ''}
                 onChange={(e) => onChange({ 
                   ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                  caidaMaxPermitida: Number(e.target.value) 
+                  caidaMaxPermitida: e.target.value as any 
                 })}
               />
             </FieldWrapper>
@@ -204,7 +204,7 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
                   value={conductor?.tiempoAperturaMT || ''}
                   onChange={(e) => onChange({ 
                     ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                    tiempoAperturaMT: Number(e.target.value) 
+                    tiempoAperturaMT: e.target.value as any 
                   })}
                 />
               </FieldWrapper>
@@ -220,7 +220,7 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
             value={conductor?.longitud || ''}
             onChange={(e) => onChange({ 
               ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
-              longitud: Number(e.target.value) 
+              longitud: e.target.value as any 
             })}
           />
         </FieldWrapper>
