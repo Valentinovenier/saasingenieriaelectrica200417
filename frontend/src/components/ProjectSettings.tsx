@@ -129,13 +129,9 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
                         value={project.transformador?.cosFi ?? ''} 
                         onChange={(e) => onChange({...project, transformador: {...project.transformador!, cosFi: e.target.value === '' ? 0 : Number(e.target.value)}})} />
                 </div>
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Temp. (°C)</label>
+                <div className="col-span-2 md:col-span-2">
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Temperatura Ambiente °C</label>
                     <input type="number" placeholder="°C" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(project as any).tempAmbiente ?? ''} onChange={(e) => onChange({...project, tempAmbiente: e.target.value === '' ? 0 : Number(e.target.value)} as any)} />
-                </div>
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Coef. Simult.</label>
-                    <input type="number" step="0.01" placeholder="0.0 - 1.0" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={(project as any).coefSimultaneidad ?? ''} onChange={(e) => onChange({...project, coefSimultaneidad: e.target.value === '' ? 0 : Number(e.target.value)} as any)} />
                 </div>
             </div>
         </div>
@@ -143,14 +139,10 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
         {/* Transformador */}
         <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
             <h3 className="text-lg font-bold text-white mb-4">Transformador</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Potencia (kVA)</label>
                     <input type="number" placeholder="kVA" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={project.transformador?.potencia ?? ''} onChange={(e) => onChange({...project, transformador: {...project.transformador!, potencia: e.target.value === '' ? 0 : Number(e.target.value)}})} />
-                </div>
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">V Primario (V)</label>
-                    <input type="number" placeholder="V" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={project.transformador?.tensionPrimario ?? ''} onChange={(e) => onChange({...project, transformador: {...project.transformador!, tensionPrimario: e.target.value === '' ? 0 : Number(e.target.value)}})} />
                 </div>
                 <div>
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">V Secundario (V)</label>
@@ -275,25 +267,7 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
         </div>
       </section>
 
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-white">Tableros Seccionales</h3>
-          <button onClick={addTablero} className="text-[var(--accent)] flex items-center gap-2"><Plus size={18} /> Agregar</button>
-        </div>
-        {(project.tableros || []).map((t, idx) => (
-          <div key={t.id} className="grid grid-cols-5 gap-2 mb-2 bg-[var(--bg-primary)] p-3 rounded-xl items-center border border-slate-700">
-            <input className="col-span-2 bg-[var(--bg-secondary)] p-2 rounded-lg text-white font-medium border border-slate-600 focus:border-[var(--accent)] outline-none" value={t.name} onChange={(e) => { const tabs = [...project.tableros]; tabs[idx].name = e.target.value; onChange({...project, tableros: tabs}); }} />
-            <select className="col-span-2 bg-[var(--bg-secondary)] p-2 rounded-lg text-white border border-slate-600 focus:border-[var(--accent)] outline-none" value={t.tipo} onChange={(e) => { const tabs = [...project.tableros]; tabs[idx].tipo = e.target.value as any; onChange({...project, tableros: tabs}); }}>
-                <option value="Fuerza Motriz">Fuerza Motriz</option>
-                <option value="Iluminación">Iluminación</option>
-            </select>
-            <div className="col-span-1 flex items-center gap-2">
-                <input type="number" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg text-white border border-slate-600 focus:border-[var(--accent)] outline-none" placeholder="Potencia (kW)" value={t.potenciaTotal ?? ''} onChange={(e) => { const tabs = [...project.tableros]; tabs[idx].potenciaTotal = e.target.value === '' ? 0 : Number(e.target.value); onChange({...project, tableros: tabs}); }} />
-                <button onClick={() => onChange({...project, tableros: (project.tableros || []).filter((_, i) => i !== idx)})} className="text-red-400 hover:text-red-300 p-2"><Trash2 size={18}/></button>
-            </div>
-          </div>
-        ))}
-      </section>
+
 
       <button onClick={handleSave} className="bg-[var(--accent)] text-black px-6 py-2 rounded-xl font-bold">Guardar Configuración</button>
     </div>

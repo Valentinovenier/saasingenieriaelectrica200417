@@ -44,7 +44,7 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
             }}
           >
             <option value="Cable">Cable</option>
-            <option value="CEP">Blindobarra (CEP)</option>
+            {/* <option value="CEP">Blindobarra (CEP)</option> */}
           </select>
         </FieldWrapper>
 

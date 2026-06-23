@@ -198,16 +198,6 @@ export default function App() {
             onDelete={() => deleteProject(selectedProject.id)}
           />
         );
-      case 'tgbt':
-        return <UnifilarPage />;
-      case 'tableros':
-        return (
-            <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
-                <h2 className="text-lg font-semibold text-white mb-6">Tableros Seccionales</h2>
-                {/* Aquí renderizaremos la lista de tableros sin el cálculo de conductores */}
-                {/* Puedes reutilizar parte de la lógica de UnifilarEditor aquí o crear un nuevo componente */}
-            </div>
-        );
       case 'conductores':
         return (
           <ConductorCalculation 
@@ -217,6 +207,15 @@ export default function App() {
               setSelectedProject(updated);
             }}
           />
+        );
+      case 'informe':
+        return (
+          <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 space-y-6">
+            <h2 className="text-2xl font-bold text-white">Informe del Proyecto</h2>
+            <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 text-sm text-slate-300">
+              <p>Esta sección contendrá el informe técnico detallado de los conductores calculados y parámetros del transformador.</p>
+            </div>
+          </div>
         );
       default:
         return <div className="text-white">Sección no implementada.</div>;

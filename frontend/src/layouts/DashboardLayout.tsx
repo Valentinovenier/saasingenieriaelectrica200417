@@ -25,9 +25,8 @@ export const DashboardLayout = ({
   const headerItems = projectSelected 
     ? [
         { icon: Settings, label: 'Parámetros', id: 'parametros' },
-        { icon: BarChart3, label: 'TGBT', id: 'tgbt' },
-        { icon: Box, label: 'Tableros Seccionales', id: 'tableros' },
         { icon: FileText, label: 'Conductores', id: 'conductores' },
+        { icon: FileText, label: 'Informe', id: 'informe' },
       ]
     : [];
 
