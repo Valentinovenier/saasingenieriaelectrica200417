@@ -1,0 +1,55 @@
+PASO A PASO PARA LA SELECCION Y VERIFICACION DE CABLES:
+1-Seleccion por corriente admisible
+En base a Material, cantidad de conductores cargados(2 o 3, si es monofasica la instalacion es 2, si es trifasica es 3), Método de Instalación, Aislamiento, disposicion (Dependiendo el metodo y tabla a utilizar) y corriente del transformador (Si es el tramo trafo TGBT o en barra omnibus) o corriente de la carga si es de la barra omnibus a un tablero seccional.
+Se tiene en cuenta factores de correccion y la cantidad de conductores en paralelo para obtener la corriente corregida admisible:
+
+Icorregida admisible: Iadm nominal * n * Kt * Ka * Ks
+n: numero de conductores en paralelo (permitir todos los necesarios)
+Kt: depende de como este instalado el cable para seleccionar correctamente la tabla a utilizar, Tambien depende de la aislacion y temperatura ambiente
+Ka: Depende del metodo de instalacion a utilizar y de cuantos conductores en paralelo queden
+Ks: Para cables multipolares si n es distinto de 1 el Ks=0,8 si n=1 Ks=0,8
+Para cables unipolares si n es impar Ks=0,8, si n es par o igual a 1 Ks=1
+
+Verificar finalmente que: 
+Icorregida admisible>In tramo
+In tramo: Depende del tramo que se este calculando
+
+2-Verificacion por cortocircuito
+Se verifica que: K^2 * S^2 > Ik^2 t
+
+K:Coeficiente que depende de la aislacion y material del cable
+S: Seccion del cable
+Ik: Valor del cortocircuito aguas arriba mas proximo al tramo
+t: Tiempo de actuacion de la proteccion aguas arriba mas proximo al tramo
+
+
+2-Verificacion por caida de tension
+
+
+- Calcula la impedancia de cada conductor ($R$ y $X$ según sección y catálogo).
+   - Calcula la caída de tensión porcentual aproximada con la fórmula:
+     - **Trifásica**:
+       $$\Delta V = \frac{\sqrt{3} \cdot I_{diseño} \cdot L \cdot (R \cdot \cos\phi + X \cdot \sin\phi)}{V_{nominal}} \times 100$$
+     - **Monofásica**:
+       $$\Delta V = \frac{2 \cdot I_{diseño} \cdot L \cdot (R \cdot \cos\phi + X \cdot \sin\phi)}{V_{nominal}} \times 100$$
+     Debe cumplirse que: $$\Delta V \leq \Delta V_{max\_permitida}$$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
