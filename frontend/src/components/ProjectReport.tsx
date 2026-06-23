@@ -124,9 +124,21 @@ export const ProjectReport = ({ project }: { project: Project }) => {
                       <span className="text-red-400 text-xs font-bold">{resultado.Ik?.toFixed(2)} kA</span>
                     </div>
                     <div className="flex justify-between items-center bg-slate-950 p-1.5 rounded px-3">
-                      <span className="text-slate-400 text-xs">Z<sub>cable</sub> agregada:</span>
+                      <span className="text-slate-400 text-xs">Z<sub>cable</sub> (catálogo):</span>
                       <span className="text-blue-400 text-xs font-bold">
-                        R: {resultado.cable.resistencia} Ω/km
+                        {(() => {
+                            let X = 0;
+                            if (conductor.tipoCable === 'Unipolar' && conductor.disposicion === 'trebol') {
+                                X = Number(resultado.cable.reactancia?.['unipolar_trebol'] || 0);
+                            } else if (conductor.tipoCable === 'Unipolar' && conductor.disposicion === 'contacto') {
+                                X = Number(resultado.cable.reactancia?.['unipolar_contacto'] || 0);
+                            } else {
+                                X = Number(resultado.cable.reactancia?.[project.tipoInstalacion === 'Trifásica' ? 'trifasico' : 'monofasico'] || 0);
+                            }
+                            const R = Number(resultado.cable.resistencia || 0);
+                            const Z = Math.sqrt(R ** 2 + X ** 2);
+                            return Z.toFixed(3);
+                        })()} Ω/km
                       </span>
                     </div>
                   </div>
