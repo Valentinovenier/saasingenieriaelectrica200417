@@ -87,10 +87,10 @@ export const calcularConductorTramo = (
   const SECCION_MAX = 240;
   let advertencia: string | undefined;
 
-  // 3. Iterar de 1 a 15 conductores
+  // 3. Iterar de 1 a 20 conductores
   let mejorResultado: any = null;
   
-  for (let n = 1; n <= 15; n++) { 
+  for (let n = 1; n <= 20; n++) { 
     const factorTotal = f_base_temp * getFsimetria(n) * getFagrup(n);
 
     for (const cable of catalogoCables) {
