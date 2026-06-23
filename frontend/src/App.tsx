@@ -5,8 +5,7 @@ import { NewProjectModal } from './components/NewProjectModal';
 import { ProjectSettings } from './components/ProjectSettings';
 import { ConductorCalculation } from './components/ConductorCalculation';
 import { ProjectReport } from './components/ProjectReport';
-import { LiveUnifilar } from './components/LiveUnifilar';
-import { UnifilarPage } from './components/UnifilarPage';
+import { TablerosSeccionales } from './components/TablerosSeccionales';
 import { Project } from './types/project';
 import { useAuth } from './context/AuthContext';
 import { useProject } from './context/ProjectDataContext';
@@ -202,6 +201,16 @@ export default function App() {
       case 'conductores':
         return (
           <ConductorCalculation 
+            project={selectedProject}
+            onChange={(updated) => {
+              setProjects(projects.map(p => p.id === updated.id ? updated : p));
+              setSelectedProject(updated);
+            }}
+          />
+        );
+      case 'tableros-seccionales':
+        return (
+          <TablerosSeccionales
             project={selectedProject}
             onChange={(updated) => {
               setProjects(projects.map(p => p.id === updated.id ? updated : p));
