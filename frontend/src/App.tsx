@@ -92,7 +92,7 @@ export default function App() {
       createdAt: new Date().toISOString().split('T')[0],
       status: 'draft',
       tableros: [],
-      armonicos: {h3:0, h5:0, h7:0, h9:0}
+      armonicos: { habilitado: false, modoEntrada: 'porcentaje', h3:0, h5:0, h7:0, h9:0 }
     };
 
     try {

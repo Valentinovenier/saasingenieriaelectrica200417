@@ -1,4 +1,6 @@
 export interface HarmonicDistortion {
+  habilitado: boolean;
+  modoEntrada: 'porcentaje' | 'amperios';
   h3: number;
   h5: number;
   h7: number;

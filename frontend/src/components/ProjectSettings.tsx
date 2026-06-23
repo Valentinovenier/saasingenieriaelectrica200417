@@ -164,11 +164,113 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
         </div>
         
         <div className="col-span-1 md:col-span-2">
-            <h3 className="text-lg font-semibold text-white mb-4">Distorsión Armónica (%)</h3>
-            <div className="grid grid-cols-4 gap-2">
-                {(['h3','h5','h7','h9'] as const).map(h => (
-                    <input key={h} type="number" placeholder={h.toUpperCase()} className="bg-[var(--bg-primary)] p-3 rounded-xl border border-slate-700 text-white text-sm" value={project.armonicos?.[h] ?? ''} onChange={(e) => onChange({...project, armonicos: {...project.armonicos, [h]: e.target.value === '' ? 0 : Number(e.target.value)}})} />
-                ))}
+            <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
+              {/* Header con checkbox habilitador */}
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Distorsión Armónica</h3>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={project.armonicos?.habilitado ?? false}
+                      onChange={(e) => onChange({
+                        ...project,
+                        armonicos: {
+                          ...project.armonicos,
+                          habilitado: e.target.checked,
+                          modoEntrada: project.armonicos?.modoEntrada ?? 'porcentaje',
+                          h3: project.armonicos?.h3 ?? 0,
+                          h5: project.armonicos?.h5 ?? 0,
+                          h7: project.armonicos?.h7 ?? 0,
+                          h9: project.armonicos?.h9 ?? 0,
+                        }
+                      })}
+                    />
+                    <div className={`w-11 h-6 rounded-full transition-colors ${project.armonicos?.habilitado ? 'bg-[var(--accent)]' : 'bg-slate-700'}`}></div>
+                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${project.armonicos?.habilitado ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                  </div>
+                  <span className={`text-xs font-medium ${project.armonicos?.habilitado ? 'text-[var(--accent)]' : 'text-slate-500'}`}>
+                    {project.armonicos?.habilitado ? 'Habilitado' : 'Deshabilitado'}
+                  </span>
+                </label>
+              </div>
+
+              {project.armonicos?.habilitado && (
+                <>
+                  {/* Selector de modo de entrada */}
+                  <div className="mb-4">
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Modo de entrada de valores</label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onChange({...project, armonicos: {...project.armonicos, modoEntrada: 'porcentaje'}})}
+                        className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-colors border ${
+                          (project.armonicos?.modoEntrada ?? 'porcentaje') === 'porcentaje'
+                            ? 'bg-[var(--accent)] text-black border-[var(--accent)]'
+                            : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500'
+                        }`}
+                      >
+                        Porcentaje (0 a 1)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onChange({...project, armonicos: {...project.armonicos, modoEntrada: 'amperios'}})}
+                        className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-colors border ${
+                          project.armonicos?.modoEntrada === 'amperios'
+                            ? 'bg-[var(--accent)] text-black border-[var(--accent)]'
+                            : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500'
+                        }`}
+                      >
+                        Amperios (A)
+                      </button>
+                    </div>
+                    {project.armonicos?.modoEntrada === 'amperios' && (
+                      <p className="text-[10px] text-slate-500 mt-1.5">
+                        Los valores en A se convierten automáticamente a porcentaje de la corriente nominal del tramo para el cálculo.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Inputs de armónicos */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {(['h3','h5','h7','h9'] as const).map(h => (
+                      <div key={h} className="flex flex-col gap-1">
+                        <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 ml-1">
+                          {h === 'h3' ? '3° Armónico' : h === 'h5' ? '5° Armónico' : h === 'h7' ? '7° Armónico' : '9° Armónico'}
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            step={project.armonicos?.modoEntrada === 'amperios' ? '0.1' : '0.01'}
+                            min="0"
+                            max={project.armonicos?.modoEntrada === 'porcentaje' ? '1' : undefined}
+                            placeholder={project.armonicos?.modoEntrada === 'amperios' ? '0.0 A' : '0.00'}
+                            className="w-full bg-[var(--bg-secondary)] p-2.5 pr-8 rounded-lg border border-slate-700 text-white text-sm hover:border-slate-500 focus:border-[var(--accent)] outline-none transition-colors"
+                            value={project.armonicos?.[h] ?? ''}
+                            onChange={(e) => onChange({
+                              ...project,
+                              armonicos: {
+                                ...project.armonicos,
+                                [h]: e.target.value === '' ? 0 : Number(e.target.value)
+                              }
+                            })}
+                          />
+                          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none">
+                            {project.armonicos?.modoEntrada === 'amperios' ? 'A' : '%'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {!project.armonicos?.habilitado && (
+                <p className="text-xs text-slate-600 italic">
+                  Los armónicos están deshabilitados. Se usará la corriente nominal del tramo directamente.
+                </p>
+              )}
             </div>
         </div>
       </section>

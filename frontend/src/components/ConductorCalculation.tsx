@@ -44,14 +44,40 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
 
     const potenciaVA = (project.transformador?.potencia || 0) * 1000;
     const tensionSecundaria = project.transformador?.tensionSecundario || (project.tipoInstalacion === 'Trifásica' ? 380 : 220);
-    const Itrafo = potenciaVA / (project.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) * tensionSecundaria : tensionSecundaria);
+    const Inominal = potenciaVA / (project.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) * tensionSecundaria : tensionSecundaria);
+
+    // --- Lógica de armónicos ---
+    const armonicos = project.armonicos;
+    let I_fase = Inominal;
+    let I_neutro: number | undefined = undefined;
+
+    if (armonicos?.habilitado) {
+      // Convertir a porcentaje (0 a 1) si el modo es amperios
+      const toPorc = (val: number) => {
+        if (armonicos.modoEntrada === 'amperios') {
+          return Inominal > 0 ? val / Inominal : 0;
+        }
+        return val;
+      };
+
+      const I3 = toPorc(armonicos.h3 ?? 0);
+      const I5 = toPorc(armonicos.h5 ?? 0);
+      const I7 = toPorc(armonicos.h7 ?? 0);
+      const I9 = toPorc(armonicos.h9 ?? 0);
+
+      // Corriente por fase: Inominal * sqrt(1 + I3² + I5² + I7² + I9²)
+      I_fase = Inominal * Math.sqrt(1 + I3 ** 2 + I5 ** 2 + I7 ** 2 + I9 ** 2);
+
+      // Corriente de neutro: 3 * Inominal * (I3 + I9)
+      I_neutro = 3 * Inominal * (I3 + I9);
+    }
 
     const caidaMaxPermitida = conductor.caidaMaxPermitida || 3;
     const tiempoApertura = tramoId === 'trafo-tgbt' ? (conductor.tiempoAperturaMT || 0.1) : 0.1;
 
     const resultado = calcularConductorTramo(
        {...conductor, tipoInstalacion: project.tipoInstalacion, plano: conductor.plano},
-       Itrafo, 
+       I_fase,  // <-- Se usa la corriente con armónicos (o nominal si está deshabilitado)
        50, 
        tiempoApertura, 
        (conductor.longitud || 0) / 1000, 
@@ -62,8 +88,9 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
        true 
     );
     
-    setResultados(prev => ({ ...prev, [tramoId]: resultado }));
+    setResultados(prev => ({ ...prev, [tramoId]: { ...resultado, I_nominal: Inominal, I_fase, I_neutro, armonicosActivos: armonicos?.habilitado ?? false } }));
   };
+
 
   const handleSave = async () => {
     try {
@@ -141,11 +168,51 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project, 
             </div>
           )}
           {currentResultado && !currentResultado.error && (
-            <div className="p-4 bg-slate-950 rounded border border-slate-700 text-sm text-white space-y-1">
-                <p className="font-bold text-slate-400 uppercase text-[10px] mb-2">Resultado del Cálculo</p>
-                <p>Sección: <span className="text-[var(--accent)] font-bold">{currentResultado.cable.seccion} mm²</span></p>
-                <p>Cables en paralelo: <span className="text-[var(--accent)] font-bold">{currentResultado.nConductores}</span></p>
-                <p>Caída de tensión: <span className="text-[var(--accent)] font-bold">{currentResultado.porcentajeCaida.toFixed(2)}%</span></p>
+            <div className="p-4 bg-slate-950 rounded border border-slate-700 text-sm text-white space-y-3">
+              <p className="font-bold text-slate-400 uppercase text-[10px] mb-3">Resultado del Cálculo</p>
+              
+              {/* Conductor seleccionado */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-slate-900 rounded-lg p-2.5 text-center">
+                  <p className="text-[10px] text-slate-500 uppercase mb-0.5">Sección</p>
+                  <p className="text-[var(--accent)] font-bold text-base">{currentResultado.cable.seccion} mm²</p>
+                </div>
+                <div className="bg-slate-900 rounded-lg p-2.5 text-center">
+                  <p className="text-[10px] text-slate-500 uppercase mb-0.5">Cables ‖</p>
+                  <p className="text-[var(--accent)] font-bold text-base">{currentResultado.nConductores}</p>
+                </div>
+                <div className="bg-slate-900 rounded-lg p-2.5 text-center">
+                  <p className="text-[10px] text-slate-500 uppercase mb-0.5">Caída V</p>
+                  <p className="text-[var(--accent)] font-bold text-base">{currentResultado.porcentajeCaida.toFixed(2)}%</p>
+                </div>
+              </div>
+
+              {/* Corrientes */}
+              <div className="border-t border-slate-800 pt-3 space-y-1.5">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">Corrientes del Tramo</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">Corriente nominal (I<sub>nom</sub>):</span>
+                  <span className="font-bold text-white">{currentResultado.I_nominal?.toFixed(1)} A</span>
+                </div>
+                {currentResultado.armonicosActivos && (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-amber-400">Corriente real por fase (con armónicos):</span>
+                      <span className="font-bold text-amber-300">{currentResultado.I_fase?.toFixed(1)} A</span>
+                    </div>
+                    {currentResultado.I_neutro !== undefined && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-orange-400">Corriente por neutro (3° + 9° arm.):</span>
+                        <span className="font-bold text-orange-300">{currentResultado.I_neutro?.toFixed(1)} A</span>
+                      </div>
+                    )}
+                    <div className="mt-2 p-2 bg-amber-950/40 rounded border border-amber-900/50 text-[10px] text-amber-400">
+                      ⚠ Diseño con armónicos activos. El conductor fue seleccionado para I<sub>fase</sub> = {currentResultado.I_fase?.toFixed(1)} A.
+                      {currentResultado.I_neutro !== undefined && ` El neutro debe soportar ${currentResultado.I_neutro?.toFixed(1)} A.`}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           )}
         </div>
