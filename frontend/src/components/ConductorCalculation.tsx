@@ -57,14 +57,15 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
     const esTri = project.tipoInstalacion === 'Trifásica';
     const div = esTri ? Math.sqrt(3) * tension : tension;
 
+    let resultado = 0;
     if (tramoActual.usaPotenciaTrafo) {
-      return ((Number(project.transformador?.potencia) || 0) * 1000) / div;
+      resultado = ((Number(project.transformador?.potencia) || 0) * 1000) / div;
+    } else if (tableroSeleccionado) {
+      resultado = ((Number(tableroSeleccionado.potencia) || 0) * 1000) / div;
     }
-    // Tramo de tablero
-    if (tableroSeleccionado) {
-      return ((Number(tableroSeleccionado.potencia) || 0) * 1000) / div;
-    }
-    return 0;
+    
+    console.log(`[DEBUG Inominal] Tensión: ${tension}, EsTri: ${esTri}, Div: ${div}, Potencia: ${tramoActual.usaPotenciaTrafo ? project.transformador?.potencia : tableroSeleccionado?.potencia}, Resultado: ${resultado}`);
+    return resultado;
   };
 
   const handleCalcular = () => {
