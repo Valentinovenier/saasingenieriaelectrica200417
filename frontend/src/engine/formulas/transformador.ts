@@ -6,8 +6,14 @@
  */
 export const calcularIntr = (potenciaKVA: number, tensionSecundarioV: number): number => {
   if (!tensionSecundarioV || tensionSecundarioV === 0) return 0;
-  // potenciaKVA * 1000 para pasar a VA
-  return (potenciaKVA * 1000) / (Math.sqrt(3) * tensionSecundarioV);
+  
+  const VA = potenciaKVA * 1000;
+  const divisor = Math.sqrt(3) * tensionSecundarioV;
+  const resultado = VA / divisor;
+
+  console.log(`Debug Intr: ${potenciaKVA} kVA, ${tensionSecundarioV} V => ${VA} / (${Math.sqrt(3)} * ${tensionSecundarioV}) = ${resultado}`);
+  
+  return resultado;
 };
 
 /**
