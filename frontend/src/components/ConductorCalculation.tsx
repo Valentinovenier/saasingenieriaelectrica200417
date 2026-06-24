@@ -55,8 +55,9 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
       Number(project.transformador?.tensionSecundario) ||
       (project.tipoInstalacion === 'Trifásica' ? 380 : 220);
     
-    // Fuerza la detección de trifásica si corresponde
-    const esTri = project.tipoInstalacion === 'Trifásica' || project.tipoInstalacion === 'trifasica';
+    // Convertir a 'any' para evitar errores de tipo de TS al comparar con valores inesperados
+    const tipo = (project as any).tipoInstalacion;
+    const esTri = tipo === 'Trifásica' || tipo === 'trifasica';
     const div = esTri ? Math.sqrt(3) * tension : tension;
 
     let resultado = 0;
@@ -66,7 +67,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
       resultado = ((Number(tableroSeleccionado.potencia) || 0) * 1000) / div;
     }
     
-    console.log(`[DEBUG Inominal] Tensión: ${tension}, Tipo: ${project.tipoInstalacion}, EsTri: ${esTri}, Div: ${div}, Potencia: ${tramoActual.usaPotenciaTrafo ? project.transformador?.potencia : tableroSeleccionado?.potencia}, Resultado: ${resultado}`);
+    console.log(`[DEBUG Inominal] Tensión: ${tension}, Tipo: ${tipo}, EsTri: ${esTri}, Div: ${div}, Potencia: ${tramoActual.usaPotenciaTrafo ? project.transformador?.potencia : tableroSeleccionado?.potencia}, Resultado: ${resultado}`);
     return resultado;
   };
 
