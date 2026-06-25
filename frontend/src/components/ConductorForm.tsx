@@ -1,5 +1,7 @@
 import { Conductor, TipoConductor } from '../types/project';
 import { getMetodosValidos } from '../engine/metodosProvider';
+import { useProject } from '../context/ProjectDataContext';
+import { calcularTramoResidencial } from '../engine/vivienda/calculador';
 
 const FieldWrapper = ({ label, children }: { label: string, children: React.ReactNode }) => (
   <div className="flex flex-col gap-1.5">
@@ -11,26 +13,49 @@ const FieldWrapper = ({ label, children }: { label: string, children: React.Reac
 );
 
 export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: string, conductor?: Conductor, onChange: (c: Conductor) => void, tramoId?: string }) => {
+  const { state: project } = useProject();
+  const isVivienda = project?.projectType === 'Vivienda';
+
   const tipoCable = conductor?.tipoCable || 'Multipolar';
   const aislacion = conductor?.aislacion || 'PVC';
   const material = conductor?.material || 'Cobre';
   
-  // Filtrado dinámico
   const metodosDisponibles = getMetodosValidos(aislacion as any, material as any, tipoCable);
+
+  const handleDataChange = (newConductor: Conductor) => {
+    // Si es vivienda, recalculamos automáticamente
+    if (isVivienda && newConductor.longitud && newConductor.metodoInstalacion) {
+        // Nota: Corriente diseño debería venir del conductor o tramo. Asumimos 16A como placeholder para la prueba.
+        const corrienteDiseño = 16; 
+        
+        const resultado = calcularTramoResidencial({
+            tipoCircuito: 'tomacorrientes_usos_generales',
+            metodoInstalacion: newConductor.metodoInstalacion as any,
+            longitudMetros: newConductor.longitud,
+            corrienteDiseñoAmperes: corrienteDiseño,
+            temperaturaAmbiente: project?.tempAmbiente || 30,
+            cantidadCircuitosAgrupados: 1
+        });
+        newConductor.resultadoCalculo = resultado;
+        newConductor.seccion = resultado.seccionRecomendada;
+    }
+    onChange(newConductor);
+  };
 
   return (
     <div className="p-4 bg-slate-900 rounded-xl border border-slate-700 shadow-sm">
       <label className="text-xs font-medium text-slate-400 mb-4 block border-b border-slate-800 pb-2">
-        {label}
+        {label} {isVivienda && <span className="text-[var(--accent)] ml-2">(Normativa Viviendas AEA-90364-7-770)</span>}
       </label>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+        
         <FieldWrapper label="Tipo de Conductor">
           <select 
             className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
             value={conductor?.tipo || 'Cable'}
             onChange={(e) => {
               const newTipo = e.target.value as TipoConductor;
-              const newConductor: Conductor = {
+              handleDataChange({
                 ...conductor,
                 tipo: newTipo,
                 material: newTipo === 'Cable' ? (conductor?.material || 'Cobre') : undefined,
@@ -39,12 +64,10 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
                 metodoInstalacion: undefined, 
                 tipoCable: 'Multipolar', 
                 longitud: conductor?.longitud || 0,
-              };
-              onChange(newConductor);
+              } as Conductor);
             }}
           >
             <option value="Cable">Cable</option>
-            {/* <option value="CEP">Blindobarra (CEP)</option> */}
           </select>
         </FieldWrapper>
 
@@ -55,13 +78,11 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
                 className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
                 value={material}
                 onChange={(e) => {
-                  const newMaterial = e.target.value as any;
-                  const newConductor = {
+                  handleDataChange({
                     ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                    material: newMaterial,
+                    material: e.target.value as any,
                     metodoInstalacion: undefined
-                  };
-                  onChange(newConductor);
+                  });
                 }}
               >
                 <option value="Cobre">Cobre</option>
@@ -74,13 +95,11 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
                 className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
                 value={aislacion}
                 onChange={(e) => {
-                  const newAislacion = e.target.value as any;
-                  const newConductor = {
+                  handleDataChange({
                     ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                    aislacion: newAislacion,
+                    aislacion: e.target.value as any,
                     metodoInstalacion: undefined
-                  };
-                  onChange(newConductor);
+                  });
                 }}
               >
                 <option value="PVC">PVC</option>
@@ -89,141 +108,48 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
               </select>
             </FieldWrapper>
 
-            <FieldWrapper label="Configuración de Cable">
-              <select 
-                className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
-                value={tipoCable}
-                onChange={(e) => {
-                  const newTipoCable = e.target.value as 'Multipolar' | 'Unipolar';
-                  const newConductor = {
-                    ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                    tipoCable: newTipoCable,
-                    metodoInstalacion: undefined, 
-                    disposicion: undefined 
-                  };
-                  onChange(newConductor);
-                }}
-              >
-                <option value="Multipolar">Multipolar</option>
-                <option value="Unipolar">Unipolar</option>
-              </select>
-            </FieldWrapper>
-
-            {tipoCable === 'Unipolar' && (
-              <FieldWrapper label="Disposición de Conductores">
-                <div className="flex flex-col gap-2">
-                  <select
-                    className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
-                    value={conductor?.disposicion || 'trebol'}
-                    onChange={(e) => onChange({
-                      ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                      disposicion: (e.target.value as 'trebol' | 'contacto' | 'separado') || 'trebol',
-                      plano: undefined // Resetear plano al cambiar disposición
-                    })}
-                  >
-                    {(!conductor?.metodoInstalacion || (conductor.metodoInstalacion !== 'F' && conductor.metodoInstalacion !== 'G')) && (
-                        <>
-                            <option value="trebol">Trébol</option>
-                            <option value="contacto">En contacto</option>
-                            {conductor?.aislacion !== 'Mineral' && <option value="separado">Separados</option>}
-                        </>
-                    )}
-                    {conductor?.metodoInstalacion === 'F' && (
-                        <>
-                            <option value="trebol">Trébol</option>
-                            <option value="contacto">En contacto</option>
-                        </>
-                    )}
-                    {conductor?.metodoInstalacion === 'G' && (
-                        <option value="separado">Separados</option>
-                    )}
-                  </select>
-                  
-                  {conductor?.metodoInstalacion === 'G' && conductor?.disposicion === 'separado' && (
-                      <select
-                          className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
-                          value={conductor?.plano || 'horizontal'}
-                          onChange={(e) => onChange({
-                              ...conductor,
-                              plano: e.target.value as 'horizontal' | 'vertical'
-                          })}
-                      >
-                          <option value="horizontal">Plano Horizontal</option>
-                          <option value="vertical">Plano Vertical</option>
-                      </select>
-                  )}
-                </div>
-              </FieldWrapper>
-            )}
-
             <FieldWrapper label="Método de Instalación">
               <select 
                 className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
                 value={conductor?.metodoInstalacion || ''}
                 onChange={(e) => {
-                  const newMetodo = e.target.value;
-                  let newDisposicion = conductor?.disposicion;
-                  
-                  // Si el método cambia a F o G, asegurar una disposición válida
-                  if (newMetodo === 'F') newDisposicion = 'trebol';
-                  if (newMetodo === 'G') newDisposicion = 'separado';
-
-                  onChange({ 
+                  handleDataChange({ 
                     ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                    metodoInstalacion: newMetodo,
-                    disposicion: newDisposicion
+                    metodoInstalacion: e.target.value
                   });
                 }}
               >
-                <option value="">Selecciona Método de Instalación</option>
+                <option value="">Selecciona Método</option>
                 {metodosDisponibles.map(m => (
                   <option key={m.value} value={m.value}>{m.label}</option>
                 ))}
               </select>
             </FieldWrapper>
             
-            <FieldWrapper label="Caída de Tensión Máxima (%)">
+            <FieldWrapper label="Longitud del Tramo (m)">
               <input 
                 type="number" 
-                placeholder="Ej: 3" 
-                className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
-                value={conductor?.caidaMaxPermitida || ''}
-                onChange={(e) => onChange({ 
-                  ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                  caidaMaxPermitida: e.target.value as any 
+                placeholder="0" 
+                className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
+                value={conductor?.longitud || ''}
+                onChange={(e) => handleDataChange({ 
+                  ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
+                  longitud: parseInt(e.target.value) || 0
                 })}
               />
             </FieldWrapper>
 
-            {tramoId === 'trafo-tgbt' && (
-              <FieldWrapper label="Tiempo Apertura MT (s)">
-                <input 
-                  type="number" 
-                  placeholder="Ej: 0.1" 
-                  className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
-                  value={conductor?.tiempoAperturaMT || ''}
-                  onChange={(e) => onChange({ 
-                    ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                    tiempoAperturaMT: e.target.value as any 
-                  })}
-                />
-              </FieldWrapper>
+            {conductor?.resultadoCalculo && (
+              <div className="col-span-2 p-3 bg-slate-800 rounded-lg text-xs text-slate-300">
+                <p><strong>Sección Recomendada:</strong> {conductor.resultadoCalculo.seccionRecomendada} mm²</p>
+                <p><strong>Caída de Tensión:</strong> {conductor.resultadoCalculo.caidaTensionPorcentaje.toFixed(2)} %</p>
+                {conductor.resultadoCalculo.advertencias && (
+                    <p className="text-red-400 mt-2">{conductor.resultadoCalculo.advertencias[0]}</p>
+                )}
+              </div>
             )}
           </>
         )}
-
-        <FieldWrapper label="Longitud del Tramo (m)">
-          <input 
-            type="number" 
-            placeholder="0" 
-            className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
-            value={conductor?.longitud || ''}
-            onChange={(e) => onChange({ 
-              ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
-              longitud: e.target.value as any 
-            })}
-          />
-        </FieldWrapper>
       </div>
     </div>
   );
