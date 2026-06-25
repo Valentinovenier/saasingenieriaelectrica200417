@@ -141,10 +141,19 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
 
             {conductor?.resultadoCalculo && (
               <div className="col-span-2 p-3 bg-slate-800 rounded-lg text-xs text-slate-300">
-                <p><strong>Sección Recomendada:</strong> {conductor.resultadoCalculo.seccionRecomendada} mm²</p>
-                <p><strong>Caída de Tensión:</strong> {conductor.resultadoCalculo.caidaTensionPorcentaje.toFixed(2)} %</p>
-                {conductor.resultadoCalculo.advertencias && (
-                    <p className="text-red-400 mt-2">{conductor.resultadoCalculo.advertencias[0]}</p>
+                {conductor.resultadoCalculo.seccionRecomendada ? (
+                  <>
+                    <p><strong>Sección Recomendada:</strong> {conductor.resultadoCalculo.seccionRecomendada} mm²</p>
+                    <p><strong>Caída de Tensión:</strong> {conductor.resultadoCalculo.caidaTensionPorcentaje?.toFixed(2)} %</p>
+                    {conductor.resultadoCalculo.advertencias && (
+                        <p className="text-red-400 mt-2">{conductor.resultadoCalculo.advertencias[0]}</p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <p><strong>Sección:</strong> {conductor.resultadoCalculo.cable?.seccion} mm²</p>
+                    <p><strong>Caída de Tensión:</strong> {conductor.resultadoCalculo.porcentajeCaida?.toFixed(2)} %</p>
+                  </>
                 )}
               </div>
             )}
