@@ -19,24 +19,13 @@ export interface Conductor {
   longitud?: number; // m
   metodoInstalacion?: string;
   agrupamiento?: number;
-  tipoCable?: 'Multipolar' | 'Unipolar'; // Nuevo campo
-  disposicion?: 'trebol' | 'contacto' | 'separado'; // Nuevo campo para unipolares
-  plano?: 'horizontal' | 'vertical'; // Nuevo campo para método G
-  caidaMaxPermitida?: number;           // Nuevo campo (en %)
-  tiempoAperturaMT?: number;            // Nuevo campo (en seg)
-  resultadoCalculo?: any;               // Resultado del cálculo (cable seleccionado, Ik, etc.)
-  canalizacionId?: string;              // Identificador para agrupamiento automático
-  tipoCircuito?: string;                // Nuevo campo para Viviendas
-  tipoTramo?: 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal'; // Nuevo campo para diferenciar secciones mínimas
-}
-
-export interface CondicionesTramo {
-  tipoInstalacion?: 'Monofásica' | 'Trifásica';
-  aislacion?: AislacionConductor;
-  material?: MaterialConductor;
-  metodoInstalacion?: string;
+  tipoCable?: 'Multipolar' | 'Unipolar';
   disposicion?: 'trebol' | 'contacto' | 'separado';
-  plano?: 'horizontal' | 'vertical'; // Nuevo campo para método G
+  plano?: 'horizontal' | 'vertical';
+  caidaMaxPermitida?: number;
+  tiempoAperturaMT?: number;
+  resultadoCalculo?: any;
+  canalizacionId?: string;
 }
 
 export interface Proteccion {
@@ -46,49 +35,27 @@ export interface Proteccion {
   marca?: 'Schneider' | 'ABB';
 }
 
-export interface TableroSeccional {
-  id: string;
-  name: string;
-  tipo: 'Fuerza Motriz' | 'Iluminación';
-  potenciaTotal: number;
-  subTableros: TableroSeccional[];
-  proteccionCabecera?: Proteccion;
-  proteccionesSalida: Proteccion[]; // Cambiado a array
-}
+// --- Nueva Estructura Topológica (Árbol) ---
 
-export interface Transformador {
-  potencia: number;
-  tensionPrimario: number;
-  tensionSecundario: number;
-  cosFi: number;
-  impedancia: number; // Zcc total en Ohms
-  tipo?: 'Aceite' | 'Seco';
-  uccPorcentaje?: number;
-  PccW?: number;
-  modoEntrada?: 'catalogo' | 'manual';
-  catalogoId?: string;
-  proteccionCabecera?: Proteccion;
-  proteccionesSalida: Proteccion[]; // Cambiado a array
-  conductorTrafoTGBT?: Conductor;
-}
-
-export interface TableroSeccionalSimple {
+export interface CircuitoTerminal {
   id: string;
   nombre: string;
-  potencia: number; // kVA
+  tipo: string; // Ej: 'iluminacion_usos_generales'
+  potencia: number; // VA
+  conductor: Conductor; // Tramo que alimenta este circuito
+  proteccion: Proteccion;
 }
 
-export interface Canalizacion {
+export interface Tablero {
   id: string;
   nombre: string;
+  conductorAlimentacion: Conductor; // Tramo que alimenta este tablero
+  proteccionCabecera: Proteccion;
+  subTableros: Tablero[];
+  circuitosTerminales: CircuitoTerminal[];
 }
 
-export interface Acometida {
-  longitud: number;
-  seccion: number;
-  material: 'Cobre' | 'Aluminio';
-  aislacion: 'PVC' | 'XLPE';
-}
+// --- Fin Nueva Estructura ---
 
 export interface Project {
   id: string;
@@ -96,14 +63,13 @@ export interface Project {
   projectType: string;
   createdAt: string;
   status: 'draft' | 'completed';
-  transformador?: Transformador;
-  acometida?: Acometida; // Nuevo campo
+  transformador?: any; // Mantener compatibilidad temporal
+  acometida?: any; // Mantener compatibilidad temporal
   armonicos: HarmonicDistortion;
-  tableros: TableroSeccional[];
-  tablerosSeccionales?: TableroSeccionalSimple[];
-  canalizaciones?: Canalizacion[]; // Nueva lista de canalizaciones
-  conductorTGBTBarra?: Conductor;
-  conductores?: Record<string, Conductor>;
+  
+  // Nodo raíz de la topología
+  tableroPrincipal: Tablero; 
+  
   tempAmbiente?: number;
   coefSimultaneidad?: number;
   tipoInstalacion?: 'Monofásica' | 'Trifásica';
