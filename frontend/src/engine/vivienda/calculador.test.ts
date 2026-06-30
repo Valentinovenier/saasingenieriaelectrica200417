@@ -14,6 +14,7 @@ const test = () => {
   };
 
   const condiciones: CondicionesTramoResidencial = {
+    tipoTramo: 'CircuitoTerminal',
     tipoCircuito: 'tomacorrientes_usos_generales',
     metodoInstalacion: 'B2',
     longitudMetros: 20,
