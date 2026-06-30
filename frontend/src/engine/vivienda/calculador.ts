@@ -5,15 +5,16 @@ import { PARAMETROS_CALCULO_VIVIENDA } from '../../data/vivienda/parametrosCalcu
 import { IMPEDANCIAS_CABLES_VIVIENDA } from '../../data/vivienda/impedancias';
 import { SECCIONES_MINIMAS_VIVIENDA } from '../../data/vivienda/seccionesMinimas';
 import { getFactorTemperatura, getFactorAgrupamiento } from '../helpers/normativeFactors';
-import { getAgrupamientoPorCanalizacion } from '../canalizacionService';
+import { getCircuitosPorCanalizacion } from '../canalizacionService';
 
 export const calcularTramoResidencial = (
   condiciones: CondicionesTramoResidencial,
   project: Project
 ): ResultadoCalculoResidencial => {
   // 1. Determinar número de circuitos agrupados automáticamente
-  const agrupamientoMap = getAgrupamientoPorCanalizacion(project);
-  const nCircuitos = condiciones.canalizacionId ? (agrupamientoMap[condiciones.canalizacionId] || 1) : 1;
+  const nCircuitos = condiciones.canalizacionId 
+    ? getCircuitosPorCanalizacion(project, condiciones.canalizacionId).length || 1 
+    : 1;
 
   // 1. Determinar sección mínima por tipo de circuito (Tabla 770.11.I)
   let seccionMinima = 1.5;
