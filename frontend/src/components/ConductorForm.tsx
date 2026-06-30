@@ -34,8 +34,8 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
             longitudMetros: newConductor.longitud,
             corrienteDiseñoAmperes: corrienteDiseño,
             temperaturaAmbiente: project?.tempAmbiente || 30,
-            cantidadCircuitosAgrupados: 1
-        });
+            canalizacionId: newConductor.canalizacionId
+        }, project!);
         newConductor.resultadoCalculo = resultado;
         newConductor.seccion = resultado.seccionRecomendada;
     }
