@@ -12,18 +12,28 @@ const TRAMOS_ELECTRICOS = [
   { id: 'salida-tablero', label: 'Interruptor de Salida TGBT → Tablero Seccional', usaPotenciaTrafo: false },
 ];
 
+const TRAMOS_VIVIENDA = [
+  { id: 'acometida-tp', label: 'Acometida → Tablero Principal', usaPotenciaTrafo: true },
+  { id: 'tp-circuito', label: 'Tablero Principal → Circuito Terminal', usaPotenciaTrafo: false },
+];
+
 export const ConductorCalculation = ({ project, onChange }: { project: Project; onChange: (p: Project) => void }) => {
+  const isVivienda = project.projectType === 'Vivienda';
+  const tramosDisponibles = isVivienda ? TRAMOS_VIVIENDA : TRAMOS_ELECTRICOS;
+  
   const tablerosSec: TableroSeccionalSimple[] = project.tablerosSeccionales || [];
 
-  const [selectedTramoId, setSelectedTramoId] = useState<string>(TRAMOS_ELECTRICOS[0].id);
+  const [selectedTramoId, setSelectedTramoId] = useState<string>(tramosDisponibles[0].id);
   const [selectedTableroId, setSelectedTableroId] = useState<string>(tablerosSec[0]?.id || '');
   
-  const tramoActual = TRAMOS_ELECTRICOS.find(t => t.id === selectedTramoId)!;
-  const esTramoDeTablero = !tramoActual.usaPotenciaTrafo;
+  const tramoActual = tramosDisponibles.find(t => t.id === selectedTramoId)!;
+  const esTramoDeTablero = !isVivienda && !tramoActual.usaPotenciaTrafo; // Solo industria usa tableros aquí
   const tableroSeleccionado: TableroSeccionalSimple | undefined = tablerosSec.find(t => t.id === selectedTableroId);
 
-  // Key única para guardar resultados de tramos de tablero: incluye el tablero
+  // Key única para guardar resultados
   const getTramoKey = (tramoId: string): string => {
+    if (isVivienda) return tramoId; // Viviendas tienen tramos directos
+    
     const tramo = TRAMOS_ELECTRICOS.find(t => t.id === tramoId);
     if (!tramo?.usaPotenciaTrafo && selectedTableroId) {
       return `${tramoId}__${selectedTableroId}`;
@@ -264,7 +274,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
             value={selectedTramoId}
             onChange={e => setSelectedTramoId(e.target.value)}
           >
-            {TRAMOS_ELECTRICOS.map(t => (
+            {tramosDisponibles.map(t => (
               <option key={t.id} value={t.id}>
                 {t.label}
               </option>
@@ -272,7 +282,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
           </select>
         </div>
 
-        {/* Selector de tablero seccional (solo para tramos 3 y 4) */}
+        {/* Selector de tablero seccional (solo para tramos industriales de tablero) */}
         {esTramoDeTablero && (
           <div className="flex flex-col gap-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">

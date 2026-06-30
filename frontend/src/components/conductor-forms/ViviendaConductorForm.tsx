@@ -17,8 +17,9 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
     const newConductor = { ...conductor, ...updates } as Conductor;
     
     // Recálculo automático para Viviendas
-    if (newConductor.longitud && newConductor.metodoInstalacion && newConductor.tipoCircuito) {
+    if (newConductor.longitud && newConductor.metodoInstalacion && (newConductor.tipoTramo === 'Principal' || newConductor.tipoCircuito)) {
         const resultado = calcularTramoResidencial({
+            tipoTramo: newConductor.tipoTramo as any,
             tipoCircuito: newConductor.tipoCircuito as any,
             metodoInstalacion: newConductor.metodoInstalacion as any,
             longitudMetros: newConductor.longitud || 0,
@@ -40,16 +41,30 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
         
         <div className="grid grid-cols-1 gap-4">
             <div>
-                <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Tipo de Circuito</label>
+                <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Tipo de Tramo</label>
                 <select 
                     className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                    value={conductor?.tipoCircuito || ''}
-                    onChange={(e) => handleDataChange({ tipoCircuito: e.target.value })}
+                    value={conductor?.tipoTramo || 'Terminal'}
+                    onChange={(e) => handleDataChange({ tipoTramo: e.target.value as 'Principal' | 'Terminal' })}
                 >
-                    <option value="">Selecciona Tipo</option>
-                    {TIPOS_CIRCUITO_VIVIENDA.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    <option value="Terminal">Circuito Terminal</option>
+                    <option value="Principal">Línea Principal</option>
                 </select>
             </div>
+
+            {conductor?.tipoTramo === 'Terminal' && (
+                <div>
+                    <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Tipo de Circuito</label>
+                    <select 
+                        className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
+                        value={conductor?.tipoCircuito || ''}
+                        onChange={(e) => handleDataChange({ tipoCircuito: e.target.value })}
+                    >
+                        <option value="">Selecciona Tipo</option>
+                        {TIPOS_CIRCUITO_VIVIENDA.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    </select>
+                </div>
+            )}
 
             <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>

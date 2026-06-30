@@ -75,7 +75,9 @@ export const IndustrialConductorForm = ({ label, conductor, onChange, tramoId }:
             onChange={(e) => handleDataChange({ metodoInstalacion: e.target.value })}
           >
             <option value="">Selecciona Método</option>
-            {metodosDisponibles.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+            {metodosDisponibles.map((m: { value: string; label: string }) => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
           </select>
         </div>
 

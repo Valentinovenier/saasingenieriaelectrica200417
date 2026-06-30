@@ -47,27 +47,32 @@ export const calcularTramoResidencial = (
     Z_upstream.x += impCable.x * longitudKm;
   }
 
-  // 1. Determinar sección mínima por tipo de circuito (Tabla 770.11.I)
+// 1. Determinar sección mínima por tipo de circuito (Tabla 770.11.I)
   let seccionMinima = 1.5;
-  switch (condiciones.tipoCircuito) {
-    case 'iluminacion_usos_generales':
-      seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesIluminacion;
-      break;
-    case 'tomacorrientes_usos_generales':
-      seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesTomacorrientes;
-      break;
-    case 'iluminacion_con_tomacorrientes':
-      seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesIluminacionConTomacorrientes;
-      break;
-    case 'usos_especiales':
-      seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspeciales;
-      break;
-    case 'usos_especificos':
-      seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspecificos;
-      break;
-    case 'usos_especificos_mbtf':
-      seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspecificosMBTF;
-      break;
+
+  if (condiciones.tipoTramo === 'Principal') {
+      seccionMinima = SECCIONES_MINIMAS_VIVIENDA.lineasPrincipales;
+  } else {
+      switch (condiciones.tipoCircuito) {
+        case 'iluminacion_usos_generales':
+          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesIluminacion;
+          break;
+        case 'tomacorrientes_usos_generales':
+          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesTomacorrientes;
+          break;
+        case 'iluminacion_con_tomacorrientes':
+          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesIluminacionConTomacorrientes;
+          break;
+        case 'usos_especiales':
+          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspeciales;
+          break;
+        case 'usos_especificos':
+          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspecificos;
+          break;
+        case 'usos_especificos_mbtf':
+          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspecificosMBTF;
+          break;
+      }
   }
   
   // 2. Obtener secciones disponibles

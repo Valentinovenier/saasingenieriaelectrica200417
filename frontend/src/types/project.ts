@@ -27,6 +27,7 @@ export interface Conductor {
   resultadoCalculo?: any;               // Resultado del cálculo (cable seleccionado, Ik, etc.)
   canalizacionId?: string;              // Identificador para agrupamiento automático
   tipoCircuito?: string;                // Nuevo campo para Viviendas
+  tipoTramo?: 'Principal' | 'Terminal'; // Nuevo campo para diferenciar secciones mínimas
 }
 
 export interface CondicionesTramo {

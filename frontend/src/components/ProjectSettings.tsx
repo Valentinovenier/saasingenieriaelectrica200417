@@ -196,10 +196,52 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* ... resto del contenido existente ... */}
 
-        {/* Transformador */}
+        {/* Acometida */}
         <div className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700 space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                <h3 className="text-lg font-bold text-white">Transformador</h3>
+            <h3 className="text-lg font-bold text-white border-b border-slate-800 pb-2">Acometida</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Longitud (m)</label>
+                    <input 
+                        type="number"
+                        className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white"
+                        value={project.acometida?.longitud || ''}
+                        onChange={(e) => onChange({...project, acometida: {...(project.acometida || {longitud:0, seccion:2.5, material:'Cobre', aislacion:'PVC'}), longitud: Number(e.target.value)}})}
+                    />
+                </div>
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Sección (mm²)</label>
+                    <input 
+                        type="number"
+                        className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white"
+                        value={project.acometida?.seccion || ''}
+                        onChange={(e) => onChange({...project, acometida: {...(project.acometida || {longitud:0, seccion:2.5, material:'Cobre', aislacion:'PVC'}), seccion: Number(e.target.value)}})}
+                    />
+                </div>
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Material</label>
+                    <select 
+                        className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white"
+                        value={project.acometida?.material || 'Cobre'}
+                        onChange={(e) => onChange({...project, acometida: {...(project.acometida || {longitud:0, seccion:2.5, material:'Cobre', aislacion:'PVC'}), material: e.target.value as any}})}
+                    >
+                        <option value="Cobre">Cobre</option>
+                        <option value="Aluminio">Aluminio</option>
+                    </select>
+                </div>
+                <div>
+                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Aislación</label>
+                    <select 
+                        className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white"
+                        value={project.acometida?.aislacion || 'PVC'}
+                        onChange={(e) => onChange({...project, acometida: {...(project.acometida || {longitud:0, seccion:2.5, material:'Cobre', aislacion:'PVC'}), aislacion: e.target.value as any}})}
+                    >
+                        <option value="PVC">PVC</option>
+                        <option value="XLPE">XLPE</option>
+                    </select>
+                </div>
+            </div>
+        </div>
                 <div className="flex bg-slate-800 p-0.5 rounded-lg border border-slate-700">
                     <button
                         type="button"
