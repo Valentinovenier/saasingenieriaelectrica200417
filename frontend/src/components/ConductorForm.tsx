@@ -197,17 +197,20 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
               />
             </FieldWrapper>
 
-            <FieldWrapper label="Canalización (ID)">
-              <input 
-                type="text" 
-                placeholder="Ej: TGBT-TS1" 
+            <FieldWrapper label="Canalización">
+              <select 
                 className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
                 value={conductor?.canalizacionId || ''}
                 onChange={(e) => handleDataChange({ 
                   ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
                   canalizacionId: e.target.value
                 })}
-              />
+              >
+                <option value="">Selecciona Canalización</option>
+                {project?.canalizaciones?.map((can) => (
+                  <option key={can.id} value={can.id}>{can.nombre}</option>
+                ))}
+              </select>
             </FieldWrapper>
 
             <FieldWrapper label="Caída de Tensión Máx (%)">
