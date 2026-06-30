@@ -97,4 +97,5 @@ export interface Project {
   tempAmbiente?: number;
   coefSimultaneidad?: number;
   tipoInstalacion?: 'Monofásica' | 'Trifásica';
+  cosPhi?: number;
 }

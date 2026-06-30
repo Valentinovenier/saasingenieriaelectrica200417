@@ -166,6 +166,18 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
                     onChange={(e) => onChange({...project, tempAmbiente: Number(e.target.value)})}
                 />
             </div>
+            <div>
+                <label className="text-sm text-[var(--text-secondary)] block mb-1">Factor de Potencia (cos φ)</label>
+                <input 
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="1"
+                    className="w-full bg-[var(--bg-secondary)] p-2 rounded border border-slate-700 text-white"
+                    value={project.cosPhi || 0.95}
+                    onChange={(e) => onChange({...project, cosPhi: Number(e.target.value)})}
+                />
+            </div>
         </div>
       </section>
 
