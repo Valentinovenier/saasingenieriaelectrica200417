@@ -73,7 +73,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
        resultado = resultado * coef;
     }
     
-    console.log(`[DEBUG Inominal] Tensión: ${tension}, Tipo: ${tipo}, EsTri: ${esTri}, Div: ${div}, Potencia: ${tramoActual.usaPotenciaTrafo ? project.transformador?.potencia : tableroSeleccionado?.potencia}, Resultado: ${resultado}`);
+    console.log(`[DEBUG Inominal] Tensión: ${tension}, Tipo: ${tipoInstalacion}, EsTri: ${esTri}, Div: ${div}, Potencia: ${tramoActual.usaPotenciaTrafo ? project.transformador?.potencia : tableroSeleccionado?.potencia}, Resultado: ${resultado}`);
     return resultado;
   };
 
