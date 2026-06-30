@@ -25,6 +25,7 @@ export interface Conductor {
   caidaMaxPermitida?: number;           // Nuevo campo (en %)
   tiempoAperturaMT?: number;            // Nuevo campo (en seg)
   resultadoCalculo?: any;               // Resultado del cálculo (cable seleccionado, Ik, etc.)
+  canalizacionId?: string;              // Identificador para agrupamiento automático
 }
 
 export interface CondicionesTramo {

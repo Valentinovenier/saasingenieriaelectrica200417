@@ -1,13 +1,20 @@
 import { CondicionesTramoResidencial, ResultadoCalculoResidencial } from '../../types/vivienda';
+import { Project } from '../../types/project';
 import { getAdmisible } from '../corrienteProvider';
 import { PARAMETROS_CALCULO_VIVIENDA } from '../../data/vivienda/parametrosCalculo';
 import { IMPEDANCIAS_CABLES_VIVIENDA } from '../../data/vivienda/impedancias';
 import { SECCIONES_MINIMAS_VIVIENDA } from '../../data/vivienda/seccionesMinimas';
 import { getFactorTemperatura, getFactorAgrupamiento } from '../helpers/normativeFactors';
+import { getAgrupamientoPorCanalizacion } from '../canalizacionService';
 
 export const calcularTramoResidencial = (
-  condiciones: CondicionesTramoResidencial
+  condiciones: CondicionesTramoResidencial,
+  project: Project
 ): ResultadoCalculoResidencial => {
+  // 1. Determinar número de circuitos agrupados automáticamente
+  const agrupamientoMap = getAgrupamientoPorCanalizacion(project);
+  const nCircuitos = condiciones.canalizacionId ? (agrupamientoMap[condiciones.canalizacionId] || 1) : 1;
+
   // 1. Determinar sección mínima por tipo de circuito (Tabla 770.11.I)
   let seccionMinima = 1.5;
   switch (condiciones.tipoCircuito) {
@@ -64,7 +71,7 @@ export const calcularTramoResidencial = (
 
     // Factores de corrección reales
     const factorTemp = getFactorTemperatura('PVC', condiciones.temperaturaAmbiente, true);
-    const factorAgrup = getFactorAgrupamiento(condiciones.cantidadCircuitosAgrupados, condiciones.metodoInstalacion, 'Multipolar');
+    const factorAgrup = getFactorAgrupamiento(nCircuitos, condiciones.metodoInstalacion, 'Multipolar');
     const IzCorregida = IzBase * factorTemp * factorAgrup;
 
     cumpleCapacidadCorriente = IzCorregida >= condiciones.corrienteDiseñoAmperes;

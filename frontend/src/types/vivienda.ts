@@ -8,14 +8,14 @@ export type TipoCircuito =
   | 'usos_especiales'
   | 'usos_especificos'
   | 'usos_especificos_mbtf';
-
 export interface CondicionesTramoResidencial {
   tipoCircuito: TipoCircuito;
   metodoInstalacion: 'B2' | 'D1' | 'D2' | 'sinEnvoltura';
   longitudMetros: number;
   corrienteDiseñoAmperes: number;
   temperaturaAmbiente: number;
-  cantidadCircuitosAgrupados: number;
+  canalizacionId?: string; // Nuevo
+}
   cosPhi?: number;
 }
 
