@@ -26,7 +26,7 @@ export const calcularCanalizacionIterativa = (
     
     tramosEnCanalizacion.forEach(({ id, condiciones, catalogo }) => {
       // Determinar si el tramo es 'al aire' o 'subterráneo' basado en su método
-      const esAire = !condiciones.metodoInstalacion.toLowerCase().includes('d');
+      const esAire = !(condiciones.metodoInstalacion ?? '').toLowerCase().includes('d');
 
       // 2. Preparar condiciones con el agrupamiento automático
       const condicionesConAgrupamiento = { 
