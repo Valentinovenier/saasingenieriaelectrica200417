@@ -38,14 +38,16 @@ export const calcularConductorTramo = (
   // Refactor: Calcular factor de simetría dinámico
   const getFsimetria = (nCond: number) => {
       if (nCond === 1) return 1.0;
+      
       if (condiciones.tipoCable === 'Unipolar') {
-          const cumpleDisp = (condiciones as any).cumpleDisposicionSimetria ?? true;
-          if (cumpleDisp && (nCond === 2 || nCond === 4 || nCond === 6)) {
-              return 1.0;
+          // Factor de asimetría (0.8) aplica solo para número impar de conductores unipolares en paralelo.
+          if (nCond % 2 !== 0) {
+              return 0.8;
           }
-          return 0.8;
+          return 1.0;
       }
-      // Multipolar en paralelo
+      
+      // Para cables multipolares en paralelo mayor a 1, el factor es 0.8
       return 0.8;
   };
   
@@ -67,25 +69,30 @@ export const calcularConductorTramo = (
       const disp = condiciones.disposicion || 'en_contacto';
 
       if (metodo?.startsWith('D2')) {
+          if (totalCircuits > 6) advertencia = `Factor de agrupamiento: Tabla D2 soporta máximo 6 circuitos. Se utilizó el factor de 6 (calculado: ${totalCircuits}).`;
           const nCirc = totalCircuits > 6 ? 6 : totalCircuits;
           const tabla = FACTORES_AGRUPAMIENTO_B52_18[nCirc] || FACTORES_AGRUPAMIENTO_B52_18[2];
           return tabla[disp] || tabla['en_contacto'] || 0.5;
       }
       if (metodo?.startsWith('D1')) {
+          if (totalCircuits > 6) advertencia = `Factor de agrupamiento: Tabla D1 soporta máximo 6 circuitos. Se utilizó el factor de 6 (calculado: ${totalCircuits}).`;
           const nCirc = totalCircuits > 6 ? 6 : totalCircuits;
           const tabla = FACTORES_AGRUPAMIENTO_B52_19[nCirc] || FACTORES_AGRUPAMIENTO_B52_19[2];
           return tabla[disp] || tabla['en_contacto'] || 0.6;
       }
       if (metodo === 'E') {
+          if (totalCircuits > 6) advertencia = `Factor de agrupamiento: Tabla E soporta máximo 6 circuitos. Se utilizó el factor de 6 (calculado: ${totalCircuits}).`;
           const nCirc = totalCircuits > 6 ? 6 : totalCircuits;
           return FACTORES_AGRUPAMIENTO_B52_20[0][nCirc - 1] || 0.7;
       }
       if (condiciones.tipoCable === 'Unipolar' && (metodo === 'F' || metodo === 'G')) {
+          if (totalCircuits > 3) advertencia = `Factor de agrupamiento: Método F/G soporta máximo 3 circuitos. Se utilizó el factor de 3 (calculado: ${totalCircuits}).`;
           const nCirc = totalCircuits > 3 ? 3 : totalCircuits;
           return FACTORES_AGRUPAMIENTO_B52_21[1][nCirc - 1] || 0.8;
       }
       
       // Default (B52-17 para A, B, C) - Soporta hasta 20 circuitos
+      if (totalCircuits > 20) advertencia = `Factor de agrupamiento: La norma soporta máximo 20 circuitos. Se utilizó el factor de 20 (calculado: ${totalCircuits}).`;
       const mapaCircuitos = [1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16, 20];
       let idx = mapaCircuitos.findIndex(c => c >= totalCircuits);
       if (idx === -1) idx = mapaCircuitos.length - 1;
