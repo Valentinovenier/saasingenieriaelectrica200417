@@ -56,23 +56,6 @@ const ProteccionFields = ({ label, value, onChange }: { label: string, value?: P
 );
 
 export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { project: Project, onChange: (p: Project) => void, onSave: (p: Project) => void, onDelete: () => void }) => {
-  // Eliminamos el useState local 'data' y usamos 'project' (prop) directamente
-
-  const addTablero = () => {
-    const newTablero: TableroSeccional = {
-      id: Date.now().toString(),
-      name: `Tablero ${project.tableros ? project.tableros.length + 1 : 1}`,
-      tipo: 'Fuerza Motriz',
-      potenciaTotal: 0,
-      subTableros: [],
-      proteccionesSalida: []
-    };
-    onChange({ 
-      ...project, 
-      tableros: [...(project.tableros || []), newTablero] 
-    });
-  };
-
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -194,8 +177,7 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* ... resto del contenido existente ... */}
-
+        
         {/* Acometida */}
         <div className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700 space-y-4">
             <h3 className="text-lg font-bold text-white border-b border-slate-800 pb-2">Acometida</h3>
@@ -242,13 +224,17 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
                 </div>
             </div>
         </div>
+
+        {/* Transformador */}
+        <div className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700 space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 className="text-lg font-bold text-white">Transformador</h3>
                 <div className="flex bg-slate-800 p-0.5 rounded-lg border border-slate-700">
                     <button
                         type="button"
                         onClick={() => {
                             const current = project.transformador || { potencia: 0, tensionPrimario: 13.2, tensionSecundario: 400, cosFi: 0.95, impedancia: 0, proteccionesSalida: [] };
                             const updated = { ...current, modoEntrada: 'catalogo' as const };
-                            // Si se cambia a catálogo y hay potencia, intentar buscar el primer match en el catálogo
                             const list = (updated.tipo || 'Aceite') === 'Aceite' ? transformadoresAceite : transformadoresSecos;
                             const match = list.find(t => t.potenciaKVA === Number(updated.potencia)) || list[0];
                             if (match) {
@@ -385,7 +371,6 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
                             onChange={(e) => {
                                 const potencia = Number(e.target.value);
                                 const current = project.transformador || { potencia: 0, tensionPrimario: 13.2, tensionSecundario: 400, cosFi: 0.95, impedancia: 0, proteccionesSalida: [] };
-                                // Estimar parámetros automáticamente por defecto si no existen
                                 const tipo = current.tipo || 'Aceite';
                                 const est = estimarParametrosTrafo(potencia, tipo);
                                 const updated = {
@@ -526,7 +511,6 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
         
         <div className="col-span-1 md:col-span-2">
             <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
-              {/* Header con checkbox habilitador */}
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">Distorsión Armónica</h3>
                 <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -559,7 +543,6 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
 
               {project.armonicos?.habilitado && (
                 <>
-                  {/* Selector de modo de entrada */}
                   <div className="mb-4">
                     <label className="text-xs text-[var(--text-secondary)] mb-1 block">Modo de entrada de valores</label>
                     <div className="flex gap-2">
@@ -593,7 +576,6 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
                     )}
                   </div>
 
-                  {/* Inputs de armónicos */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {(['h3','h5','h7','h9'] as const).map(h => (
                       <div key={h} className="flex flex-col gap-1">
@@ -635,8 +617,6 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
             </div>
         </div>
       </section>
-
-
 
       <button onClick={handleSave} className="bg-[var(--accent)] text-black px-6 py-2 rounded-xl font-bold">Guardar Configuración</button>
     </div>
