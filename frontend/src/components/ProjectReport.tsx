@@ -145,5 +145,6 @@ const IndustrialReport = ({ project, tablerosSec }: { project: Project, tableros
 
       {/* ... (el resto de las secciones industriales: Tableros, Protecciones, Caída Acumulada) ... */}
     </div>
-);
+  );
+};
 
