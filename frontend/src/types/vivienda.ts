@@ -14,8 +14,7 @@ export interface CondicionesTramoResidencial {
   longitudMetros: number;
   corrienteDiseñoAmperes: number;
   temperaturaAmbiente: number;
-  canalizacionId?: string; // Nuevo
-}
+  canalizacionId?: string;
   cosPhi?: number;
 }
 
