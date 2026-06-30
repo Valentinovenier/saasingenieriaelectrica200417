@@ -52,13 +52,12 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
    * - Tramos 3 y 4 (por tablero): potencia del tablero seleccionado
    */
   const getInominal = (): number => {
+    const tipoInstalacion = project.tipoInstalacion || 'Trifásica';
     const tension =
       Number(project.transformador?.tensionSecundario) ||
-      (project.tipoInstalacion === 'Trifásica' ? 380 : 220);
+      (tipoInstalacion === 'Trifásica' ? 380 : 220);
     
-    // Convertir a 'any' para evitar errores de tipo de TS al comparar con valores inesperados
-    const tipo = (project as any).tipoInstalacion;
-    const esTri = tipo === 'Trifásica' || tipo === 'trifasica';
+    const esTri = tipoInstalacion === 'Trifásica' || (tipoInstalacion as any) === 'trifasica';
     const div = esTri ? Math.sqrt(3) * tension : tension;
 
     let resultado = 0;
@@ -93,9 +92,10 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
     const catalogo: ParametrosCableCompleto[] =
       conductor.aislacion === 'XLPE' ? catalogoCablesXLPE : catalogoCablesPVC;
 
+    const tipoInstalacion = project.tipoInstalacion || 'Trifásica';
     const tension =
       Number(project.transformador?.tensionSecundario) ||
-      (project.tipoInstalacion === 'Trifásica' ? 380 : 220);
+      (tipoInstalacion === 'Trifásica' ? 380 : 220);
 
     const Inominal = getInominal();
 
@@ -162,7 +162,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
       } else {
         X = Number(
           resAnterior.cable.reactancia?.[
-            project.tipoInstalacion === 'Trifásica' ? 'trifasico' : 'monofasico'
+            tipoInstalacion === 'Trifásica' ? 'trifasico' : 'monofasico'
           ] || 0
         );
       }
@@ -175,7 +175,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
     let Ik_calculado = 50;
     if (Z_total > 0) {
       Ik_calculado =
-        project.tipoInstalacion === 'Trifásica'
+        tipoInstalacion === 'Trifásica'
           ? tension / (Math.sqrt(3) * Z_total) / 1000
           : tension / (2 * Z_total) / 1000;
     }
@@ -193,7 +193,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
     const tempAmbiente = project.tempAmbiente ? Number(project.tempAmbiente) : tempDefault;
 
     const resultado = calcularConductorTramo(
-      { ...conductor, tipoInstalacion: project.tipoInstalacion, plano: conductor.plano },
+      { ...conductor, tipoInstalacion: tipoInstalacion, plano: conductor.plano },
       I_fase,
       Ik_calculado,
       tiempoApertura,

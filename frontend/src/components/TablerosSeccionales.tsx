@@ -111,10 +111,11 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
             </thead>
             <tbody>
               {tableros.map((t, idx) => {
+                const tipoInstalacion = project.tipoInstalacion || 'Trifásica';
                 const tension =
                   Number(project.transformador?.tensionSecundario) ||
-                  (project.tipoInstalacion === 'Trifásica' ? 380 : 220);
-                const esTri = project.tipoInstalacion === 'Trifásica';
+                  (tipoInstalacion === 'Trifásica' ? 380 : 220);
+                const esTri = tipoInstalacion === 'Trifásica';
                 const Inom =
                   ((Number(t.potencia) || 0) * 1000) / (esTri ? Math.sqrt(3) * tension : tension);
                 return (
