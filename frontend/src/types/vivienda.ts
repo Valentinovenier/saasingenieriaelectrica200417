@@ -9,6 +9,7 @@ export type TipoCircuito =
   | 'usos_especificos'
   | 'usos_especificos_mbtf';
 export interface CondicionesTramoResidencial {
+  tipoTramo: 'Principal' | 'CircuitoTerminal';
   tipoCircuito: TipoCircuito;
   metodoInstalacion: 'B2' | 'D1' | 'D2' | 'sinEnvoltura';
   longitudMetros: number;

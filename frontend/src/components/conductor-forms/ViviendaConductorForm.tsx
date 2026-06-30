@@ -19,7 +19,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
     // Recálculo automático para Viviendas
     if (newConductor.longitud && newConductor.metodoInstalacion && (newConductor.tipoTramo === 'Principal' || newConductor.tipoCircuito)) {
         const resultado = calcularTramoResidencial({
-            tipoTramo: newConductor.tipoTramo as any,
+            tipoTramo: newConductor.tipoTramo as 'Principal' | 'CircuitoTerminal',
             tipoCircuito: newConductor.tipoCircuito as any,
             metodoInstalacion: newConductor.metodoInstalacion as any,
             longitudMetros: newConductor.longitud || 0,
