@@ -57,33 +57,37 @@ export const calcularConductorTramo = (
   const metodo = condiciones.metodoInstalacion;
   
   const getFagrup = (nCond: number) => {
-      // Si solo hay 1 conductor en paralelo O solo hay 1 circuito total, no hay reducción por agrupamiento
-      if (nCond === 1 || nCircuitos === 1) return 1.0;
+      // Calculamos la cantidad total de circuitos físicos agrupados.
+      // nCircuitos es la cantidad de circuitos base que el usuario agrupó.
+      // nCond es la cantidad de cables en paralelo por fase.
+      const totalCircuits = nCircuitos * nCond;
+      
+      if (totalCircuits === 1) return 1.0;
       
       const disp = condiciones.disposicion || 'en_contacto';
 
       if (metodo?.startsWith('D2')) {
-          const nCirc = nCircuitos > 6 ? 6 : nCircuitos;
+          const nCirc = totalCircuits > 6 ? 6 : totalCircuits;
           const tabla = FACTORES_AGRUPAMIENTO_B52_18[nCirc] || FACTORES_AGRUPAMIENTO_B52_18[2];
           return tabla[disp] || tabla['en_contacto'] || 0.5;
       }
       if (metodo?.startsWith('D1')) {
-          const nCirc = nCircuitos > 6 ? 6 : nCircuitos;
+          const nCirc = totalCircuits > 6 ? 6 : totalCircuits;
           const tabla = FACTORES_AGRUPAMIENTO_B52_19[nCirc] || FACTORES_AGRUPAMIENTO_B52_19[2];
           return tabla[disp] || tabla['en_contacto'] || 0.6;
       }
       if (metodo === 'E') {
-          const nCirc = nCircuitos > 6 ? 6 : nCircuitos;
+          const nCirc = totalCircuits > 6 ? 6 : totalCircuits;
           return FACTORES_AGRUPAMIENTO_B52_20[0][nCirc - 1] || 0.7;
       }
       if (condiciones.tipoCable === 'Unipolar' && (metodo === 'F' || metodo === 'G')) {
-          const nCirc = nCircuitos > 3 ? 3 : nCircuitos;
+          const nCirc = totalCircuits > 3 ? 3 : totalCircuits;
           return FACTORES_AGRUPAMIENTO_B52_21[1][nCirc - 1] || 0.8;
       }
       
       // Default (B52-17 para A, B, C) - Soporta hasta 20 circuitos
       const mapaCircuitos = [1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16, 20];
-      let idx = mapaCircuitos.findIndex(c => c >= nCircuitos);
+      let idx = mapaCircuitos.findIndex(c => c >= totalCircuits);
       if (idx === -1) idx = mapaCircuitos.length - 1;
       
       return FACTORES_AGRUPAMIENTO_B52_17[1][idx] || 0.5;

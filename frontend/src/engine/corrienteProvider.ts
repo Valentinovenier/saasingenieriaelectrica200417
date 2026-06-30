@@ -50,9 +50,15 @@ export const getAdmisible = (
     }
     // Filtrado universal
     const soportaMetodo = Object.keys(t.metodosSoportados).some(key => key.split('_').includes(metodoNormalizado));
+    const isMetodoE_F_G = ['E', 'F', 'G'].includes(metodoNormalizado);
+    
+    // Para métodos E, F y G, la misma tabla contiene valores para 2C y 3C.
+    // Ignoramos el chequeo estricto de nConductoresCargados para estos métodos.
+    const matchesConductores = isMetodoE_F_G || t.nConductoresCargados === nConductoresBuscado;
+
     return t.material === material && 
            t.aislacion === aislacion && 
-           t.nConductoresCargados === nConductoresBuscado &&
+           matchesConductores &&
            soportaMetodo;
   });
 

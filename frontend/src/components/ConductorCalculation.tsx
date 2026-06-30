@@ -68,6 +68,12 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
       resultado = ((Number(tableroSeleccionado.potencia) || 0) * 1000) / div;
     }
     
+    // Aplicar coeficiente de simultaneidad del proyecto (si está configurado)
+    const coef = Number(project.coefSimultaneidad);
+    if (!isNaN(coef) && coef > 0 && coef <= 1) {
+       resultado = resultado * coef;
+    }
+    
     console.log(`[DEBUG Inominal] Tensión: ${tension}, Tipo: ${tipo}, EsTri: ${esTri}, Div: ${div}, Potencia: ${tramoActual.usaPotenciaTrafo ? project.transformador?.potencia : tableroSeleccionado?.potencia}, Resultado: ${resultado}`);
     return resultado;
   };
@@ -178,6 +184,14 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
     const tiempoApertura =
       selectedTramoId === 'trafo-tgbt' ? Number(conductor.tiempoAperturaMT) || 0.1 : 0.1;
 
+    // Determinar si es instalación en aire o tierra
+    // D1 y D2 son métodos enterrados (tierra)
+    const esAire = !conductor.metodoInstalacion?.toUpperCase().startsWith('D');
+    
+    // Determinar temperatura ambiente
+    const tempDefault = esAire ? 40 : 25;
+    const tempAmbiente = project.tempAmbiente ? Number(project.tempAmbiente) : tempDefault;
+
     const resultado = calcularConductorTramo(
       { ...conductor, tipoInstalacion: project.tipoInstalacion, plano: conductor.plano },
       I_fase,
@@ -187,8 +201,8 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
       Number(project.transformador?.cosFi) || 0.95,
       caidaMaxPermitida,
       catalogo,
-      Number((project as any).tempAmbiente) || 40,
-      true
+      tempAmbiente,
+      esAire
     );
 
     const resultadoCompleto = {
