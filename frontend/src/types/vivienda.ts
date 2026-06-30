@@ -16,6 +16,7 @@ export interface CondicionesTramoResidencial {
   corrienteDiseñoAmperes: number;
   temperaturaAmbiente: number;
   cantidadCircuitosAgrupados: number;
+  cosPhi?: number;
 }
 
 export interface ResultadoCalculoResidencial {

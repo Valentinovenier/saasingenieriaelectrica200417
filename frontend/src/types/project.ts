@@ -58,7 +58,12 @@ export interface Transformador {
   tensionPrimario: number;
   tensionSecundario: number;
   cosFi: number;
-  impedancia: number;
+  impedancia: number; // Zcc total en Ohms
+  tipo?: 'Aceite' | 'Seco';
+  uccPorcentaje?: number;
+  PccW?: number;
+  modoEntrada?: 'catalogo' | 'manual';
+  catalogoId?: string;
   proteccionCabecera?: Proteccion;
   proteccionesSalida: Proteccion[]; // Cambiado a array
   conductorTrafoTGBT?: Conductor;

@@ -108,14 +108,72 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
               </select>
             </FieldWrapper>
 
+            <FieldWrapper label="Tipo de Cable">
+              <select
+                className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
+                value={tipoCable}
+                onChange={(e) => {
+                  handleDataChange({
+                    ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                    tipoCable: e.target.value as any,
+                    metodoInstalacion: undefined, // Resetear método ya que depende de Unipolar/Multipolar
+                    disposicion: e.target.value === 'Unipolar' ? 'trebol' : undefined
+                  });
+                }}
+              >
+                <option value="Multipolar">Multipolar</option>
+                <option value="Unipolar">Unipolar</option>
+              </select>
+            </FieldWrapper>
+
+            {tipoCable === 'Unipolar' && (
+              <FieldWrapper label="Disposición">
+                <select
+                  className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
+                  value={conductor?.disposicion || 'trebol'}
+                  onChange={(e) => {
+                    handleDataChange({
+                      ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                      disposicion: e.target.value as any
+                    });
+                  }}
+                >
+                  <option value="trebol">Trébol</option>
+                  <option value="contacto">En contacto plano</option>
+                  {conductor?.metodoInstalacion === 'G' && <option value="separado">Separado 1D</option>}
+                </select>
+              </FieldWrapper>
+            )}
+
+            {tipoCable === 'Unipolar' && conductor?.metodoInstalacion === 'G' && conductor?.disposicion === 'separado' && (
+              <FieldWrapper label="Plano Disposición">
+                <select
+                  className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors"
+                  value={conductor?.plano || 'horizontal'}
+                  onChange={(e) => {
+                    handleDataChange({
+                      ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
+                      plano: e.target.value as any
+                    });
+                  }}
+                >
+                  <option value="horizontal">Horizontal</option>
+                  <option value="vertical">Vertical</option>
+                </select>
+              </FieldWrapper>
+            )}
+
             <FieldWrapper label="Método de Instalación">
               <select 
                 className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
                 value={conductor?.metodoInstalacion || ''}
                 onChange={(e) => {
+                  const val = e.target.value;
                   handleDataChange({ 
                     ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0 }),
-                    metodoInstalacion: e.target.value
+                    metodoInstalacion: val,
+                    // Si cambia a G, asegurar disposición 'separado' o resetear plano
+                    disposicion: val === 'G' ? 'separado' : (tipoCable === 'Unipolar' ? 'trebol' : undefined)
                   });
                 }}
               >
@@ -138,6 +196,51 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
                 })}
               />
             </FieldWrapper>
+
+            <FieldWrapper label="Agrupamiento (N° Circuitos)">
+              <input 
+                type="number" 
+                min="1"
+                max="20"
+                placeholder="1" 
+                className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
+                value={conductor?.agrupamiento || 1}
+                onChange={(e) => handleDataChange({ 
+                  ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
+                  agrupamiento: parseInt(e.target.value) || 1
+                })}
+              />
+            </FieldWrapper>
+
+            <FieldWrapper label="Caída de Tensión Máx (%)">
+              <input 
+                type="number" 
+                step="0.1"
+                placeholder="3" 
+                className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
+                value={conductor?.caidaMaxPermitida || 3}
+                onChange={(e) => handleDataChange({ 
+                  ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
+                  caidaMaxPermitida: parseFloat(e.target.value) || 3
+                })}
+              />
+            </FieldWrapper>
+
+            {tramoId === 'trafo-tgbt' && (
+              <FieldWrapper label="Tiempo Apertura MT (seg)">
+                <input 
+                  type="number" 
+                  step="0.01"
+                  placeholder="0.1" 
+                  className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
+                  value={conductor?.tiempoAperturaMT || 0.1}
+                  onChange={(e) => handleDataChange({ 
+                    ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
+                    tiempoAperturaMT: parseFloat(e.target.value) || 0.1
+                  })}
+                />
+              </FieldWrapper>
+            )}
 
             {conductor?.resultadoCalculo && (
               <div className="col-span-2 p-3 bg-slate-800 rounded-lg text-xs text-slate-300">

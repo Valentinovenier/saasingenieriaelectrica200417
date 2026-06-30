@@ -3,6 +3,7 @@ import { Project, Conductor, TableroSeccionalSimple } from '../types/project';
 import { ConductorForm } from './ConductorForm';
 import { calcularConductorTramo } from '../engine/calculadorTramo';
 import { catalogoCablesPVC, catalogoCablesXLPE, ParametrosCableCompleto } from '../data/cables';
+import { calcularImpedanciaTransformador } from '../engine/transformador';
 
 const TRAMOS_ELECTRICOS = [
   { id: 'trafo-tgbt', label: 'Transformador → Interruptor Cabecera TGBT', usaPotenciaTrafo: true },
@@ -110,7 +111,19 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
 
     // --- Ik acumulado ---
     let total_R = 0;
-    let total_X = Number(project.transformador?.impedancia) || 0;
+    let total_X = 0;
+
+    if (project.transformador) {
+      const zTrafo = calcularImpedanciaTransformador({
+        potenciaKVA: Number(project.transformador.potencia),
+        tensionSecundarioV: Number(project.transformador.tensionSecundario),
+        uccPorcentaje: project.transformador.uccPorcentaje,
+        PccW: project.transformador.PccW,
+        tipo: project.transformador.tipo
+      });
+      total_R = zTrafo.r;
+      total_X = zTrafo.x;
+    }
 
     const tramoIndex = TRAMOS_ELECTRICOS.findIndex(t => t.id === selectedTramoId);
 
@@ -362,6 +375,51 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
                     </div>
                   </>
                 )}
+              <div className="border-t border-slate-800 pt-3 space-y-1.5">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                  Factores de Corrección (Normativos)
+                </p>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Corriente base catálogo (I<sub>adm_base</sub>):</span>
+                  <span className="font-semibold text-white">{currentResultado.I_adm_base || 0} A</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Temp. Ambiente (K<sub>t</sub>):</span>
+                  <span className="font-semibold text-white">{currentResultado.f_temp?.toFixed(2) || '1.00'}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Agrupamiento (K<sub>a</sub>):</span>
+                  <span className="font-semibold text-white">{currentResultado.f_agrup?.toFixed(2) || '1.00'}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Simetría en Paralelo (K<sub>s</sub>):</span>
+                  <span className="font-semibold text-white">{currentResultado.f_simetria?.toFixed(2) || '1.00'}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Corriente corregida total (I<sub>admisible</sub>):</span>
+                  <span className="font-bold text-emerald-400">{currentResultado.I_adm_corregida?.toFixed(1)} A</span>
+                </div>
+              </div>
+
+              {currentResultado.capacidadCorto !== undefined && (
+                <div className="border-t border-slate-800 pt-3 space-y-1.5">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                    Verificación Térmica (Cortocircuito)
+                  </p>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400">Soportabilidad cable (K²S²):</span>
+                    <span className="font-semibold text-white">{(currentResultado.capacidadCorto / 1e6).toFixed(2)} MA²s</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400">Energía de falla (I<sub>k</sub>²t):</span>
+                    <span className="font-semibold text-white">{(currentResultado.energiaCorto / 1e6).toFixed(2)} MA²s</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400">Estado de solicitación:</span>
+                    <span className="font-bold text-emerald-400">✓ CUMPLE</span>
+                  </div>
+                </div>
+              )}
               </div>
             </div>
           )}

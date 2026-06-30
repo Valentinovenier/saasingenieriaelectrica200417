@@ -28,8 +28,8 @@ export const calcularConductorTramo = (
   // 1. Factores base (Temperatura y Simetría)
   let aisKey: string = condiciones.aislacion!;
   if (aisKey === 'Mineral') {
-      // Ajuste para mineral, asumiendo Mineral_70 si no se especifica, se podría mejorar pasando este detalle
-      aisKey = 'Mineral_70'; 
+      const tempCond = (condiciones as any).tempConductor || 70;
+      aisKey = tempCond === 105 ? 'Mineral_105' : 'Mineral_70'; 
   }
 
   const tempMap = tipoInstalacionAire ? FACTORES_TEMPERATURA_AIRE : FACTORES_TEMPERATURA_TIERRA;
@@ -37,11 +37,16 @@ export const calcularConductorTramo = (
     
   // Refactor: Calcular factor de simetría dinámico
   const getFsimetria = (nCond: number) => {
+      if (nCond === 1) return 1.0;
       if (condiciones.tipoCable === 'Unipolar') {
-          return (nCond === 1 || nCond === 2 || nCond === 4 || nCond === 6) ? 1.0 : 0.8;
+          const cumpleDisp = (condiciones as any).cumpleDisposicionSimetria ?? true;
+          if (cumpleDisp && (nCond === 2 || nCond === 4 || nCond === 6)) {
+              return 1.0;
+          }
+          return 0.8;
       }
-      // Multipolar
-      return (nCond === 1) ? 1.0 : 0.8;
+      // Multipolar en paralelo
+      return 0.8;
   };
   
   const f_base_temp = f_temp; // Simetría se aplica dentro del bucle
@@ -102,6 +107,7 @@ export const calcularConductorTramo = (
 
       // Obtener corriente base usando el nuevo Provider
       const I_adm_base = getAdmisible(
+          (condiciones.norma as '5' | '770' | '771') || '5',
           cable.seccion,
           condiciones.metodoInstalacion!,
           condiciones.tipoInstalacion || 'Trifásica', // Pasamos el string directamente
@@ -120,8 +126,16 @@ export const calcularConductorTramo = (
 
       const I_adm_corregida = I_adm_base * n * factorTotal;
       
-      const K = K_VALUES[condiciones.aislacion!][condiciones.material!];
-      const capacidadCorto = Math.pow(cable.seccion * K, 2) * n; 
+      // K_key para Mineral o Mineral_105
+      let K_key: string = condiciones.aislacion!;
+      if (K_key === 'Mineral') {
+          const tempCond = (condiciones as any).tempConductor || 70;
+          K_key = tempCond === 105 ? 'Mineral_105' : 'Mineral';
+      }
+      const K = K_VALUES[K_key][condiciones.material!];
+      
+      // Soportabilidad cortocircuito en paralelo: (S * n * K)^2
+      const capacidadCorto = Math.pow(cable.seccion * n * K, 2); 
       const energiaCorto = Math.pow(Ik * 1000, 2) * t_apertura;
 
       const h = condiciones.tipoInstalacion === 'Trifásica' ? Math.sqrt(3) : 2;
@@ -155,7 +169,14 @@ export const calcularConductorTramo = (
         cable, 
         nConductores: n, 
         porcentajeCaida,
+        I_adm_base,
         I_adm_corregida,
+        factorTotal,
+        f_temp: f_base_temp,
+        f_simetria: getFsimetria(n),
+        f_agrup: getFagrup(n),
+        capacidadCorto,
+        energiaCorto,
         advertencia
       };
     }

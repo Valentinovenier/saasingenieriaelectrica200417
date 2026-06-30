@@ -1,7 +1,7 @@
-import { InterruptorAutomáticoAbierto } from '../types/protecciones';
-import { catalogoCompletoInterruptoresAbiertos } from '../data/index';
+import { InterruptorAutomáticoAbierto, InterruptorAutomáticoCompacto } from '../types/protecciones';
+import { catalogoCompletoInterruptoresAbiertos, catalogoCompletoInterruptoresCompactos } from '../data/index';
 
-// Función para seleccionar el mejor interruptor automático
+// Función para seleccionar el mejor interruptor automático abierto (TGBT cabecera)
 export const seleccionarInterruptorAbierto = (
   InRequerida: number,
   IkCalculada: number, // kA
@@ -31,4 +31,25 @@ export const seleccionarInterruptorAbierto = (
 
   // 3. Retornar el primero que cumple (ordenado por In ascendente)
   return interruptorValido || null;
+};
+
+// Función para seleccionar el mejor interruptor automático compacto (Salidas o Seccionales)
+export const seleccionarInterruptorCompacto = (
+  InRequerida: number,
+  IkCalculada: number, // kA
+  marcaPreferida?: 'Schneider' | 'ABB'
+): InterruptorAutomáticoCompacto | null => {
+  let candidatos = catalogoCompletoInterruptoresCompactos.filter(i => i.In >= InRequerida && i.Icu >= IkCalculada);
+
+  if (marcaPreferida) {
+    const candidatosMarca = candidatos.filter(c => c.marca === marcaPreferida);
+    if (candidatosMarca.length > 0) {
+      candidatos = candidatosMarca;
+    }
+  }
+
+  // Ordenar por In ascendente, y luego por menor Icu (económico/óptimo)
+  candidatos.sort((a, b) => a.In - b.In || a.Icu - b.Icu);
+
+  return candidatos[0] || null;
 };

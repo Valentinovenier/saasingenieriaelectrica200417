@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Project, TableroSeccional, Proteccion } from '../types/project';
 import { ConductorForm } from './ConductorForm';
 import { Trash2, Plus } from 'lucide-react';
+import { transformadoresAceite } from '../data/transformadoresAceite';
+import { transformadoresSecos } from '../data/transformadoresSecos';
+import { calcularImpedanciaTransformador, estimarParametrosTrafo } from '../engine/transformador';
 
 const ProteccionFields = ({ label, value, onChange }: { label: string, value?: Proteccion, onChange: (p: Proteccion | undefined) => void }) => (
   <div className="mt-2 p-2 bg-slate-900 rounded border border-slate-700">
@@ -137,21 +140,288 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
         </div>
 
         {/* Transformador */}
-        <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
-            <h3 className="text-lg font-bold text-white mb-4">Transformador</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Potencia (kVA)</label>
-                    <input type="number" placeholder="kVA" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={project.transformador?.potencia ?? ''} onChange={(e) => onChange({...project, transformador: {...project.transformador!, potencia: e.target.value as any}})} />
+        <div className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700 space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 className="text-lg font-bold text-white">Transformador</h3>
+                <div className="flex bg-slate-800 p-0.5 rounded-lg border border-slate-700">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const current = project.transformador || { potencia: 0, tensionPrimario: 13.2, tensionSecundario: 400, cosFi: 0.95, impedancia: 0, proteccionesSalida: [] };
+                            const updated = { ...current, modoEntrada: 'catalogo' as const };
+                            // Si se cambia a catálogo y hay potencia, intentar buscar el primer match en el catálogo
+                            const list = (updated.tipo || 'Aceite') === 'Aceite' ? transformadoresAceite : transformadoresSecos;
+                            const match = list.find(t => t.potenciaKVA === Number(updated.potencia)) || list[0];
+                            if (match) {
+                                updated.potencia = match.potenciaKVA;
+                                updated.tensionSecundario = match.tensionSecundarioV;
+                                updated.uccPorcentaje = match.uccPorcentaje;
+                                updated.PccW = match.PccW;
+                                updated.tipo = match.tipo;
+                                updated.catalogoId = match.id;
+                            }
+                            const imp = calcularImpedanciaTransformador({
+                                potenciaKVA: Number(updated.potencia),
+                                tensionSecundarioV: Number(updated.tensionSecundario),
+                                uccPorcentaje: updated.uccPorcentaje,
+                                PccW: updated.PccW,
+                                tipo: updated.tipo
+                            });
+                            updated.impedancia = Number(imp.z.toFixed(6));
+                            onChange({ ...project, transformador: updated });
+                        }}
+                        className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+                            (project.transformador?.modoEntrada ?? 'manual') === 'catalogo'
+                                ? 'bg-slate-900 text-white shadow-sm'
+                                : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                    >
+                        Catálogo
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const current = project.transformador || { potencia: 0, tensionPrimario: 13.2, tensionSecundario: 400, cosFi: 0.95, impedancia: 0, proteccionesSalida: [] };
+                            onChange({
+                                ...project,
+                                transformador: { ...current, modoEntrada: 'manual' as const }
+                            });
+                        }}
+                        className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+                            (project.transformador?.modoEntrada ?? 'manual') === 'manual'
+                                ? 'bg-slate-900 text-white shadow-sm'
+                                : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                    >
+                        Manual
+                    </button>
                 </div>
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">V Secundario (V)</label>
-                    <input type="number" placeholder="V" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={project.transformador?.tensionSecundario ?? ''} onChange={(e) => onChange({...project, transformador: {...project.transformador!, tensionSecundario: e.target.value as any}})} />
+            </div>
+
+            {(project.transformador?.modoEntrada ?? 'manual') === 'catalogo' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="text-xs text-[var(--text-secondary)] mb-1 block">Tipo de Transformador</label>
+                        <select
+                            className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white"
+                            value={project.transformador?.tipo || 'Aceite'}
+                            onChange={(e) => {
+                                const tipo = e.target.value as 'Aceite' | 'Seco';
+                                const list = tipo === 'Aceite' ? transformadoresAceite : transformadoresSecos;
+                                const match = list[0];
+                                const current = project.transformador || { potencia: 0, tensionPrimario: 13.2, tensionSecundario: 400, cosFi: 0.95, impedancia: 0, proteccionesSalida: [] };
+                                const updated = {
+                                    ...current,
+                                    tipo,
+                                    potencia: match.potenciaKVA,
+                                    tensionSecundario: match.tensionSecundarioV,
+                                    uccPorcentaje: match.uccPorcentaje,
+                                    PccW: match.PccW,
+                                    catalogoId: match.id
+                                };
+                                const imp = calcularImpedanciaTransformador({
+                                    potenciaKVA: Number(updated.potencia),
+                                    tensionSecundarioV: Number(updated.tensionSecundario),
+                                    uccPorcentaje: updated.uccPorcentaje,
+                                    PccW: updated.PccW,
+                                    tipo: updated.tipo
+                                });
+                                updated.impedancia = Number(imp.z.toFixed(6));
+                                onChange({ ...project, transformador: updated });
+                            }}
+                        >
+                            <option value="Aceite">En Aceite (IRAM 2250)</option>
+                            <option value="Seco">Seco en Resina Clase F</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="text-xs text-[var(--text-secondary)] mb-1 block">Transformador Catálogo</label>
+                        <select
+                            className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white"
+                            value={project.transformador?.catalogoId || ''}
+                            onChange={(e) => {
+                                const id = e.target.value;
+                                const list = (project.transformador?.tipo || 'Aceite') === 'Aceite' ? transformadoresAceite : transformadoresSecos;
+                                const match = list.find(t => t.id === id);
+                                if (match) {
+                                    const current = project.transformador || { potencia: 0, tensionPrimario: 13.2, tensionSecundario: 400, cosFi: 0.95, impedancia: 0, proteccionesSalida: [] };
+                                    const updated = {
+                                        ...current,
+                                        potencia: match.potenciaKVA,
+                                        tensionSecundario: match.tensionSecundarioV,
+                                        uccPorcentaje: match.uccPorcentaje,
+                                        PccW: match.PccW,
+                                        catalogoId: match.id
+                                    };
+                                    const imp = calcularImpedanciaTransformador({
+                                        potenciaKVA: Number(updated.potencia),
+                                        tensionSecundarioV: Number(updated.tensionSecundario),
+                                        uccPorcentaje: updated.uccPorcentaje,
+                                        PccW: updated.PccW,
+                                        tipo: updated.tipo
+                                    });
+                                    updated.impedancia = Number(imp.z.toFixed(6));
+                                    onChange({ ...project, transformador: updated });
+                                }
+                            }}
+                        >
+                            <option value="" disabled>Seleccione transformador...</option>
+                            {((project.transformador?.tipo || 'Aceite') === 'Aceite' ? transformadoresAceite : transformadoresSecos).map(t => (
+                                <option key={t.id} value={t.id}>
+                                    {t.potenciaKVA} kVA - {t.tensionPrimarioKV} kV / {t.tensionSecundarioV} V (ucc: {t.uccPorcentaje}%, Pcc: {t.PccW}W)
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
-                <div>
-                    <label className="text-xs text-[var(--text-secondary)] mb-1 block">Impedancia (Ω)</label>
-                    <input type="number" step="0.001" placeholder="Ω" className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white" value={project.transformador?.impedancia ?? ''} onChange={(e) => onChange({...project, transformador: {...project.transformador!, impedancia: e.target.value as any}})} />
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="text-xs text-[var(--text-secondary)] mb-1 block">Potencia (kVA)</label>
+                        <input
+                            type="number"
+                            placeholder="kVA"
+                            className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white"
+                            value={project.transformador?.potencia ?? ''}
+                            onChange={(e) => {
+                                const potencia = Number(e.target.value);
+                                const current = project.transformador || { potencia: 0, tensionPrimario: 13.2, tensionSecundario: 400, cosFi: 0.95, impedancia: 0, proteccionesSalida: [] };
+                                // Estimar parámetros automáticamente por defecto si no existen
+                                const tipo = current.tipo || 'Aceite';
+                                const est = estimarParametrosTrafo(potencia, tipo);
+                                const updated = {
+                                    ...current,
+                                    potencia,
+                                    uccPorcentaje: current.uccPorcentaje || est.uccPorcentaje,
+                                    PccW: current.PccW || est.PccW
+                                };
+                                const imp = calcularImpedanciaTransformador({
+                                    potenciaKVA: Number(updated.potencia),
+                                    tensionSecundarioV: Number(updated.tensionSecundario),
+                                    uccPorcentaje: updated.uccPorcentaje,
+                                    PccW: updated.PccW,
+                                    tipo: updated.tipo
+                                });
+                                updated.impedancia = Number(imp.z.toFixed(6));
+                                onChange({ ...project, transformador: updated });
+                            }}
+                        />
+                    </div>
+                    <div>
+                        <label className="text-xs text-[var(--text-secondary)] mb-1 block">V Secundario (V)</label>
+                        <input
+                            type="number"
+                            placeholder="V"
+                            className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white"
+                            value={project.transformador?.tensionSecundario ?? ''}
+                            onChange={(e) => {
+                                const tensionSecundario = Number(e.target.value);
+                                const current = project.transformador || { potencia: 0, tensionPrimario: 13.2, tensionSecundario: 400, cosFi: 0.95, impedancia: 0, proteccionesSalida: [] };
+                                const updated = { ...current, tensionSecundario };
+                                const imp = calcularImpedanciaTransformador({
+                                    potenciaKVA: Number(updated.potencia),
+                                    tensionSecundarioV: Number(updated.tensionSecundario),
+                                    uccPorcentaje: updated.uccPorcentaje,
+                                    PccW: updated.PccW,
+                                    tipo: updated.tipo
+                                });
+                                updated.impedancia = Number(imp.z.toFixed(6));
+                                onChange({ ...project, transformador: updated });
+                            }}
+                        />
+                    </div>
+                    <div>
+                        <label className="text-xs text-[var(--text-secondary)] mb-1 block">Tipo de Construcción</label>
+                        <select
+                            className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white"
+                            value={project.transformador?.tipo || 'Aceite'}
+                            onChange={(e) => {
+                                const tipo = e.target.value as 'Aceite' | 'Seco';
+                                const current = project.transformador || { potencia: 0, tensionPrimario: 13.2, tensionSecundario: 400, cosFi: 0.95, impedancia: 0, proteccionesSalida: [] };
+                                const est = estimarParametrosTrafo(Number(current.potencia), tipo);
+                                const updated = {
+                                    ...current,
+                                    tipo,
+                                    uccPorcentaje: est.uccPorcentaje,
+                                    PccW: est.PccW
+                                };
+                                const imp = calcularImpedanciaTransformador({
+                                    potenciaKVA: Number(updated.potencia),
+                                    tensionSecundarioV: Number(updated.tensionSecundario),
+                                    uccPorcentaje: updated.uccPorcentaje,
+                                    PccW: updated.PccW,
+                                    tipo: updated.tipo
+                                });
+                                updated.impedancia = Number(imp.z.toFixed(6));
+                                onChange({ ...project, transformador: updated });
+                            }}
+                        >
+                            <option value="Aceite">En Aceite</option>
+                            <option value="Seco">Seco</option>
+                        </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                        <div>
+                            <label className="text-xs text-[var(--text-secondary)] mb-1 block">ucc (%)</label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                placeholder="ucc"
+                                className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white"
+                                value={project.transformador?.uccPorcentaje ?? ''}
+                                onChange={(e) => {
+                                    const uccPorcentaje = Number(e.target.value);
+                                    const current = project.transformador || { potencia: 0, tensionPrimario: 13.2, tensionSecundario: 400, cosFi: 0.95, impedancia: 0, proteccionesSalida: [] };
+                                    const updated = { ...current, uccPorcentaje };
+                                    const imp = calcularImpedanciaTransformador({
+                                        potenciaKVA: Number(updated.potencia),
+                                        tensionSecundarioV: Number(updated.tensionSecundario),
+                                        uccPorcentaje: updated.uccPorcentaje,
+                                        PccW: updated.PccW,
+                                        tipo: updated.tipo
+                                    });
+                                    updated.impedancia = Number(imp.z.toFixed(6));
+                                    onChange({ ...project, transformador: updated });
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <label className="text-xs text-[var(--text-secondary)] mb-1 block">Pcc (W)</label>
+                            <input
+                                type="number"
+                                placeholder="Pcc"
+                                className="w-full bg-[var(--bg-secondary)] p-2 rounded-lg border border-slate-700 text-white"
+                                value={project.transformador?.PccW ?? ''}
+                                onChange={(e) => {
+                                    const PccW = Number(e.target.value);
+                                    const current = project.transformador || { potencia: 0, tensionPrimario: 13.2, tensionSecundario: 400, cosFi: 0.95, impedancia: 0, proteccionesSalida: [] };
+                                    const updated = { ...current, PccW };
+                                    const imp = calcularImpedanciaTransformador({
+                                        potenciaKVA: Number(updated.potencia),
+                                        tensionSecundarioV: Number(updated.tensionSecundario),
+                                        uccPorcentaje: updated.uccPorcentaje,
+                                        PccW: updated.PccW,
+                                        tipo: updated.tipo
+                                    });
+                                    updated.impedancia = Number(imp.z.toFixed(6));
+                                    onChange({ ...project, transformador: updated });
+                                }}
+                            />
+                        </div>
+                    </div>
                 </div>
+            )}
+
+            <div className="bg-slate-900 p-3 rounded-lg border border-slate-800 space-y-1.5 text-xs">
+                <div className="flex justify-between">
+                    <span className="text-slate-400">Impedancia Calculada (Z<sub>cc</sub>):</span>
+                    <span className="font-mono text-emerald-400 font-semibold">{project.transformador?.impedancia ? `${project.transformador.impedancia} Ω` : '—'}</span>
+                </div>
+                {(!project.transformador?.uccPorcentaje || !project.transformador?.PccW) && Number(project.transformador?.potencia) > 0 && (
+                    <p className="text-[10px] text-slate-500 italic">
+                        * Los valores de ucc y Pcc están siendo estimados automáticamente a partir de la potencia de {project.transformador?.potencia} kVA.
+                    </p>
+                )}
             </div>
         </div>
         

@@ -1,9 +1,12 @@
 import { TABLAS_CORRIENTE_SAEA } from '../data/corrientesNormativasAdmisibles';
+import { AEA_770_RULES } from '../data/vivienda/rules';
+import { AEA_Part } from '../types/normas';
 
 export const getAdmisible = (
+  norma: AEA_Part,
   seccion: number,
   metodo: string,
-  tipoInstalacion: 'Trifásica' | 'Monofásica', // Cambiado de booleano a string
+  tipoInstalacion: 'Trifásica' | 'Monofásica',
   material: 'Cobre' | 'Aluminio',
   aislacion: 'PVC' | 'XLPE' | 'Mineral',
   normaMineral?: 'B52-8' | 'B52-9',
@@ -11,7 +14,16 @@ export const getAdmisible = (
   tipoCable?: 'unipolar' | 'multipolar',
   plano?: 'horizontal' | 'vertical'
 ): number | undefined => {
-  console.log(`[DEBUG] getAdmisible - Buscando: Seccion=${seccion}, Metodo=${metodo}, Aislacion=${aislacion}, Material=${material}, Instalacion=${tipoInstalacion}, TipoCable=${tipoCable}`);
+  console.log(`[DEBUG] getAdmisible - Buscando: Norma=${norma}, Seccion=${seccion}, Metodo=${metodo}, Aislacion=${aislacion}, Material=${material}, Instalacion=${tipoInstalacion}, TipoCable=${tipoCable}`);
+  
+  // Validación Normativa
+  if (norma === '770') {
+    const metodoNormalizado = metodo.toUpperCase().replace('METODO', '').trim();
+    if (!AEA_770_RULES.allowedMethods.includes(metodoNormalizado)) {
+        console.warn(`[WARNING] Método ${metodoNormalizado} no permitido en AEA 770`);
+        return undefined;
+    }
+  }
   
   const esTrifasico = tipoInstalacion === 'Trifásica';
   const nConductoresBuscado = esTrifasico ? 3 : 2;
