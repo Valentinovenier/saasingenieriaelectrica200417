@@ -76,6 +76,12 @@ export interface TableroSeccionalSimple {
   potencia: number; // kVA
 }
 
+export interface Canalizacion {
+  id: string;
+  nombre: string;
+  tipoInstalacion: string; // Ej: 'embutido', 'subterraneo', 'bandeja', 'al-aire'
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -85,7 +91,8 @@ export interface Project {
   transformador?: Transformador;
   armonicos: HarmonicDistortion;
   tableros: TableroSeccional[];
-  tablerosSeccionales?: TableroSeccionalSimple[]; // Nuevo: lista de tableros con nombre y potencia
+  tablerosSeccionales?: TableroSeccionalSimple[];
+  canalizaciones?: Canalizacion[]; // Nueva lista de canalizaciones
   conductorTGBTBarra?: Conductor;
   conductores?: Record<string, Conductor>;
   tempAmbiente?: number;
