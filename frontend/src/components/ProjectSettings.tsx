@@ -143,6 +143,32 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
         </div>
       </section>
 
+      <section className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
+        <h3 className="text-xl font-bold text-white mb-4">Parámetros Generales</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label className="text-sm text-[var(--text-secondary)] block mb-1">Tipo de Instalación</label>
+                <select 
+                    className="w-full bg-[var(--bg-secondary)] p-2 rounded border border-slate-700 text-white"
+                    value={project.tipoInstalacion || 'Trifásica'}
+                    onChange={(e) => onChange({...project, tipoInstalacion: e.target.value as 'Monofásica' | 'Trifásica'})}
+                >
+                    <option value="Trifásica">Trifásica</option>
+                    <option value="Monofásica">Monofásica</option>
+                </select>
+            </div>
+            <div>
+                <label className="text-sm text-[var(--text-secondary)] block mb-1">Temperatura Ambiente (°C)</label>
+                <input 
+                    type="number"
+                    className="w-full bg-[var(--bg-secondary)] p-2 rounded border border-slate-700 text-white"
+                    value={project.tempAmbiente || 30}
+                    onChange={(e) => onChange({...project, tempAmbiente: Number(e.target.value)})}
+                />
+            </div>
+        </div>
+      </section>
+
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* ... resto del contenido existente ... */}
 
