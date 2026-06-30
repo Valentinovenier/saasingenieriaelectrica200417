@@ -322,7 +322,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
                 <div className="bg-slate-900 rounded-lg p-2.5 text-center">
                   <p className="text-[10px] text-slate-500 uppercase mb-0.5">Sección</p>
                   <p className="text-[var(--accent)] font-bold text-base">
-                    {currentResultado.cable.seccion} mm²
+                    {currentResultado?.cable?.seccion ? `${currentResultado.cable.seccion} mm²` : '—'}
                   </p>
                 </div>
                 <div className="bg-slate-900 rounded-lg p-2.5 text-center">
