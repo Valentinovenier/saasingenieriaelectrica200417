@@ -26,6 +26,7 @@ export interface Conductor {
   tiempoAperturaMT?: number;            // Nuevo campo (en seg)
   resultadoCalculo?: any;               // Resultado del cálculo (cable seleccionado, Ik, etc.)
   canalizacionId?: string;              // Identificador para agrupamiento automático
+  tipoCircuito?: string;                // Nuevo campo para Viviendas
 }
 
 export interface CondicionesTramo {

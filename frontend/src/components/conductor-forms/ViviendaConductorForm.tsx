@@ -1,5 +1,5 @@
 import { Conductor } from '../../types/project';
-import { useProject } from '../../context/ProjectDataContext';
+import { useProject } from '../../context/AuthContext'; // Ajustado para coincidir con ConductorForm.tsx
 import { calcularTramoResidencial } from '../../engine/vivienda/calculador';
 import { METODOS_INSTALACION_VIVIENDA, TIPOS_CIRCUITO_VIVIENDA } from './uiMappers';
 
@@ -21,11 +21,11 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
         const resultado = calcularTramoResidencial({
             tipoCircuito: newConductor.tipoCircuito as any,
             metodoInstalacion: newConductor.metodoInstalacion as any,
-            longitudMetros: newConductor.longitud,
+            longitudMetros: newConductor.longitud || 0,
             corrienteDiseñoAmperes: 16, // placeholder
             temperaturaAmbiente: project?.tempAmbiente || 30,
             canalizacionId: newConductor.canalizacionId
-        }, project!);
+        }, project as any);
         newConductor.resultadoCalculo = resultado;
         newConductor.seccion = resultado.seccionRecomendada;
     }

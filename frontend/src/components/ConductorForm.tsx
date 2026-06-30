@@ -1,5 +1,5 @@
-import { Conductor } from '../../types/project';
-import { useProject } from '../../context/ProjectDataContext';
+import { Conductor } from '../types/project';
+import { useProject } from '../context/AuthContext'; // Ajustado según estructura
 import { ViviendaConductorForm } from './conductor-forms/ViviendaConductorForm';
 import { IndustrialConductorForm } from './conductor-forms/IndustrialConductorForm';
 
