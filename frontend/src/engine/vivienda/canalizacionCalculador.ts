@@ -1,0 +1,66 @@
+import { Project, Canalizacion } from '../../types/project';
+import { calcularConductorTramo } from '../calculadorTramo';
+import { CondicionesTramo } from '../../types/project';
+import { getCircuitosPorCanalizacion } from '../canalizacionService';
+
+/**
+ * Calcula todas las secciones de conductores en una canalización de forma iterativa
+ * usando el motor general de cálculo (apto para AEA Parte 5).
+ */
+export const calcularCanalizacionIterativa = (
+  project: Project,
+  canalizacion: Canalizacion,
+  tramosEnCanalizacion: { id: string, condiciones: CondicionesTramo & { ib: number, longitudKm: number, ik: number, tApertura: number, cosPhi: number, caidaMax: number }, catalogo: any[] }[]
+) => {
+  let seccionesActuales: Record<string, number> = {};
+  let convergio = false;
+  let iteraciones = 0;
+  const MAX_ITERACIONES = 10;
+
+  // 1. Obtener número de circuitos real desde la topología
+  const nCircuitos = getCircuitosPorCanalizacion(project, canalizacion.id).length || 1;
+  const tempAmbiente = project.tempAmbiente || 30;
+  const tipoInstalacionAire = canalizacion.tipoInstalacion !== 'subterraneo';
+
+  while (!convergio && iteraciones < MAX_ITERACIONES) {
+    convergio = true;
+    
+    tramosEnCanalizacion.forEach(({ id, condiciones, catalogo }) => {
+      // 2. Preparar condiciones con el agrupamiento automático
+      const condicionesConAgrupamiento = { 
+          ...condiciones, 
+          norma: '5', 
+          agrupamiento: nCircuitos 
+      };
+      
+      // 3. Usar el motor robusto existente
+      const resultado = calcularConductorTramo(
+          condicionesConAgrupamiento,
+          condiciones.ib,
+          condiciones.ik,
+          condiciones.tApertura,
+          condiciones.longitudKm,
+          condiciones.cosPhi,
+          condiciones.caidaMax,
+          catalogo,
+          tempAmbiente,
+          tipoInstalacionAire
+      );
+      
+      // 2. Verificar si hubo cambio de sección
+      const nuevaSeccion = resultado.cable?.seccion;
+      if (nuevaSeccion && seccionesActuales[id] !== nuevaSeccion) {
+        seccionesActuales[id] = nuevaSeccion;
+        convergio = false; // Requiere otra pasada
+      }
+    });
+    
+    iteraciones++;
+  }
+
+  return {
+    iteraciones,
+    convergenciaLograda: convergio,
+    resultados: seccionesActuales
+  };
+};
