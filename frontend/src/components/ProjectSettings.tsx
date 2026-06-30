@@ -134,7 +134,7 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
             <button 
                 onClick={() => onChange({
                     ...project, 
-                    canalizaciones: [...(project.canalizaciones || []), { id: Date.now().toString(), nombre: 'Nueva Canalización', tipoInstalacion: 'embutido' }]
+                    canalizaciones: [...(project.canalizaciones || []), { id: Date.now().toString(), nombre: 'Nueva Canalización' }]
                 })}
                 className="text-[var(--accent)] flex items-center gap-2 text-sm"
             >

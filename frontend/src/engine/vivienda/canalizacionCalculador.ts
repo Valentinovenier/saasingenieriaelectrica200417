@@ -20,12 +20,14 @@ export const calcularCanalizacionIterativa = (
   // 1. Obtener número de circuitos real desde la topología
   const nCircuitos = getCircuitosPorCanalizacion(project, canalizacion.id).length || 1;
   const tempAmbiente = project.tempAmbiente || 30;
-  const tipoInstalacionAire = canalizacion.tipoInstalacion !== 'subterraneo';
 
   while (!convergio && iteraciones < MAX_ITERACIONES) {
     convergio = true;
     
     tramosEnCanalizacion.forEach(({ id, condiciones, catalogo }) => {
+      // Determinar si el tramo es 'al aire' o 'subterráneo' basado en su método
+      const esAire = !condiciones.metodoInstalacion.toLowerCase().includes('d');
+
       // 2. Preparar condiciones con el agrupamiento automático
       const condicionesConAgrupamiento = { 
           ...condiciones, 
@@ -44,7 +46,7 @@ export const calcularCanalizacionIterativa = (
           condiciones.caidaMax,
           catalogo,
           tempAmbiente,
-          tipoInstalacionAire
+          esAire
       );
       
       // 2. Verificar si hubo cambio de sección

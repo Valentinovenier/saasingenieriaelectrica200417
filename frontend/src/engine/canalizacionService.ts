@@ -16,12 +16,7 @@ export const calcularFactorAgrupamiento = (
   nCircuitos: number,
   canalizacion: Canalizacion
 ): number => {
-  // Regla de negocio: Embutido o Subterráneo -> 0.8 fijo
-  if (['embutido', 'subterraneo'].includes(canalizacion.tipoInstalacion.toLowerCase())) {
-    return 0.8;
-  }
-
-  // Para otros métodos, se deberá implementar la búsqueda en tablas normativas.
-  // Por ahora, retornamos 1.0 como valor por defecto seguro hasta integrar las tablas.
+  // Ahora el tipo de instalación depende del método del conductor, no de la canalización.
+  // Se retornará 1.0 por defecto hasta que se integre la lógica de tablas normativas.
   return 1.0;
 };
