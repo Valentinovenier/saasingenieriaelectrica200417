@@ -197,17 +197,15 @@ export const ConductorForm = ({ label, conductor, onChange, tramoId }: { label: 
               />
             </FieldWrapper>
 
-            <FieldWrapper label="Agrupamiento (N° Circuitos)">
+            <FieldWrapper label="Canalización (ID)">
               <input 
-                type="number" 
-                min="1"
-                max="20"
-                placeholder="1" 
+                type="text" 
+                placeholder="Ej: TGBT-TS1" 
                 className="bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700 hover:border-slate-500 transition-colors col-span-2"
-                value={conductor?.agrupamiento || 1}
+                value={conductor?.canalizacionId || ''}
                 onChange={(e) => handleDataChange({ 
                   ...(conductor || { tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', seccion: 0, longitud: 0 }),
-                  agrupamiento: parseInt(e.target.value) || 1
+                  canalizacionId: e.target.value
                 })}
               />
             </FieldWrapper>
