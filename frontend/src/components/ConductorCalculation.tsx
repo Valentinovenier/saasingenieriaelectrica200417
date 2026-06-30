@@ -334,7 +334,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
                 <div className="bg-slate-900 rounded-lg p-2.5 text-center">
                   <p className="text-[10px] text-slate-500 uppercase mb-0.5">Caída V</p>
                   <p className="text-[var(--accent)] font-bold text-base">
-                    {currentResultado.porcentajeCaida.toFixed(2)}%
+                    {currentResultado.porcentajeCaida?.toFixed(2) || '—'}%
                   </p>
                 </div>
               </div>
@@ -408,11 +408,11 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
                   </p>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-400">Soportabilidad cable (K²S²):</span>
-                    <span className="font-semibold text-white">{(currentResultado.capacidadCorto / 1e6).toFixed(2)} MA²s</span>
+                    <span className="font-semibold text-white">{(currentResultado.capacidadCorto ? (currentResultado.capacidadCorto / 1e6).toFixed(2) : '—')} MA²s</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-400">Energía de falla (I<sub>k</sub>²t):</span>
-                    <span className="font-semibold text-white">{(currentResultado.energiaCorto / 1e6).toFixed(2)} MA²s</span>
+                    <span className="font-semibold text-white">{(currentResultado.energiaCorto ? (currentResultado.energiaCorto / 1e6).toFixed(2) : '—')} MA²s</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-400">Estado de solicitación:</span>
