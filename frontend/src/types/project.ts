@@ -82,6 +82,13 @@ export interface Canalizacion {
   nombre: string;
 }
 
+export interface Acometida {
+  longitud: number;
+  seccion: number;
+  material: 'Cobre' | 'Aluminio';
+  aislacion: 'PVC' | 'XLPE';
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -89,6 +96,7 @@ export interface Project {
   createdAt: string;
   status: 'draft' | 'completed';
   transformador?: Transformador;
+  acometida?: Acometida; // Nuevo campo
   armonicos: HarmonicDistortion;
   tableros: TableroSeccional[];
   tablerosSeccionales?: TableroSeccionalSimple[];
