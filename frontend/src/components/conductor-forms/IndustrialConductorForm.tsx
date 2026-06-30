@@ -1,6 +1,6 @@
-import { Conductor } from '../../../types/project';
-import { getMetodosValidos } from '../../../engine/metodosProvider';
-import { TipoConductor } from '../../../types/project';
+import { Conductor } from '../../types/project';
+import { getMetodosValidos } from '../../engine/metodosProvider';
+import { TipoConductor } from '../../types/project';
 
 interface Props {
   label: string;

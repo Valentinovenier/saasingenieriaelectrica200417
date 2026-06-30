@@ -1,5 +1,5 @@
 import { Conductor } from '../../types/project';
-import { useProject } from '../../context/AuthContext'; // Ajustado para coincidir con ConductorForm.tsx
+import { useProject } from '../../context/ProjectDataContext';
 import { calcularTramoResidencial } from '../../engine/vivienda/calculador';
 import { METODOS_INSTALACION_VIVIENDA, TIPOS_CIRCUITO_VIVIENDA } from './uiMappers';
 
