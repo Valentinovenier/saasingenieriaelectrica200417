@@ -17,13 +17,13 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
     const newConductor = { ...conductor, ...updates } as Conductor;
     
     // Recálculo automático para Viviendas
-    if (newConductor.longitud && newConductor.metodoInstalacion && (newConductor.tipoTramo === 'Principal' || newConductor.tipoCircuito)) {
+    if (newConductor.longitud && newConductor.metodoInstalacion && newConductor.tipoTramo) {
         const resultado = calcularTramoResidencial({
-            tipoTramo: newConductor.tipoTramo as 'Principal' | 'CircuitoTerminal',
-            tipoCircuito: newConductor.tipoCircuito as any,
+            tipoTramo: newConductor.tipoTramo as 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal',
+            tipoCircuito: (newConductor.tipoCircuito || 'iluminacion_usos_generales') as any,
             metodoInstalacion: newConductor.metodoInstalacion as any,
             longitudMetros: newConductor.longitud || 0,
-            corrienteDiseñoAmperes: 16, // placeholder
+            corrienteDiseñoAmperes: 16, // placeholder - debería venir del proyecto
             temperaturaAmbiente: project?.tempAmbiente || 30,
             canalizacionId: newConductor.canalizacionId
         }, project as any);
@@ -44,15 +44,16 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Tipo de Tramo</label>
                 <select 
                     className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                    value={conductor?.tipoTramo || 'Terminal'}
-                    onChange={(e) => handleDataChange({ tipoTramo: e.target.value as 'Principal' | 'Terminal' })}
+                    value={conductor?.tipoTramo || 'CircuitoTerminal'}
+                    onChange={(e) => handleDataChange({ tipoTramo: e.target.value as 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal' })}
                 >
-                    <option value="Terminal">Circuito Terminal</option>
-                    <option value="Principal">Línea Principal</option>
+                    <option value="LineaPrincipal">Línea Principal</option>
+                    <option value="LineaSeccional">Línea Seccional</option>
+                    <option value="CircuitoTerminal">Circuito Terminal</option>
                 </select>
             </div>
 
-            {conductor?.tipoTramo === 'Terminal' && (
+            {conductor?.tipoTramo === 'CircuitoTerminal' && (
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Tipo de Circuito</label>
                     <select 

@@ -6,19 +6,63 @@ import { SECCIONES_MINIMAS_VIVIENDA } from '../../data/vivienda/seccionesMinimas
 import { getFactorTemperatura, getFactorAgrupamiento } from '../helpers/normativeFactors';
 import { getCircuitosPorCanalizacion } from '../canalizacionService';
 import { calcularImpedanciaTransformador } from '../transformador';
+import { PARAMETROS_CALCULO_VIVIENDA } from '../../data/vivienda/parametrosCalculo';
 
 export const calcularTramoResidencial = (
   condiciones: CondicionesTramoResidencial,
   project: Project
 ): ResultadoCalculoResidencial => {
-  // 1. Determinar número de circuitos agrupados automáticamente
+  let advertencias: string[] = [];
+
+  // PASO 1: Corriente de Proyecto (IB)
+  // La corriente de diseño viene calculada a partir de la DPMS. Si hay cosPhi, lo aplicamos.
+  const cosPhi = condiciones.cosPhi || 0.9;
+  const I_B = condiciones.corrienteDiseñoAmperes; // Ya asume DPMS / (V * cosPhi) para monofásica
+
+  // PASO 2: Selección de Sección Mínima Reglamentaria (Tabla 770.11.I)
+  let seccionMinima = 1.5;
+
+  switch (condiciones.tipoTramo) {
+    case 'LineaPrincipal':
+        seccionMinima = SECCIONES_MINIMAS_VIVIENDA.lineasPrincipales;
+        break;
+    case 'LineaSeccional':
+        seccionMinima = 2.5; // Valor seguro base para líneas seccionales en vivienda
+        break;
+    case 'CircuitoTerminal':
+        switch (condiciones.tipoCircuito) {
+            case 'iluminacion_usos_generales':
+            seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesIluminacion;
+            break;
+            case 'tomacorrientes_usos_generales':
+            case 'iluminacion_con_tomacorrientes':
+            case 'usos_especiales':
+            case 'usos_especificos':
+            seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesTomacorrientes;
+            break;
+            case 'usos_especificos_mbtf':
+            seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspecificosMBTF;
+            break;
+        }
+        break;
+  }
+
+  // Agrupamiento (N° de circuitos en la misma canalización)
   const nCircuitos = condiciones.canalizacionId 
     ? getCircuitosPorCanalizacion(project, condiciones.canalizacionId).length || 1 
     : 1;
 
-  // Cálculo de Impedancia Aguas Arriba (Transformador + Acometida)
-  let Z_upstream = { r: 0.05, x: 0.05 }; 
+  // Obtenemos secciones comerciales
+  const seccionesComerciales = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70];
+  let seccionElegida = seccionesComerciales.find(s => s >= seccionMinima) || seccionMinima;
   
+  let cumpleTodo = false;
+  let caidaTensionPorcentaje = 0;
+  let IzCorregida = 0;
+  let termomagneticaRecomendada = 0;
+
+  // Calculamos la impedancia aguas arriba para el cortocircuito presunto
+  let Z_upstream = { r: 0.05, x: 0.05 }; 
   if (project.transformador) {
     const Z_trafo = calcularImpedanciaTransformador({
         potenciaKVA: Number(project.transformador.potencia),
@@ -30,65 +74,17 @@ export const calcularTramoResidencial = (
     Z_upstream.r += Z_trafo.r;
     Z_upstream.x += Z_trafo.x;
   }
-
   if (project.acometida) {
-    const seccionStr = project.acometida.seccion.toFixed(1);
-    
-    // Aquí podríamos refinar más la búsqueda usando el material y aislación
-    // Por ahora, usamos el mapa existente que asume cobre (o adaptamos el mapa)
-    const impCable = IMPEDANCIAS_CABLES_VIVIENDA[seccionStr] || { r: 0.5, x: 0.1 };
-    
-    // Ajuste simple por material (Aluminio tiene ~1.6 veces más resistencia que Cobre)
-    const factorMaterial = project.acometida.material === 'Aluminio' ? 1.6 : 1.0;
-    
+    const impCable = IMPEDANCIAS_CABLES_VIVIENDA[project.acometida.seccion.toFixed(1)] || { r: 0.5, x: 0.1 };
     const longitudKm = project.acometida.longitud / 1000;
-    
-    Z_upstream.r += impCable.r * factorMaterial * longitudKm;
+    Z_upstream.r += impCable.r * longitudKm;
     Z_upstream.x += impCable.x * longitudKm;
   }
 
-// 1. Determinar sección mínima por tipo de circuito (Tabla 770.11.I)
-  let seccionMinima = 1.5;
+  const valoresTermomagneticas = [10, 15, 16, 20, 25, 32, 40, 50, 63];
 
-  if (condiciones.tipoTramo === 'Principal') {
-      seccionMinima = SECCIONES_MINIMAS_VIVIENDA.lineasPrincipales;
-  } else {
-      switch (condiciones.tipoCircuito) {
-        case 'iluminacion_usos_generales':
-          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesIluminacion;
-          break;
-        case 'tomacorrientes_usos_generales':
-          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesTomacorrientes;
-          break;
-        case 'iluminacion_con_tomacorrientes':
-          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesIluminacionConTomacorrientes;
-          break;
-        case 'usos_especiales':
-          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspeciales;
-          break;
-        case 'usos_especificos':
-          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspecificos;
-          break;
-        case 'usos_especificos_mbtf':
-          seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspecificosMBTF;
-          break;
-      }
-  }
-  
-  // 2. Obtener secciones disponibles
-  const seccionesDisponibles = [1.5, 2.5, 4, 6, 10, 16, 25];
-
-  // 3. Bucle de selección iterativa
-  let seccionElegida = seccionesDisponibles.find(s => s >= seccionMinima) || seccionMinima;
-  let cumpleTodo = false;
-  let caidaTensionPorcentaje = 0;
-  let cumpleCapacidadCorriente = false;
-  let cumpleCaidaTension = false;
-  let cumpleCortocircuito = false;
-  let advertencias: string[] = [];
-
-  for (const s of seccionesDisponibles.filter(s => s >= seccionElegida)) {
-    // 3.1. Obtener I_z usando el motor normativo
+  for (const s of seccionesComerciales.filter(sec => sec >= seccionElegida)) {
+    // PASO 3: Capacidad de Conducción (Iz)
     const IzBase = getAdmisible(
         '770',
         s,
@@ -101,67 +97,86 @@ export const calcularTramoResidencial = (
         'multipolar'
     );
 
-    if (IzBase === undefined) {
-        advertencias.push(`Método ${condiciones.metodoInstalacion} no permitido para sección ${s} en norma 770.`);
+    if (!IzBase) {
         continue;
     }
 
-    // Factores de corrección reales
     const factorTemp = getFactorTemperatura('PVC', condiciones.temperaturaAmbiente, true);
     const factorAgrup = getFactorAgrupamiento(nCircuitos, condiciones.metodoInstalacion, 'Multipolar');
-    const IzCorregida = IzBase * factorTemp * factorAgrup;
+    IzCorregida = IzBase * factorTemp * factorAgrup;
 
-    cumpleCapacidadCorriente = IzCorregida >= condiciones.corrienteDiseñoAmperes;
-
-    // 3.2. Verificar caída de tensión (exacta monofásica)
-    const impedancia = IMPEDANCIAS_CABLES_VIVIENDA[s.toFixed(1)] || IMPEDANCIAS_CABLES_VIVIENDA[s.toString()];
-    if (impedancia) {
-      const cosPhi = condiciones.cosPhi || 0.9;
-      const sinPhi = Math.sqrt(1 - Math.pow(cosPhi, 2));
-      const longitudKm = condiciones.longitudMetros / 1000;
-      // Monofásica: dv = 2 * Ib * L * (R * cosPhi + X * sinPhi)
-      const dv = 2 * condiciones.corrienteDiseñoAmperes * longitudKm * (impedancia.r * cosPhi + impedancia.x * sinPhi);
-      caidaTensionPorcentaje = (dv / 220) * 100;
-    } else {
-      caidaTensionPorcentaje = (condiciones.corrienteDiseñoAmperes * condiciones.longitudMetros * 0.02) / 220 * 100;
+    // PASO 4: Coordinación con Protección Termomagnética (I_B <= I_N <= I_Z)
+    // Buscamos un valor comercial de termomagnética que proteja el cable y permita la carga
+    const InPosibles = valoresTermomagneticas.filter(In => In >= I_B && In <= IzCorregida);
+    
+    if (InPosibles.length === 0) {
+        // Ninguna termomagnética sirve, pasamos a la siguiente sección
+        continue;
     }
     
-    const limiteCaida = condiciones.tipoCircuito.includes('iluminacion') ? 3.0 : 5.0;
-    cumpleCaidaTension = caidaTensionPorcentaje <= limiteCaida;
+    termomagneticaRecomendada = InPosibles[0]; // La menor que cumpla
 
-    // 3.3. Verificar Cortocircuito (TÉCNICO)
+    // PASO 5: Verificación de Caída de Tensión
+    const impedancia = IMPEDANCIAS_CABLES_VIVIENDA[s.toFixed(1)] || IMPEDANCIAS_CABLES_VIVIENDA[s.toString()];
     if (impedancia) {
-        // Impedancia del tramo
+      const sinPhi = Math.sqrt(1 - Math.pow(cosPhi, 2));
+      const longitudKm = condiciones.longitudMetros / 1000;
+      // Fórmula monofásica exacta: ΔV = 2 * L * IB * (R*cosφ + X*sinφ)
+      const dv = 2 * I_B * longitudKm * (impedancia.r * cosPhi + impedancia.x * sinPhi);
+      caidaTensionPorcentaje = (dv / 220) * 100;
+    } else {
+      caidaTensionPorcentaje = (I_B * condiciones.longitudMetros * 0.02) / 220 * 100;
+    }
+    
+    // Límite AEA 770.15.6
+    let limiteCaida = PARAMETROS_CALCULO_VIVIENDA.limitesCaidaTension.iluminacionTomacorrientes;
+    if (condiciones.tipoCircuito.includes('fuerza_motriz') || condiciones.tipoCircuito.includes('especificos')) {
+        limiteCaida = PARAMETROS_CALCULO_VIVIENDA.limitesCaidaTension.motoresRegimen;
+    }
+    if (condiciones.tipoTramo === 'LineaPrincipal') {
+        limiteCaida = PARAMETROS_CALCULO_VIVIENDA.limitesCaidaTension.recomendacionSeccionales;
+    }
+
+    if (caidaTensionPorcentaje > limiteCaida) {
+        // Si no cumple caída de tensión, iteramos a la siguiente sección
+        continue;
+    }
+
+    // PASO 6: Verificación de Cortocircuito (I²t <= K²S²)
+    if (impedancia) {
         const rTramo = impedancia.r * (condiciones.longitudMetros / 1000);
         const xTramo = impedancia.x * (condiciones.longitudMetros / 1000);
-
-        // Bucle de falla (Fase + Neutro -> x2)
-        const R_total = (Z_upstream.r + rTramo) * 2; 
-        const X_total = (Z_upstream.x + xTramo) * 2;
-        const Z_total = Math.sqrt(R_total**2 + X_total**2);
-
-        // Icc = U / Z
-        const Icc_kA = (220 / Z_total) / 1000;
-
-        // Verificación conservadora: ¿El interruptor aguanta 3kA? (Poder de corte estándar)
-        // Debería ser un campo configurable, asumimos 3kA para vivienda.
-        cumpleCortocircuito = Icc_kA <= 3.0; 
-    } else {
-        cumpleCortocircuito = true;
+        const Z_total = Math.sqrt(Math.pow((Z_upstream.r + rTramo)*2, 2) + Math.pow((Z_upstream.x + xTramo)*2, 2));
+        const Icc_A = (220 / Z_total); // Corriente de cortocircuito presunta al final del tramo
+        
+        // Verificación térmica: Icc^2 * t <= K^2 * S^2
+        // Asumiendo t = 0.1s para curva C y K = 115 para Cobre/PVC
+        const K = 115;
+        const energiaFalla = Math.pow(Icc_A, 2) * 0.1;
+        const capacidadCable = Math.pow(K * s, 2);
+        
+        if (energiaFalla > capacidadCable) {
+            continue; // No soporta el cortocircuito
+        }
     }
 
-    if (cumpleCapacidadCorriente && cumpleCaidaTension && cumpleCortocircuito) {
-      seccionElegida = s;
-      cumpleTodo = true;
-      break;
-    }
+    // Si llegamos hasta aquí, todas las verificaciones rigurosas pasaron
+    seccionElegida = s;
+    cumpleTodo = true;
+    break;
+  }
+
+  if (!cumpleTodo) {
+      advertencias.push('No se encontró una sección comercial que cumpla todos los criterios rigurosos de AEA 770 para este tramo.');
+  } else {
+      advertencias.push(`Protección recomendada: Interruptor termomagnético de ${termomagneticaRecomendada}A (Curva C).`);
   }
 
   return {
     seccionRecomendada: seccionElegida,
     caidaTensionPorcentaje,
-    cumpleCapacidadCorriente,
-    cumpleCaidaTension,
-    advertencias: !cumpleTodo ? [...advertencias, 'No se encontró sección que cumpla todas las condiciones.'] : undefined
+    cumpleCapacidadCorriente: cumpleTodo,
+    cumpleCaidaTension: cumpleTodo,
+    advertencias: advertencias.length > 0 ? advertencias : undefined
   };
 };
