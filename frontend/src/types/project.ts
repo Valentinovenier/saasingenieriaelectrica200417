@@ -79,7 +79,6 @@ export interface TableroSeccionalSimple {
 export interface Canalizacion {
   id: string;
   nombre: string;
-  tipoInstalacion: string; // Ej: 'embutido', 'subterraneo', 'bandeja', 'al-aire'
 }
 
 export interface Project {

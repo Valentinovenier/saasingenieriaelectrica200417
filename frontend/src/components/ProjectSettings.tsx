@@ -123,19 +123,6 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
                             onChange({...project, canalizaciones: updated});
                         }}
                     />
-                    <select 
-                        className="bg-[var(--bg-secondary)] p-2 rounded border border-slate-700 text-white"
-                        value={can.tipoInstalacion}
-                        onChange={(e) => {
-                            const updated = project.canalizaciones?.map(c => c.id === can.id ? {...c, tipoInstalacion: e.target.value as any} : c);
-                            onChange({...project, canalizaciones: updated});
-                        }}
-                    >
-                        <option value="embutido">Embutido</option>
-                        <option value="subterraneo">Subterráneo</option>
-                        <option value="bandeja">Bandeja</option>
-                        <option value="aire">Al Aire</option>
-                    </select>
                     <button 
                         onClick={() => onChange({...project, canalizaciones: project.canalizaciones?.filter(c => c.id !== can.id)})}
                         className="text-red-400 p-2"
