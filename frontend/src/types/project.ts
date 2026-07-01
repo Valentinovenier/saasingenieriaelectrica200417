@@ -63,6 +63,7 @@ export interface CondicionesTramo {
   aislacion?: AislacionConductor;
   material?: MaterialConductor;
   disposicion?: 'trebol' | 'contacto' | 'separado';
+  plano?: 'horizontal' | 'vertical';
 }
 
 // --- Nueva Estructura Topológica (Árbol) ---
