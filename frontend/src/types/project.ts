@@ -55,6 +55,27 @@ export interface Tablero {
   circuitosTerminales: CircuitoTerminal[];
 }
 
+export interface TableroSeccional {
+  id: string;
+  name: string;
+  tipo: 'Fuerza Motriz' | 'Iluminación';
+  potenciaTotal: number;
+  subTableros: TableroSeccional[];
+  proteccionCabecera?: Proteccion;
+  proteccionesSalida: Proteccion[];
+}
+
+export interface TableroSeccionalSimple {
+  id: string;
+  nombre: string;
+  potencia: number;
+}
+
+export interface Canalizacion {
+  id: string;
+  nombre: string;
+}
+
 // --- Fin Nueva Estructura ---
 
 export interface Project {
@@ -69,6 +90,11 @@ export interface Project {
   
   // Nodo raíz de la topología
   tableroPrincipal: Tablero; 
+  
+  tableros?: TableroSeccional[];
+  tablerosSeccionales?: TableroSeccionalSimple[];
+  conductores?: Record<string, Conductor>;
+  canalizaciones?: Canalizacion[];
   
   tempAmbiente?: number;
   coefSimultaneidad?: number;

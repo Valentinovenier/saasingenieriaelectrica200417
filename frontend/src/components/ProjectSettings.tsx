@@ -96,7 +96,7 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
       <section className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
         <h3 className="text-xl font-bold text-white mb-4">Canalizaciones</h3>
         <div className="space-y-2">
-            {(project.canalizaciones || []).map((can) => (
+            {(project.canalizaciones || []).map((can: Canalizacion) => (
                 <div key={can.id} className="flex gap-2 items-center">
                     <input 
                         className="bg-[var(--bg-secondary)] p-2 rounded border border-slate-700 text-white flex-1"

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Project, Tablero } from '../types/project';
-import { ConductorForm } from './conductor-forms/ViviendaConductorForm';
+import { ViviendaConductorForm } from './conductor-forms/ViviendaConductorForm';
 import { calcularTramoResidencial } from '../engine/vivienda/calculador';
 
 export const ResidentialTopologyEditor = ({ project, onChange }: { project: Project; onChange: (p: Project) => void }) => {
@@ -69,7 +69,7 @@ export const ResidentialTopologyEditor = ({ project, onChange }: { project: Proj
         <div className="md:col-span-2 space-y-6">
           <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700">
              <h3 className="text-lg font-bold text-white mb-4">Tramo: Alimentación {currentNode.nombre}</h3>
-             <ConductorForm 
+             <ViviendaConductorForm 
                 label={`Configuración: Tramo hacia ${currentNode.nombre}`}
                 conductor={currentNode.conductorAlimentacion}
                 onChange={(c) => updateNode(selectedPath, { conductorAlimentacion: c })}

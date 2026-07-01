@@ -1,4 +1,4 @@
-import { Project } from '../types/project';
+import { Project, TableroSeccional } from '../types/project';
 
 export const LiveUnifilar = ({ project }: { project: Project }) => {
   return (
@@ -25,7 +25,7 @@ export const LiveUnifilar = ({ project }: { project: Project }) => {
 
         {/* Tableros */}
         <div className="flex gap-4">
-          {(project.tableros || []).map((t) => (
+          {(project.tableros || []).map((t: TableroSeccional) => (
             <div key={t.id} className="flex flex-col items-center">
               <div className="w-0.5 h-6 bg-white" />
               <div className="w-28 h-16 border-2 border-white rounded p-2 text-white text-[10px] text-center flex flex-col justify-center">
