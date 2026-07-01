@@ -203,7 +203,17 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
     const tempAmbiente = project.tempAmbiente ? Number(project.tempAmbiente) : tempDefault;
 
     const resultado = calcularConductorTramo(
-      { ...conductor, tipoInstalacion: tipoInstalacion, plano: conductor.plano },
+      { 
+        ...conductor, 
+        tipoInstalacion: tipoInstalacion, 
+        plano: conductor.plano,
+        tipoTramo: conductor.tipoTramo || 'CircuitoTerminal',
+        tipoCircuito: conductor.tipoCircuito || 'iluminacion_usos_generales',
+        metodoInstalacion: conductor.metodoInstalacion || 'B2',
+        longitudMetros: Number(conductor.longitud) || 0,
+        corrienteDiseñoAmperes: I_fase,
+        temperaturaAmbiente: tempAmbiente
+      },
       I_fase,
       Ik_calculado,
       tiempoApertura,
