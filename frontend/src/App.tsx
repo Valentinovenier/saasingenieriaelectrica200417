@@ -6,6 +6,7 @@ import { ProjectSettings } from './components/ProjectSettings';
 import { ConductorCalculation } from './components/ConductorCalculation';
 import { ProjectReport } from './components/ProjectReport';
 import { TablerosSeccionales } from './components/TablerosSeccionales';
+import { ResidentialTopologyEditor } from './components/ResidentialTopologyEditor';
 import { Project } from './types/project';
 import { useAuth } from './context/AuthContext';
 import { useProject } from './context/ProjectDataContext';
@@ -221,7 +222,7 @@ export default function App() {
         return selectedProject.projectType === 'Vivienda' ? (
           <ResidentialTopologyEditor
             project={selectedProject}
-            onChange={(updated) => {
+            onChange={(updated: Project) => {
               setProjects(projects.map(p => p.id === updated.id ? updated : p));
               setSelectedProject(updated);
             }}
