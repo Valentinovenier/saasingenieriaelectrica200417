@@ -41,33 +41,6 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
         
         <div className="grid grid-cols-1 gap-4">
             <div>
-                <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Tipo de Tramo</label>
-                <select 
-                    className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                    value={conductor?.tipoTramo || 'CircuitoTerminal'}
-                    onChange={(e) => handleDataChange({ tipoTramo: e.target.value as 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal' })}
-                >
-                    <option value="LineaPrincipal">Línea Principal</option>
-                    <option value="LineaSeccional">Línea Seccional</option>
-                    <option value="CircuitoTerminal">Circuito Terminal</option>
-                </select>
-            </div>
-
-            {conductor?.tipoTramo === 'CircuitoTerminal' && (
-                <div>
-                    <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Tipo de Circuito</label>
-                    <select 
-                        className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                        value={conductor?.tipoCircuito || ''}
-                        onChange={(e) => handleDataChange({ tipoCircuito: e.target.value })}
-                    >
-                        <option value="">Selecciona Tipo</option>
-                        {TIPOS_CIRCUITO_VIVIENDA.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                    </select>
-                </div>
-            )}
-
-            <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
                 <select 
                     className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"

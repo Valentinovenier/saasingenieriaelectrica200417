@@ -218,7 +218,15 @@ export default function App() {
           />
         );
       case 'tableros-seccionales':
-        return (
+        return selectedProject.projectType === 'Vivienda' ? (
+          <ResidentialTopologyEditor
+            project={selectedProject}
+            onChange={(updated) => {
+              setProjects(projects.map(p => p.id === updated.id ? updated : p));
+              setSelectedProject(updated);
+            }}
+          />
+        ) : (
           <TablerosSeccionales
             project={selectedProject}
             onChange={(updated) => {

@@ -33,7 +33,8 @@ export const calcularCanalizacionIterativa = (
           ...condiciones, 
           norma: '5', 
           agrupamiento: nCircuitos,
-          tipoInstalacion: condiciones.tipoInstalacion || project.tipoInstalacion || 'Trifásica'
+          tipoInstalacion: condiciones.tipoInstalacion || project.tipoInstalacion || 'Trifásica',
+          tipoCable: (condiciones as any).tipoCable // Ajuste para cumplir el tipo
       };
       
       // 3. Usar el motor robusto existente
