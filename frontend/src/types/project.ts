@@ -59,6 +59,10 @@ export interface CondicionesTramo {
   corrienteDiseñoAmperes: number;
   temperaturaAmbiente: number;
   canalizacionId?: string;
+  tipoInstalacion?: 'Monofásica' | 'Trifásica';
+  aislacion?: AislacionConductor;
+  material?: MaterialConductor;
+  disposicion?: 'trebol' | 'contacto' | 'separado';
 }
 
 // --- Nueva Estructura Topológica (Árbol) ---

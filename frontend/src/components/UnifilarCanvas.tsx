@@ -47,7 +47,7 @@ export const UnifilarCanvas = () => {
         <line x1="50" y1={20 + SYMBOL_SIZE*2 + 40} x2="450" y2={20 + SYMBOL_SIZE*2 + 40} stroke="white" strokeWidth="8" />
 
         {/* Protecciones de Salida TGBT */}
-        {(state.transformador?.proteccionesSalida || []).map((proteccion, index) => {
+        {(state.transformador?.proteccionesSalida || []).map((proteccion: Proteccion, index: number) => {
           const x = 50 + index * 100; 
           const yBarra = 20 + SYMBOL_SIZE*2 + 40;
           return (

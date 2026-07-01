@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Project, TableroSeccional, Proteccion } from '../types/project';
+import { Project, TableroSeccional, Proteccion, Canalizacion } from '../types/project';
 import { ConductorForm } from './ConductorForm';
 import { Trash2, Plus } from 'lucide-react';
 import { transformadoresAceite } from '../data/transformadoresAceite';

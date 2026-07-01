@@ -100,7 +100,7 @@ export const UnifilarEditor = () => {
             </button>
         </div>
         <div className="space-y-2">
-          {(state.transformador?.proteccionesSalida || []).map((p, i) => (
+          {(state.transformador?.proteccionesSalida || []).map((p: Proteccion, i: number) => (
             <ProteccionFields key={i} label={`Salida ${i+1}`} value={p} onChange={(newP) => {
                 const newSalidas = [...(state.transformador?.proteccionesSalida || [])];
                 if (newP) newSalidas[i] = newP;
