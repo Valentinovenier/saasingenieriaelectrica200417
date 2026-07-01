@@ -1,4 +1,4 @@
-import { CondicionesTramo } from '../types/project';
+import { Conductor, Proteccion, Transformador, CondicionesTramo } from '../types/project';
 import { K_VALUES } from './constantes';
 import { FACTORES_TEMPERATURA_AIRE, FACTORES_TEMPERATURA_TIERRA } from '../data/factoresTemperatura';
 import { 

@@ -10,7 +10,15 @@ const test = () => {
     createdAt: '',
     status: 'draft',
     armonicos: { habilitado: false, modoEntrada: 'porcentaje', h3: 0, h5: 0, h7: 0, h9: 0 },
-    tableros: []
+    tableros: [],
+    tableroPrincipal: {
+      id: 'root',
+      nombre: 'Tablero Principal',
+      conductorAlimentacion: { tipo: 'Cable' },
+      proteccionCabecera: { tipo: 'Termomagnética', valorNominal: 63 },
+      subTableros: [],
+      circuitosTerminales: []
+    }
   };
 
   const condiciones: CondicionesTramoResidencial = {

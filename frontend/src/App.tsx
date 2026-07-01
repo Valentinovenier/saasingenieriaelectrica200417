@@ -93,7 +93,15 @@ export default function App() {
       createdAt: new Date().toISOString().split('T')[0],
       status: 'draft',
       tableros: [],
-      armonicos: { habilitado: false, modoEntrada: 'porcentaje', h3:0, h5:0, h7:0, h9:0 }
+      armonicos: { habilitado: false, modoEntrada: 'porcentaje', h3:0, h5:0, h7:0, h9:0 },
+      tableroPrincipal: {
+        id: 'root',
+        nombre: 'Tablero Principal',
+        conductorAlimentacion: { tipo: 'Cable' },
+        proteccionCabecera: { tipo: 'Termomagnética', valorNominal: 63 },
+        subTableros: [],
+        circuitosTerminales: []
+      }
     };
 
     try {

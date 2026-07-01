@@ -26,6 +26,8 @@ export interface Conductor {
   tiempoAperturaMT?: number;
   resultadoCalculo?: any;
   canalizacionId?: string;
+  tipoTramo?: 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal';
+  tipoCircuito?: string;
 }
 
 export interface Proteccion {
@@ -33,6 +35,30 @@ export interface Proteccion {
   valorNominal: number;
   curva?: string;
   marca?: 'Schneider' | 'ABB';
+}
+
+export interface Transformador {
+  potencia: number;
+  tensionPrimario: number;
+  tensionSecundario: number;
+  cosFi: number;
+  impedancia: number;
+  proteccionesSalida: Proteccion[];
+  modoEntrada?: 'manual' | 'catalogo';
+  tipo?: 'Aceite' | 'Seco';
+  uccPorcentaje?: number;
+  PccW?: number;
+  catalogoId?: string;
+}
+
+export interface CondicionesTramo {
+  tipoTramo: 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal';
+  tipoCircuito: string;
+  metodoInstalacion: string;
+  longitudMetros: number;
+  corrienteDiseñoAmperes: number;
+  temperaturaAmbiente: number;
+  canalizacionId?: string;
 }
 
 // --- Nueva Estructura Topológica (Árbol) ---
