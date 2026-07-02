@@ -1,4 +1,4 @@
-import { TransformadorCatalogo } from '../types/transformador';
+import { TransformadorCatalogo } from '../../../types/transformador';
 
 export const estimarParametrosTrafo = (potenciaKVA: number, tipo: 'Aceite' | 'Seco' = 'Aceite'): { uccPorcentaje: number, PccW: number } => {
   if (tipo === 'Seco') {

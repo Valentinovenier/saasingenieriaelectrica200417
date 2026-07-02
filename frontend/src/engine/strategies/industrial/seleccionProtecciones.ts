@@ -1,5 +1,5 @@
-import { InterruptorAutomáticoAbierto, InterruptorAutomáticoCompacto } from '../types/protecciones';
-import { catalogoCompletoInterruptoresAbiertos, catalogoCompletoInterruptoresCompactos } from '../data/index';
+import { InterruptorAutomáticoAbierto, InterruptorAutomáticoCompacto } from '../../../types/protecciones';
+import { catalogoCompletoInterruptoresAbiertos, catalogoCompletoInterruptoresCompactos } from '../../../data/index';
 
 // Función para seleccionar el mejor interruptor automático abierto (TGBT cabecera)
 export const seleccionarInterruptorAbierto = (

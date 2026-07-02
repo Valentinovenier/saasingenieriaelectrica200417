@@ -1,6 +1,6 @@
-import { TABLAS_CORRIENTE_SAEA } from '../data/corrientesNormativasAdmisibles';
-import { AEA_770_RULES } from '../data/vivienda/rules';
-import { AEA_Part } from '../types/normas';
+import { TABLAS_CORRIENTE_SAEA } from '../../data/corrientesNormativasAdmisibles';
+import { AEA_770_RULES } from '../../data/vivienda/rules';
+import { AEA_Part } from '../../types/normas';
 
 export const getAdmisible = (
   norma: AEA_Part,

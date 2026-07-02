@@ -1,4 +1,4 @@
-import { Project, Conductor, Canalizacion } from '../types/project';
+import { Project, Conductor, Canalizacion } from '../../../types/project';
 
 /**
  * Servicio para gestionar la lógica de canalizaciones y agrupamiento de circuitos.

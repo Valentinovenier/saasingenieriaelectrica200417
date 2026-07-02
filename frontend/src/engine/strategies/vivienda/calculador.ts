@@ -1,6 +1,6 @@
 import { CondicionesTramoResidencial, ResultadoCalculoResidencial } from '../../../types/vivienda';
 import { Project } from '../../../types/project';
-import { getAdmisible } from '../corrienteProvider';
+import { getAdmisible } from '../industrial/corrienteProvider';
 import { IMPEDANCIAS_CABLES_VIVIENDA } from '../../../data/vivienda/impedancias';
 import { SECCIONES_MINIMAS_VIVIENDA } from '../../../data/vivienda/seccionesMinimas';
 import { getFactorTemperatura, getFactorAgrupamiento } from '../helpers/normativeFactors';

@@ -1,5 +1,5 @@
-import { TABLAS_CORRIENTE_SAEA } from '../data/corrientesNormativasAdmisibles';
-import { METODOS_INSTALACION } from '../data/metodosInstalacion';
+import { TABLAS_CORRIENTE_SAEA } from '../../../data/corrientesNormativasAdmisibles';
+import { METODOS_INSTALACION } from '../../../data/metodosInstalacion';
 
 export const getMetodosValidos = (
   aislacion: 'PVC' | 'XLPE' | 'Mineral',

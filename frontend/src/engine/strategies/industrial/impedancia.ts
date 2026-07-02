@@ -1,5 +1,5 @@
-import { ParametrosCable } from '../types/cables';
-import { catalogoCablesPVC, catalogoCablesXLPE } from '../data/cables';
+import { ParametrosCable } from '../../types/cables';
+import { catalogoCablesPVC, catalogoCablesXLPE } from '../../data/cables';
 
 export const calcularImpedanciaCable = (
   seccion: number,

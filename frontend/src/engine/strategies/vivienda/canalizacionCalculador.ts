@@ -1,5 +1,5 @@
 import { Project, Canalizacion } from '../../types/project';
-import { calcularConductorTramo } from '../calculadorTramo';
+import { calcularConductorTramo } from '../industrial/calculadorTramo';
 import { CondicionesTramo } from '../../types/project';
 import { getCircuitosPorCanalizacion } from '../canalizacionService';
 

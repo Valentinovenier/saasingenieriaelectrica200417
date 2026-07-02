@@ -2,7 +2,8 @@ import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
 import { Plus } from 'lucide-react';
 import { Transformador, Proteccion } from '../types/project';
-import { getProjectStrategy } from '../engine/factory';
+import * as transformadorEngine from '../engine/strategies/industrial/transformador';
+import * as potenciaEngine from '../engine/strategies/industrial/formulas/potencia';
 
 const ProteccionFields = ({ label, value, onChange, tiposPermitidos }: { 
   label: string, 
