@@ -1,7 +1,7 @@
-import { Project, Canalizacion } from '../../types/project';
+import { Project, Canalizacion } from '../../../types/project';
 import { calcularConductorTramo } from '../industrial/calculadorTramo';
-import { CondicionesTramo } from '../../types/project';
-import { getCircuitosPorCanalizacion } from '../canalizacionService';
+import { CondicionesTramo } from '../../../types/project';
+import { getCircuitosPorCanalizacion } from '../industrial/canalizacionService';
 
 /**
  * Calcula todas las secciones de conductores en una canalización de forma iterativa
