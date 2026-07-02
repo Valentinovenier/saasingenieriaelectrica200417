@@ -1,7 +1,7 @@
 import { Project } from '../../types/project';
 import { Ambiente } from '../../types/vivienda';
 import { calcularPuntosMinimosAmbiente } from '../../engine/strategies/vivienda/normas770';
-import { Trash2, Plus, Zap } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 
 interface Props {
   project: Project;
@@ -38,25 +38,17 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
     onChange({ ...project, datosVivienda: { ...datos, ambientes: nuevosAmbientes } });
   };
 
-  const toggleCircuito = (ambienteId: string, circuitoId: string) => {
-    const nuevosAmbientes = datos.ambientes.map(a => {
-        if (a.id !== ambienteId) return a;
-        const currentCircuitos = a.circuitos || [];
-        const nuevosCircuitos = currentCircuitos.includes(circuitoId) 
-            ? currentCircuitos.filter(id => id !== circuitoId)
-            : [...currentCircuitos, circuitoId];
-        return { ...a, circuitos: nuevosCircuitos };
-    });
-    onChange({ ...project, datosVivienda: { ...datos, ambientes: nuevosAmbientes } });
+  const removeAmbiente = (id: string) => {
+    onChange({ ...project, datosVivienda: { ...datos, ambientes: datos.ambientes.filter(amb => amb.id !== id) } });
   };
 
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-4">
-      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Ambientes y PMU (AEA 770)</h2>
+      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Ambientes (Requerimientos AEA 770)</h2>
       
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
         {TIPOS_AMBIENTES.map(tipo => (
-            <button key={tipo} onClick={() => handleAddAmbiente(tipo)} className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-full text-xs">
+            <button key={tipo} onClick={() => handleAddAmbiente(tipo)} className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-full text-xs whitespace-nowrap">
                 <Plus size={14} /> {tipo}
             </button>
         ))}
@@ -67,38 +59,29 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
           <div key={a.id} className="grid grid-cols-12 gap-3 items-center bg-slate-900 p-3 rounded-lg text-sm">
             <span className="col-span-2 text-white font-medium">{a.nombre}</span>
             
-            <div className="col-span-2 flex gap-2">
+            <div className="col-span-3 flex gap-2">
                 <input type="number" className="w-full bg-slate-950 p-2 rounded border border-slate-700 text-white" value={a.superficie || ''} onChange={(e) => updateAmbiente(a.id, { superficie: parseFloat(e.target.value) || 0 })} placeholder="m²" />
                 {needsLongitud(a.nombre) && (
                     <input type="number" className="w-full bg-slate-950 p-2 rounded border border-slate-700 text-white" value={a.longitud || ''} onChange={(e) => updateAmbiente(a.id, { longitud: parseFloat(e.target.value) || 0 })} placeholder="Largo" />
                 )}
             </div>
             
-            <div className="col-span-2 flex justify-around">
+            <div className="col-span-3 flex justify-around bg-slate-950/50 rounded-lg py-1">
                 <div className="text-center">
-                    <p className="text-[10px] text-slate-500">IUG</p>
+                    <p className="text-[10px] text-slate-500 uppercase">IUG</p>
                     <p className="font-bold text-[var(--accent)]">{a.puntosIUG || 0}</p>
                 </div>
                 <div className="text-center">
-                    <p className="text-[10px] text-slate-500">TUG</p>
+                    <p className="text-[10px] text-slate-500 uppercase">TUG</p>
                     <p className="font-bold text-[var(--accent)]">{a.puntosTUG || 0}</p>
                 </div>
             </div>
 
-            <div className="col-span-4 flex flex-wrap gap-1">
-                {datos.circuitos.map(c => (
-                    <button 
-                        key={c.id} 
-                        onClick={() => toggleCircuito(a.id, c.id)}
-                        className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${a.circuitos?.includes(c.id) ? 'bg-[var(--accent)] border-[var(--accent)] text-black font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'}`}
-                    >
-                        {c.nombre}
-                    </button>
-                ))}
-                {datos.circuitos.length === 0 && <span className="text-[10px] text-slate-600 italic">No hay circuitos definidos</span>}
+            <div className="col-span-3 text-slate-500 italic text-[10px] text-center">
+                Siguiente: asignar circuitos
             </div>
             
-            <button onClick={() => onChange({ ...project, datosVivienda: { ...datos, ambientes: datos.ambientes.filter(amb => amb.id !== a.id) } })} className="col-span-1 text-red-400 p-2 flex justify-center">
+            <button onClick={() => removeAmbiente(a.id)} className="col-span-1 text-red-400 p-2 flex justify-center">
                 <Trash2 size={16} />
             </button>
           </div>

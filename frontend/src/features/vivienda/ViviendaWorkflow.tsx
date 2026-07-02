@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Project } from '../../types/project';
 import { ViviendaConfiguracion } from './ViviendaConfiguracion';
 import { ViviendaAmbientes } from './ViviendaAmbientes';
-import { ViviendaTablero } from './ViviendaTablero';
+import { ViviendaCircuitos } from './ViviendaCircuitos';
+import { ViviendaAsignacion } from './ViviendaAsignacion';
+import { ViviendaResumen } from './ViviendaResumen';
 import { ChevronRight, ChevronLeft, CheckCircle2 } from 'lucide-react';
 
 interface Props {
@@ -13,9 +15,8 @@ interface Props {
 export const ViviendaWorkflow = ({ project, onChange }: Props) => {
   if (!project) return null;
 
-  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitos: [] };
   const [step, setStep] = useState(1);
-  const totalSteps = 3;
+  const totalSteps = 5;
 
   const nextStep = () => setStep(s => Math.min(s + 1, totalSteps));
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
@@ -27,7 +28,11 @@ export const ViviendaWorkflow = ({ project, onChange }: Props) => {
       case 2:
         return <ViviendaAmbientes project={project} onChange={onChange} />;
       case 3:
-        return <ViviendaTablero project={project} onChange={onChange} />;
+        return <ViviendaCircuitos project={project} onChange={onChange} />;
+      case 4:
+        return <ViviendaAsignacion project={project} onChange={onChange} />;
+      case 5:
+        return <ViviendaResumen project={project} onChange={onChange} />;
       default:
         return null;
     }
@@ -37,7 +42,7 @@ export const ViviendaWorkflow = ({ project, onChange }: Props) => {
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Stepper / Indicador de progreso */}
       <div className="flex justify-center items-center gap-4 mb-8">
-        {[1, 2, 3].map((s) => (
+        {[1, 2, 3, 4, 5].map((s) => (
           <div key={s} className="flex items-center gap-2">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-colors ${
               step === s ? 'bg-[var(--accent)] text-black' : 
@@ -45,7 +50,7 @@ export const ViviendaWorkflow = ({ project, onChange }: Props) => {
             }`}>
               {step > s ? <CheckCircle2 size={20} /> : s}
             </div>
-            {s < 3 && (
+            {s < 5 && (
               <div className={`w-12 h-1 bg-slate-800 rounded ${step > s ? 'bg-emerald-500' : ''}`} />
             )}
           </div>
