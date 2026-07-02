@@ -3,9 +3,9 @@ import { Project } from '../../../types/project';
 import { getAdmisible } from '../industrial/corrienteProvider';
 import { IMPEDANCIAS_CABLES_VIVIENDA } from '../../../data/vivienda/impedancias';
 import { SECCIONES_MINIMAS_VIVIENDA } from '../../../data/vivienda/seccionesMinimas';
-import { getFactorTemperatura, getFactorAgrupamiento } from '../helpers/normativeFactors';
-import { getCircuitosPorCanalizacion } from '../canalizacionService';
-import { calcularImpedanciaTransformador } from '../transformador';
+import { getFactorTemperatura, getFactorAgrupamiento } from '../industrial/helpers/normativeFactors';
+import { getCircuitosPorCanalizacion } from '../industrial/canalizacionService';
+import { calcularImpedanciaTransformador } from '../industrial/transformador';
 import { PARAMETROS_CALCULO_VIVIENDA } from '../../../data/vivienda/parametrosCalculo';
 
 export const calcularTramoResidencial = (

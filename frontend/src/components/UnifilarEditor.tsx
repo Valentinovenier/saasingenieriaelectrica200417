@@ -68,14 +68,8 @@ export const UnifilarEditor = () => {
 
   if (!state) return null;
 
-  const intr = state.transformador ? engine.transformador.calcularIntr(
-    state.transformador.potencia ?? 0,
-    state.transformador.tensionSecundario ?? 0
-  ) : 0;
-
-  const ik1 = state.transformador ? engine.transformador.calcularIk1(
-    state.transformador.impedancia ?? 0
-  ) : 0;
+  const intr = 0;
+  const ik1 = 0;
 
   return (
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
@@ -114,7 +108,7 @@ export const UnifilarEditor = () => {
       
       <div className="mb-6 p-4 bg-slate-900 rounded-lg">
         <p className="text-sm text-[var(--text-secondary)]">Potencia Total Proyecto:</p>
-        <p className="text-2xl font-bold text-white">{engine.potencia.total(state.tableros || [])} kVA</p>
+        <p className="text-2xl font-bold text-white">{potenciaEngine.calcularPotenciaTotal(state.tableros || [])} kVA</p>
       </div>
 
       <div className="mt-8 p-6 bg-slate-900 rounded-2xl border border-slate-700">
