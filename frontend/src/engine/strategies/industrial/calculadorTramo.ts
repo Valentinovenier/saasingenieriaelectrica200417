@@ -1,14 +1,14 @@
-import { Conductor, Proteccion, Transformador, CondicionesTramo } from '../types/project';
+import { Conductor, Proteccion, Transformador, CondicionesTramo } from '../../../types/project';
 import { K_VALUES } from './constantes';
-import { FACTORES_TEMPERATURA_AIRE, FACTORES_TEMPERATURA_TIERRA } from '../data/factoresTemperatura';
+import { FACTORES_TEMPERATURA_AIRE, FACTORES_TEMPERATURA_TIERRA } from '../../../data/factoresTemperatura';
 import { 
   FACTORES_AGRUPAMIENTO_B52_17, 
   FACTORES_AGRUPAMIENTO_B52_18, 
   FACTORES_AGRUPAMIENTO_B52_19, 
   FACTORES_AGRUPAMIENTO_B52_20, 
   FACTORES_AGRUPAMIENTO_B52_21 
-} from '../data/factoresAgrupamiento';
-import { FACTOR_SIMETRIA_PARALELO } from '../data/factoresSimetria';
+} from '../../../data/factoresAgrupamiento';
+import { FACTOR_SIMETRIA_PARALELO } from '../../../data/factoresSimetria';
 import { getAdmisible } from './corrienteProvider';
 
 export const calcularConductorTramo = (

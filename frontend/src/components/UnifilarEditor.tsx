@@ -2,7 +2,7 @@ import React from 'react';
 import { useProject } from '../context/ProjectDataContext';
 import { Plus } from 'lucide-react';
 import { Transformador, Proteccion } from '../types/project';
-import { engine } from '../engine';
+import { getProjectStrategy } from '../engine/factory';
 
 const ProteccionFields = ({ label, value, onChange, tiposPermitidos }: { 
   label: string, 

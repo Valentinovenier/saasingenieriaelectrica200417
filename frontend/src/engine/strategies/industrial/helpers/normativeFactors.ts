@@ -1,11 +1,12 @@
-import { FACTORES_TEMPERATURA_AIRE, FACTORES_TEMPERATURA_TIERRA } from '../../data/factoresTemperatura';
+import { FACTORES_TEMPERATURA_AIRE, FACTORES_TEMPERATURA_TIERRA 
+} from '../../../../data/factoresTemperatura';
 import { 
   FACTORES_AGRUPAMIENTO_B52_17, 
   FACTORES_AGRUPAMIENTO_B52_18, 
   FACTORES_AGRUPAMIENTO_B52_19, 
   FACTORES_AGRUPAMIENTO_B52_20, 
   FACTORES_AGRUPAMIENTO_B52_21 
-} from '../../data/factoresAgrupamiento';
+} from '../../../../data/factoresAgrupamiento';
 
 export const getFactorTemperatura = (aislacion: string, temperatura: number, tipoInstalacionAire: boolean): number => {
   let aisKey = aislacion === 'Mineral' ? 'Mineral_70' : aislacion;

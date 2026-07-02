@@ -1,5 +1,5 @@
 import { Conductor } from '../../types/project';
-import { getMetodosValidos } from '../../engine/metodosProvider';
+import { getMetodosValidos } from '../../engine/strategies/industrial/metodosProvider';
 import { TipoConductor } from '../../types/project';
 
 interface Props {

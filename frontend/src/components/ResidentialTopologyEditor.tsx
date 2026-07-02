@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Project, Tablero } from '../types/project';
 import { ViviendaConductorForm } from './conductor-forms/ViviendaConductorForm';
-import { calcularTramoResidencial } from '../engine/vivienda/calculador';
+import { calcularTramoResidencial } from '../engine/strategies/vivienda/calculador';
 
 export const ResidentialTopologyEditor = ({ project, onChange }: { project: Project; onChange: (p: Project) => void }) => {
   const [selectedPath, setSelectedPath] = useState<string[]>(['root']); // Ruta para navegar el árbol

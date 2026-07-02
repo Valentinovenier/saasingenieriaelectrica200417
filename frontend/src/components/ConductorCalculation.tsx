@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Project, Conductor, TableroSeccionalSimple } from '../types/project';
+import { Conductor } from '../types/project';
+import { useProject } from '../context/ProjectDataContext';
 import { ConductorForm } from './ConductorForm';
-import { calcularConductorTramo } from '../engine/calculadorTramo';
 import { catalogoCablesPVC, catalogoCablesXLPE, ParametrosCableCompleto } from '../data/cables';
-import { calcularImpedanciaTransformador } from '../engine/transformador';
+import { getProjectStrategy } from '../engine/factory';
 
 const TRAMOS_ELECTRICOS = [
   { id: 'trafo-tgbt', label: 'Transformador → Interruptor Cabecera TGBT', usaPotenciaTrafo: true },

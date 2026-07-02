@@ -1,12 +1,12 @@
-import { CondicionesTramoResidencial, ResultadoCalculoResidencial } from '../../types/vivienda';
-import { Project } from '../../types/project';
+import { CondicionesTramoResidencial, ResultadoCalculoResidencial } from '../../../types/vivienda';
+import { Project } from '../../../types/project';
 import { getAdmisible } from '../corrienteProvider';
-import { IMPEDANCIAS_CABLES_VIVIENDA } from '../../data/vivienda/impedancias';
-import { SECCIONES_MINIMAS_VIVIENDA } from '../../data/vivienda/seccionesMinimas';
+import { IMPEDANCIAS_CABLES_VIVIENDA } from '../../../data/vivienda/impedancias';
+import { SECCIONES_MINIMAS_VIVIENDA } from '../../../data/vivienda/seccionesMinimas';
 import { getFactorTemperatura, getFactorAgrupamiento } from '../helpers/normativeFactors';
 import { getCircuitosPorCanalizacion } from '../canalizacionService';
 import { calcularImpedanciaTransformador } from '../transformador';
-import { PARAMETROS_CALCULO_VIVIENDA } from '../../data/vivienda/parametrosCalculo';
+import { PARAMETROS_CALCULO_VIVIENDA } from '../../../data/vivienda/parametrosCalculo';
 
 export const calcularTramoResidencial = (
   condiciones: CondicionesTramoResidencial,

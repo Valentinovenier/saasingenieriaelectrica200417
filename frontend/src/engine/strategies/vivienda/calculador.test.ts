@@ -1,6 +1,6 @@
 import { calcularTramoResidencial } from './calculador';
-import { CondicionesTramoResidencial } from '../../types/vivienda';
-import { Project } from '../../types/project';
+import { CondicionesTramoResidencial } from '../../../types/vivienda';
+import { Project } from '../../../types/project';
 
 const test = () => {
   const mockProject: Project = {

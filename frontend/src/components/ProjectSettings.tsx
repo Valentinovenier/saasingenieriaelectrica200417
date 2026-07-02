@@ -4,7 +4,7 @@ import { ConductorForm } from './ConductorForm';
 import { Trash2, Plus } from 'lucide-react';
 import { transformadoresAceite } from '../data/transformadoresAceite';
 import { transformadoresSecos } from '../data/transformadoresSecos';
-import { calcularImpedanciaTransformador, estimarParametrosTrafo } from '../engine/transformador';
+import { calcularImpedanciaTransformador, estimarParametrosTrafo } from '../engine/strategies/industrial/transformador';
 
 const ProteccionFields = ({ label, value, onChange }: { label: string, value?: Proteccion, onChange: (p: Proteccion | undefined) => void }) => (
   <div className="mt-2 p-2 bg-slate-900 rounded border border-slate-700">
