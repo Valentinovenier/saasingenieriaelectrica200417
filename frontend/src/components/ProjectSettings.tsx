@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Project, TableroSeccional, Proteccion, Canalizacion } from '../types/project';
 import { Trash2, Plus } from 'lucide-react';
 import { IndustrialSettings } from '../features/industrial/IndustrialSettings';
-import { ViviendaSettings } from '../features/vivienda/ViviendaSettings';
+import { ViviendaWorkflow } from '../features/vivienda/ViviendaWorkflow';
 import { ComercialSettings } from '../features/comercial/ComercialSettings';
 
 export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { project: Project, onChange: (p: Project) => void, onSave: (p: Project) => void, onDelete: () => void }) => {
@@ -40,7 +40,7 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
         case 'i': 
             return <IndustrialSettings project={project} onChange={onChange} />;
         case 'Vivienda': 
-            return <ViviendaSettings project={project} onChange={onChange} />;
+            return <ViviendaWorkflow project={project} onChange={onChange} />;
         case 'Oficina': 
             return <ComercialSettings project={project} onChange={onChange} />;
         default: return null;
