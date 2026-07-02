@@ -36,9 +36,13 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
 
   const renderSettings = () => {
     switch (project.projectType) {
-        case 'Industria': return <IndustrialSettings project={project} onChange={onChange} />;
-        case 'Vivienda': return <ViviendaSettings project={project} onChange={onChange} />;
-        case 'Oficina': return <ComercialSettings project={project} onChange={onChange} />;
+        case 'Industria':
+        case 'i': 
+            return <IndustrialSettings project={project} onChange={onChange} />;
+        case 'Vivienda': 
+            return <ViviendaSettings project={project} onChange={onChange} />;
+        case 'Oficina': 
+            return <ComercialSettings project={project} onChange={onChange} />;
         default: return null;
     }
   }

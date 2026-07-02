@@ -81,6 +81,19 @@ export const IndustrialConductorForm = ({ label, conductor, onChange, tramoId }:
           </select>
         </div>
 
+        <div className="col-span-2">
+          <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Disposición de Conductores</label>
+          <select 
+            className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
+            value={conductor?.disposicion || 'contacto'}
+            onChange={(e) => handleDataChange({ disposicion: e.target.value as any })}
+          >
+            <option value="contacto">Contacto</option>
+            <option value="trebol">Trébol</option>
+            <option value="separado">Separado</option>
+          </select>
+        </div>
+
         <div>
           <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Longitud (m)</label>
           <input 
