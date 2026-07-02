@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Project, TableroSeccional, Proteccion, Canalizacion } from '../types/project';
 import { Trash2, Plus } from 'lucide-react';
-import { IndustrialSettings } from './config/IndustrialSettings';
-import { ViviendaSettings } from './config/ViviendaSettings';
-import { ComercialSettings } from './config/ComercialSettings';
+import { IndustrialSettings } from '../features/industrial/IndustrialSettings';
+import { ViviendaSettings } from '../features/vivienda/ViviendaSettings';
+import { ComercialSettings } from '../features/comercial/ComercialSettings';
 
 export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { project: Project, onChange: (p: Project) => void, onSave: (p: Project) => void, onDelete: () => void }) => {
   const handleSave = async () => {

@@ -1,8 +1,8 @@
 import { Project, CondicionesTramo } from '../../../types/project';
 import { BaseProjectStrategy } from '../base';
 import { calcularConductorTramo } from './calculadorTramo';
-import { IndustrialConductorForm } from '../../../components/conductor-forms/IndustrialConductorForm';
-import { IndustrialReport } from '../../../components/reports/IndustrialReport';
+import { IndustrialConductorForm } from '../../../features/industrial/IndustrialConductorForm';
+import { IndustrialReport } from '../../../features/industrial/IndustrialReport';
 
 export class IndustrialStrategy implements BaseProjectStrategy {
   calcularTramo(condiciones: CondicionesTramo): any {

@@ -1,8 +1,8 @@
 import { Project, CondicionesTramo } from '../../../types/project';
 import { BaseProjectStrategy } from '../base';
 import { calcularTramoComercial } from './calculador';
-import { ComercialConductorForm } from '../../../components/conductor-forms/ComercialConductorForm';
-import { ComercialReport } from '../../../components/reports/ComercialReport';
+import { ComercialConductorForm } from '../../../features/comercial/ComercialConductorForm';
+import { ComercialReport } from '../../../features/comercial/ComercialReport';
 
 export class ComercialStrategy implements BaseProjectStrategy {
   calcularTramo(condiciones: CondicionesTramo, project: Project): any {

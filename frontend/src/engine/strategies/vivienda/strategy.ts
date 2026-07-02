@@ -1,8 +1,8 @@
 import { Project, CondicionesTramo } from '../../../types/project';
 import { BaseProjectStrategy } from '../base';
 import { calcularTramoResidencial } from './calculador';
-import { ViviendaConductorForm } from '../../../components/conductor-forms/ViviendaConductorForm';
-import { ViviendaReport } from '../../../components/reports/ViviendaReport';
+import { ViviendaConductorForm } from '../../../features/vivienda/ViviendaConductorForm';
+import { ViviendaReport } from '../../../features/vivienda/ViviendaReport';
 import { CondicionesTramoResidencial, TipoCircuito } from '../../../types/vivienda';
 
 export class ViviendaStrategy implements BaseProjectStrategy {
