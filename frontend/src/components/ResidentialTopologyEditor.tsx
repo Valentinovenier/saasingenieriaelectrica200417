@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Project, Tablero } from '../types/project';
-import { ViviendaConductorForm } from './conductor-forms/ViviendaConductorForm';
+import { ViviendaConductorForm } from '../features/vivienda/ViviendaConductorForm';
+import { Conductor } from '../types/project';
 import { calcularTramoResidencial } from '../engine/strategies/vivienda/calculador';
 
 export const ResidentialTopologyEditor = ({ project, onChange }: { project: Project; onChange: (p: Project) => void }) => {

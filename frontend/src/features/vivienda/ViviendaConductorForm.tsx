@@ -48,7 +48,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
                     onChange={(e) => handleDataChange({ metodoInstalacion: e.target.value })}
                 >
                     <option value="">Selecciona Método</option>
-                    {METODOS_INSTALACION_VIVIENDA.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                    {METODOS_INSTALACION_VIVIENDA.map((m: {label: string, value: string}) => <option key={m.value} value={m.value}>{m.label}</option>)}
                 </select>
             </div>
 
