@@ -11,6 +11,9 @@ interface Props {
 }
 
 export const ViviendaWorkflow = ({ project, onChange }: Props) => {
+  if (!project) return null;
+
+  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitos: [] };
   const [step, setStep] = useState(1);
   const totalSteps = 3;
 

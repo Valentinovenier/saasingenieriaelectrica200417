@@ -25,10 +25,10 @@ export const determinarGradoElectrificacion = (superficieLimite: number): 'Minim
  */
 export const obtenerCircuitosMinimos = (grado: 'Minimo' | 'Medio' | 'Elevado' | 'Superior'): number => {
   const minimos = {
-    'Minimo': 3,
-    'Medio': 5,
-    'Elevado': 8,
-    'Superior': 12
+    'Minimo': 2,
+    'Medio': 3,
+    'Elevado': 5,
+    'Superior': 6
   };
   return minimos[grado];
 };

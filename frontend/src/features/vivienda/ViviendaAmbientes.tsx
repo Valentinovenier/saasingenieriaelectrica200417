@@ -1,7 +1,7 @@
 import { Project } from '../../types/project';
 import { Ambiente } from '../../types/vivienda';
 import { calcularPuntosMinimosAmbiente } from '../../engine/strategies/vivienda/normas770';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, Zap } from 'lucide-react';
 
 interface Props {
   project: Project;
@@ -9,18 +9,22 @@ interface Props {
 }
 
 const TIPOS_AMBIENTES = [
-    'Estar-Comedor', 'Dormitorio', 'Cocina', 'Baño', 'Pasillo', 'Lavadero', 'Garage'
+    'Estar-Comedor', 'Dormitorio', 'Cocina', 'Baño', 'Pasillo', 'Lavadero', 'Garage', 'Balcón/Galería'
 ];
 
 export const ViviendaAmbientes = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitos: [] };
 
+  const needsLongitud = (nombre: string) => {
+    const n = nombre.toLowerCase();
+    return n.includes('pasillo') || n.includes('balcon') || n.includes('galeria') || n.includes('semicubierto');
+  };
+
   const handleAddAmbiente = (tipo: string) => {
-    // Contar cuántos ambientes de este tipo ya existen para autoincrementar
     const existentes = datos.ambientes.filter(a => a.nombre.startsWith(tipo)).length;
     const nuevoNombre = `${tipo} ${existentes + 1}`;
     
-    const nuevoAmbiente: Ambiente = { id: Date.now().toString(), nombre: nuevoNombre, superficie: 0, longitud: 0 };
+    const nuevoAmbiente: Ambiente = { id: Date.now().toString(), nombre: nuevoNombre, superficie: 0, longitud: 0, circuitos: [] };
     onChange({ ...project, datosVivienda: { ...datos, ambientes: [...datos.ambientes, nuevoAmbiente] } });
   };
 
@@ -30,6 +34,18 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
         const updated = { ...a, ...updates };
         const pmu = calcularPuntosMinimosAmbiente(updated.nombre, updated.superficie, updated.longitud);
         return { ...updated, puntosIUG: pmu.iug, puntosTUG: pmu.tug };
+    });
+    onChange({ ...project, datosVivienda: { ...datos, ambientes: nuevosAmbientes } });
+  };
+
+  const toggleCircuito = (ambienteId: string, circuitoId: string) => {
+    const nuevosAmbientes = datos.ambientes.map(a => {
+        if (a.id !== ambienteId) return a;
+        const currentCircuitos = a.circuitos || [];
+        const nuevosCircuitos = currentCircuitos.includes(circuitoId) 
+            ? currentCircuitos.filter(id => id !== circuitoId)
+            : [...currentCircuitos, circuitoId];
+        return { ...a, circuitos: nuevosCircuitos };
     });
     onChange({ ...project, datosVivienda: { ...datos, ambientes: nuevosAmbientes } });
   };
@@ -48,21 +64,41 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
       
       <div className="space-y-3">
         {datos.ambientes.map((a) => (
-          <div key={a.id} className="grid grid-cols-6 gap-3 items-center bg-slate-900 p-3 rounded-lg text-sm">
+          <div key={a.id} className="grid grid-cols-12 gap-3 items-center bg-slate-900 p-3 rounded-lg text-sm">
             <span className="col-span-2 text-white font-medium">{a.nombre}</span>
-            <input type="number" className="bg-slate-950 p-2 rounded border border-slate-700 text-white" value={a.superficie || ''} onChange={(e) => updateAmbiente(a.id, { superficie: parseFloat(e.target.value) || 0 })} placeholder="m²" />
-            <input type="number" className="bg-slate-950 p-2 rounded border border-slate-700 text-white" value={a.longitud || ''} onChange={(e) => updateAmbiente(a.id, { longitud: parseFloat(e.target.value) || 0 })} placeholder="Largo" />
             
-            <div className="text-center">
-                <p className="text-[10px] text-slate-500">IUG</p>
-                <p className="font-bold text-[var(--accent)]">{a.puntosIUG || 0}</p>
-            </div>
-            <div className="text-center">
-                <p className="text-[10px] text-slate-500">TUG</p>
-                <p className="font-bold text-[var(--accent)]">{a.puntosTUG || 0}</p>
+            <div className="col-span-2 flex gap-2">
+                <input type="number" className="w-full bg-slate-950 p-2 rounded border border-slate-700 text-white" value={a.superficie || ''} onChange={(e) => updateAmbiente(a.id, { superficie: parseFloat(e.target.value) || 0 })} placeholder="m²" />
+                {needsLongitud(a.nombre) && (
+                    <input type="number" className="w-full bg-slate-950 p-2 rounded border border-slate-700 text-white" value={a.longitud || ''} onChange={(e) => updateAmbiente(a.id, { longitud: parseFloat(e.target.value) || 0 })} placeholder="Largo" />
+                )}
             </div>
             
-            <button onClick={() => onChange({ ...project, datosVivienda: { ...datos, ambientes: datos.ambientes.filter(amb => amb.id !== a.id) } })} className="text-red-400 p-2">
+            <div className="col-span-2 flex justify-around">
+                <div className="text-center">
+                    <p className="text-[10px] text-slate-500">IUG</p>
+                    <p className="font-bold text-[var(--accent)]">{a.puntosIUG || 0}</p>
+                </div>
+                <div className="text-center">
+                    <p className="text-[10px] text-slate-500">TUG</p>
+                    <p className="font-bold text-[var(--accent)]">{a.puntosTUG || 0}</p>
+                </div>
+            </div>
+
+            <div className="col-span-4 flex flex-wrap gap-1">
+                {datos.circuitos.map(c => (
+                    <button 
+                        key={c.id} 
+                        onClick={() => toggleCircuito(a.id, c.id)}
+                        className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${a.circuitos?.includes(c.id) ? 'bg-[var(--accent)] border-[var(--accent)] text-black font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'}`}
+                    >
+                        {c.nombre}
+                    </button>
+                ))}
+                {datos.circuitos.length === 0 && <span className="text-[10px] text-slate-600 italic">No hay circuitos definidos</span>}
+            </div>
+            
+            <button onClick={() => onChange({ ...project, datosVivienda: { ...datos, ambientes: datos.ambientes.filter(amb => amb.id !== a.id) } })} className="col-span-1 text-red-400 p-2 flex justify-center">
                 <Trash2 size={16} />
             </button>
           </div>

@@ -16,6 +16,7 @@ export interface Ambiente {
   longitud: number;
   puntosIUG?: number;
   puntosTUG?: number;
+  circuitos?: string[];
 }
 
 export interface CircuitoVivienda {
