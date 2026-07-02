@@ -41,10 +41,7 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
   const dpms = potenciaTotalSinSimultaneidad * coefSimultaneidad;
 
   const grado = datos.gradoElectrificacion || 'Minimo';
-  const { obtenerCircuitosMinimos } = require('../../engine/strategies/vivienda/normas770'); // Note: dynamic import for demonstration, in real code this should be a top level import
-  // Since I can't easily refactor the engine file right now without more turns, I'll use a local approximation or wait.
-  // Actually, I'll just use the logic I know.
-  const minCircuitosMap: any = { 'Minimo': 2, 'Medio': 3, 'Elevado': 5, 'Superior': 6 };
+  const minCircuitosMap: Record<string, number> = { 'Minimo': 2, 'Medio': 3, 'Elevado': 5, 'Superior': 6 };
   const minCircuitos = minCircuitosMap[grado] || 2;
 
   return (
