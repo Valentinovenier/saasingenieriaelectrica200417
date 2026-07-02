@@ -1,3 +1,10 @@
+export interface ProjectStrategy {
+  calcularTramo(condiciones: CondicionesTramo): any; // Reemplazar 'any' con tipo adecuado más adelante
+  validarReglas(project: Project): boolean;
+  getFormularioComponente(): React.ComponentType<any>;
+  getInformeComponente(): React.ComponentType<{ project: Project }>;
+}
+
 export interface HarmonicDistortion {
   habilitado: boolean;
   modoEntrada: 'porcentaje' | 'amperios';

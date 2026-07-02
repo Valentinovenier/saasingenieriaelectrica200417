@@ -1,7 +1,6 @@
 import { Conductor } from '../types/project';
 import { useProject } from '../context/ProjectDataContext';
-import { ViviendaConductorForm } from './conductor-forms/ViviendaConductorForm';
-import { IndustrialConductorForm } from './conductor-forms/IndustrialConductorForm';
+import { getProjectStrategy } from '../engine/factory';
 
 interface Props {
   label: string;
@@ -12,11 +11,11 @@ interface Props {
 
 export const ConductorForm = (props: Props) => {
   const { state: project } = useProject();
-  const isVivienda = project?.projectType === 'Vivienda';
+  
+  if (!project) return null;
 
-  if (isVivienda) {
-    return <ViviendaConductorForm {...props} />;
-  }
+  const strategy = getProjectStrategy(project);
+  const FormComponent = strategy.getFormularioComponente();
 
-  return <IndustrialConductorForm {...props} />;
+  return <FormComponent {...props} />;
 };
