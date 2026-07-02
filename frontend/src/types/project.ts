@@ -1,5 +1,7 @@
+import { DatosVivienda } from './vivienda';
+
 export interface ProjectStrategy {
-  calcularTramo(condiciones: CondicionesTramo, project?: Project): any; // Reemplazar 'any' con tipo adecuado más adelante
+  calcularTramo(condiciones: CondicionesTramo, project?: Project): any;
   validarReglas(project: Project): boolean;
   getFormularioComponente(): React.ComponentType<any>;
   getInformeComponente(): React.ComponentType<{ project: Project }>;
@@ -73,21 +75,19 @@ export interface CondicionesTramo {
   plano?: 'horizontal' | 'vertical';
 }
 
-// --- Nueva Estructura Topológica (Árbol) ---
-
 export interface CircuitoTerminal {
   id: string;
   nombre: string;
-  tipo: string; // Ej: 'iluminacion_usos_generales'
-  potencia: number; // VA
-  conductor: Conductor; // Tramo que alimenta este circuito
+  tipo: string;
+  potencia: number;
+  conductor: Conductor;
   proteccion: Proteccion;
 }
 
 export interface Tablero {
   id: string;
   nombre: string;
-  conductorAlimentacion: Conductor; // Tramo que alimenta este tablero
+  conductorAlimentacion: Conductor;
   proteccionCabecera: Proteccion;
   subTableros: Tablero[];
   circuitosTerminales: CircuitoTerminal[];
@@ -114,19 +114,18 @@ export interface Canalizacion {
   nombre: string;
 }
 
-// --- Fin Nueva Estructura ---
-
 export interface Project {
   id: string;
   name: string;
   projectType: string;
   createdAt: string;
   status: 'draft' | 'completed';
-  transformador?: any; // Mantener compatibilidad temporal
-  acometida?: any; // Mantener compatibilidad temporal
+  transformador?: any;
+  acometida?: any;
   armonicos: HarmonicDistortion;
   
-  // Nodo raíz de la topología
+  datosVivienda?: DatosVivienda;
+
   tableroPrincipal: Tablero; 
   
   tableros?: TableroSeccional[];

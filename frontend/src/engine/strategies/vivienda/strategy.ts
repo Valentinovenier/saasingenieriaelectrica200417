@@ -1,7 +1,7 @@
 import { Project, CondicionesTramo } from '../../../types/project';
 import { BaseProjectStrategy } from '../base';
 import { calcularTramoResidencial } from './calculador';
-import { ViviendaConductorForm } from '../../../features/vivienda/ViviendaConductorForm';
+import { ViviendaWorkflow } from '../../../features/vivienda/ViviendaWorkflow';
 import { ViviendaReport } from '../../../features/vivienda/ViviendaReport';
 import { CondicionesTramoResidencial, TipoCircuito } from '../../../types/vivienda';
 
@@ -20,7 +20,7 @@ export class ViviendaStrategy implements BaseProjectStrategy {
   }
 
   getFormularioComponente(): React.ComponentType<any> {
-    return ViviendaConductorForm;
+    return ViviendaWorkflow;
   }
 
   getInformeComponente(): React.ComponentType<{ project: Project }> {

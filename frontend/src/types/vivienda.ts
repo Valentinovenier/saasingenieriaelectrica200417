@@ -8,6 +8,33 @@ export type TipoCircuito =
   | 'usos_especiales'
   | 'usos_especificos'
   | 'usos_especificos_mbtf';
+
+export interface Ambiente {
+  id: string;
+  nombre: string;
+  superficie: number;
+  longitud: number;
+  puntosIUG?: number;
+  puntosTUG?: number;
+}
+
+export interface CircuitoVivienda {
+  id: string;
+  nombre: string;
+  tipo: TipoCircuito;
+  puntosUtilizacion: number;
+  potenciaEstimada: number;
+}
+
+export interface DatosVivienda {
+  superficieCubierta: number;
+  superficieSemicubierta: number;
+  superficieLimiteManual?: number;
+  gradoElectrificacion?: 'Minimo' | 'Medio' | 'Elevado' | 'Superior';
+  ambientes: Ambiente[];
+  circuitos: CircuitoVivienda[];
+}
+
 export interface CondicionesTramoResidencial {
   tipoTramo: 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal';
   tipoCircuito: TipoCircuito;
