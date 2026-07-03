@@ -36,13 +36,13 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
 
   const potenciaTotalSinSimultaneidad = circuitosConPotencia.reduce((acc, c) => acc + c.potenciaCalculada, 0);
   
-  // Coeficiente de simultaneidad basado en la cantidad de CIRCUITOS MÍNIMOS requeridos por la norma
-  const coefSimultaneidad = minCircuitos > 5 ? 0.7 : 0.8;
-  const dpms = potenciaTotalSinSimultaneidad * coefSimultaneidad;
-
   const grado = datos.gradoElectrificacion || 'Minimo';
   const minCircuitosMap: Record<string, number> = { 'Minimo': 2, 'Medio': 3, 'Elevado': 5, 'Superior': 6 };
   const minCircuitos = minCircuitosMap[grado] || 2;
+  
+  // Coeficiente de simultaneidad basado en la cantidad de CIRCUITOS MÍNIMOS requeridos por la norma
+  const coefSimultaneidad = minCircuitos > 5 ? 0.7 : 0.8;
+  const dpms = potenciaTotalSinSimultaneidad * coefSimultaneidad;
 
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">

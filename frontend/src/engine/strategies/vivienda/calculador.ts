@@ -35,7 +35,6 @@ export const calcularTramoResidencial = (
             seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesIluminacion;
             break;
             case 'tomacorrientes_usos_generales':
-            case 'iluminacion_con_tomacorrientes':
             case 'usos_especiales':
             case 'usos_especificos':
             seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesTomacorrientes;

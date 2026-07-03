@@ -12,7 +12,6 @@ const getCircuitoInfo = (tipo: TipoCircuito) => {
   switch (tipo) {
     case 'iluminacion_usos_generales': return { label: 'IUG', iug: 1, tug: 0 };
     case 'tomacorrientes_usos_generales': return { label: 'TUG', iug: 0, tug: 1 };
-    case 'iluminacion_con_tomacorrientes': return { label: 'IUG+TUG', iug: 1, tug: 1 };
     case 'usos_especiales': return { label: 'Especial', iug: 0, tug: 0 };
     default: return { label: tipo, iug: 0, tug: 0 };
   }
