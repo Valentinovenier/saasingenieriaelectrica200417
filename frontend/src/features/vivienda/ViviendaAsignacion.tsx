@@ -69,13 +69,21 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
 
       <div className="space-y-8">
         {datos.ambientes.map((ambiente) => {
-          // Calcular cuánto se ha asignado para este ambiente
+          // Calcular lo asignado para este ambiente ESPECÍFICO
+          // El problema es que el circuito guarda el total, no la parte de cada ambiente. 
+          // Para que el contador sea correcto, necesitamos saber cuánto aporta el ambiente X al circuito Y.
+          // Como no guardamos ese desglose, el contador actual suma el total del circuito si el ambiente está asignado, lo cual es incorrecto.
+
+          // Solución: Solo contar si el ambiente está asignado, pero necesitamos una forma de distribuir el total del circuito.
+          // Por ahora, asumiremos que cada ambiente asignado al circuito contribuye con la carga mínima del ambiente si no hay edición manual.
+
           const asignadoIUG = datos.circuitosCalculados.reduce((acc, c) => 
-            c.ambientesIds.includes(ambiente.id) && c.tipo === 'iluminacion_usos_generales' ? acc + c.puntosIUG : acc, 0);
+            c.ambientesIds.includes(ambiente.id) && c.tipo === 'iluminacion_usos_generales' ? acc + ambiente.puntosIUG : acc, 0);
           const asignadoTUG = datos.circuitosCalculados.reduce((acc, c) => 
-            c.ambientesIds.includes(ambiente.id) && (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) ? acc + c.puntosTUG : acc, 0);
+            c.ambientesIds.includes(ambiente.id) && (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) ? acc + ambiente.puntosTUG : acc, 0);
           const asignadoTUE = datos.circuitosCalculados.reduce((acc, c) => 
-            c.ambientesIds.includes(ambiente.id) && c.tipo === 'usos_especiales' ? acc + c.puntosTUE : acc, 0);
+            c.ambientesIds.includes(ambiente.id) && c.tipo === 'usos_especiales' ? acc + ambiente.puntosTUE : acc, 0);
+
 
           const completadoIUG = asignadoIUG >= ambiente.puntosIUG;
           const completadoTUG = asignadoTUG >= ambiente.puntosTUG;
