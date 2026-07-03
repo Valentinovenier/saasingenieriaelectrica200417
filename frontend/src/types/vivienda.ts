@@ -13,19 +13,20 @@ export interface Ambiente {
   nombre: string;
   superficie: number;
   longitud: number;
-  puntosIUG?: number;
-  puntosTUG?: number;
-  puntosIUGMinimo?: number;
-  puntosTUGMinimo?: number;
-  circuitos?: string[];
+  puntosIUG: number;
+  puntosTUG: number;
+  // Campos para control de asignación automática/manual
+  circuitoIUGId?: string;
+  circuitoTUGId?: string;
 }
 
-export interface CircuitoVivienda {
+export interface CircuitoCalculado {
   id: string;
   nombre: string;
   tipo: TipoCircuito;
-  puntosUtilizacion: number;
-  potenciaEstimada: number;
+  puntosIUG: number;
+  puntosTUG: number;
+  ambientesIds: string[];
 }
 
 export interface DatosVivienda {
@@ -34,7 +35,7 @@ export interface DatosVivienda {
   superficieLimiteManual?: number;
   gradoElectrificacion?: 'Minimo' | 'Medio' | 'Elevado' | 'Superior';
   ambientes: Ambiente[];
-  circuitos: CircuitoVivienda[];
+  circuitosCalculados: CircuitoCalculado[]; // Nuevo campo
 }
 
 export interface CondicionesTramoResidencial {

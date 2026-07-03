@@ -1,5 +1,4 @@
 import { Project } from '../../types/project';
-import { calcularDPMS } from '../../engine/strategies/vivienda/normas770';
 import { CheckCircle2, AlertTriangle, Info } from 'lucide-react';
 
 interface Props {
@@ -8,30 +7,20 @@ interface Props {
 }
 
 export const ViviendaResumen = ({ project, onChange }: Props) => {
-  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitos: [] };
+  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
   
   // Calculamos la potencia real sumando los puntos de los ambientes asignados a cada circuito
-  const calcularPotenciaCircuito = (circuitoId: string) => {
-    let puntosIUG = 0;
-    let puntosTUG = 0;
-
-    datos.ambientes.forEach(a => {
-      if (a.circuitos?.includes(circuitoId)) {
-        puntosIUG += (a.puntosIUG || 0);
-        puntosTUG += (a.puntosTUG || 0);
-      }
-    });
-
+  const calcularPotenciaCircuito = (circuito: any) => {
     // Valores base por punto según AEA 770
     const POTENCIA_BOCA_IUG = 100; 
     const POTENCIA_BOCA_TUG = 150; 
 
-    return puntosIUG * POTENCIA_BOCA_IUG + puntosTUG * POTENCIA_BOCA_TUG;
+    return circuito.puntosIUG * POTENCIA_BOCA_IUG + circuito.puntosTUG * POTENCIA_BOCA_TUG;
   };
 
-  const circuitosConPotencia = datos.circuitos.map(c => ({
+  const circuitosConPotencia = datos.circuitosCalculados.map(c => ({
     ...c,
-    potenciaCalculada: calcularPotenciaCircuito(c.id)
+    potenciaCalculada: calcularPotenciaCircuito(c)
   }));
 
   const potenciaTotalSinSimultaneidad = circuitosConPotencia.reduce((acc, c) => acc + c.potenciaCalculada, 0);
@@ -73,7 +62,7 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                 </div>
               </div>
             ))}
-            {datos.circuitos.length === 0 && (
+            {datos.circuitosCalculados.length === 0 && (
                 <div className="text-center py-8 text-slate-500 italic text-sm">No hay circuitos definidos.</div>
             )}
           </div>
@@ -86,8 +75,8 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
             <div className="space-y-3">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-slate-400">Circuitos:</span>
-                <span className={`font-bold ${datos.circuitos.length >= minCircuitos ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {datos.circuitos.length} / {minCircuitos}
+                <span className={`font-bold ${datos.circuitosCalculados.length >= minCircuitos ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {datos.circuitosCalculados.length} / {minCircuitos}
                 </span>
               </div>
               <div className="flex justify-between items-center text-sm">
@@ -111,13 +100,13 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
             </div>
           </div>
 
-          {datos.circuitos.length < minCircuitos && (
+          {datos.circuitosCalculados.length < minCircuitos && (
             <div className="bg-red-900/20 border border-red-800 p-4 rounded-xl flex items-start gap-3">
               <AlertTriangle className="text-red-400 shrink-0" size={20} />
               <div>
                 <p className="text-sm font-bold text-red-400">Cumplimiento insuficiente</p>
                 <p className="text-[10px] text-red-400/80 mt-1">
-                  Faltan {minCircuitos - datos.circuitos.length} circuitos para cumplir con el grado de electrificación {grado}.
+                  Faltan {minCircuitos - datos.circuitosCalculados.length} circuitos para cumplir con el grado de electrificación {grado}.
                 </p>
               </div>
             </div>
