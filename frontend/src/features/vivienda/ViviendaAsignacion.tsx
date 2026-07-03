@@ -26,6 +26,17 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
         const nuevosAmbientes = estaAsignado 
             ? c.ambientesIds.filter(id => id !== ambiente.id)
             : [...c.ambientesIds, ambiente.id];
+
+        // Calcular total de bocas en el circuito (suma de puntos IUG + TUG de los ambientes asignados)
+        const totalBocas = nuevosAmbientes.reduce((acc, id) => {
+            const amb = datos.ambientes.find(a => a.id === id);
+            return acc + (amb ? (amb.puntosIUG + amb.puntosTUG) : 0);
+        }, 0);
+
+        if (totalBocas > 15) {
+             // Opcional: Podríamos prevenir la asignación o solo avisar.
+             // Aquí dejo que se asigne pero el usuario verá el aviso.
+        }
         
         // Recalcular puntos del circuito
         const puntosIUG = nuevosAmbientes.reduce((acc, id) => {
@@ -57,15 +68,28 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
 
       <div className="space-y-8">
         {datos.ambientes.map((ambiente) => {
+          const totalBocasAmbiente = ambiente.puntosIUG + ambiente.puntosTUG;
           return (
             <div key={ambiente.id} className="space-y-3 border-l-2 border-slate-800 pl-4">
-              <h3 className="text-lg font-semibold text-white">{ambiente.nombre}</h3>
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-white">{ambiente.nombre}</h3>
+                <span className="text-xs text-slate-500 bg-slate-900 px-2 py-1 rounded">
+                    {totalBocasAmbiente} bocas calculadas
+                </span>
+              </div>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {datos.circuitosCalculados.map((circuito) => {
                   const isSelected = circuito.ambientesIds.includes(ambiente.id);
                   const info = getCircuitoInfo(circuito.tipo);
                   
+                  // Calcular bocas actuales del circuito
+                  const bocasCircuito = circuito.ambientesIds.reduce((acc, id) => {
+                      const amb = datos.ambientes.find(a => a.id === id);
+                      return acc + (amb ? (amb.puntosIUG + amb.puntosTUG) : 0);
+                  }, 0);
+                  const superaLimite = bocasCircuito > 15;
+
                   // Validar compatibilidad (solo IUG a circuitos IUG, TUG a TUG, TUE a usos_especiales)
                   const esCompatible = (circuito.tipo === 'iluminacion_usos_generales' && ambiente.puntosIUG > 0) ||
                                        (circuito.tipo === 'tomacorrientes_usos_generales' && ambiente.puntosTUG > 0) ||
@@ -86,6 +110,11 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                     >
                       <span className="text-xs mb-1">{circuito.nombre}</span>
                       <span className={isSelected ? 'text-black/70' : 'text-slate-500'}>{info.label}</span>
+                      {isSelected && (
+                          <span className={`text-[9px] mt-1 ${superaLimite ? 'text-red-600' : 'text-slate-700'}`}>
+                              {bocasCircuito} / 15 bocas
+                          </span>
+                      )}
                     </button>
                   );
                 })}
