@@ -27,22 +27,23 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
             ? c.ambientesIds.filter(id => id !== ambiente.id)
             : [...c.ambientesIds, ambiente.id];
 
-        // Recalcular puntos del circuito sumando puntos correspondientes al tipo del circuito
-        // IUG: suma IUG (y TUG si tiene derivados), TUG: suma TUG, TUE: suma TUE
-        let puntosIUG = c.puntosIUG;
-        let puntosTUG = c.puntosTUG;
-        let puntosTUE = c.puntosTUE;
+        // Recalcular puntos del circuito sumando puntos correspondientes de TODOS los ambientes asignados
+        const puntosIUG = nuevosAmbientes.reduce((acc, id) => { 
+            const amb = datos.ambientes.find(a => a.id === id); 
+            return acc + (c.tipo === 'iluminacion_usos_generales' ? (amb?.puntosIUG || 0) : 0); 
+        }, 0);
+        
+        const puntosTUG = nuevosAmbientes.reduce((acc, id) => { 
+            const amb = datos.ambientes.find(a => a.id === id); 
+            // Si es TUG o IUG con derivados, suma puntosTUG
+            const suma = (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) 
+                ? (amb?.puntosTUG || 0) : 0;
+            return acc + suma; 
+        }, 0);
 
-        if (c.tipo === 'iluminacion_usos_generales') {
-            puntosIUG = nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosIUG || 0); }, 0);
-            if (c.tieneTomacorrientesDerivados) {
-                puntosTUG = nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUG || 0); }, 0);
-            }
-        } else if (c.tipo === 'tomacorrientes_usos_generales') {
-            puntosTUG = nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUG || 0); }, 0);
-        } else if (c.tipo === 'usos_especiales') {
-            puntosTUE = nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUE || 0); }, 0);
-        }
+        const puntosTUE = c.tipo === 'usos_especiales'
+            ? nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUE || 0); }, 0)
+            : c.puntosTUE;
 
         return { ...c, ambientesIds: nuevosAmbientes, puntosIUG, puntosTUG, puntosTUE };
       }
@@ -68,15 +69,26 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
 
       <div className="space-y-8">
         {datos.ambientes.map((ambiente) => {
-          const totalBocasAmbiente = ambiente.puntosIUG + ambiente.puntosTUG;
+          // Calcular cuánto se ha asignado para este ambiente
+          const asignadoIUG = datos.circuitosCalculados.reduce((acc, c) => 
+            c.ambientesIds.includes(ambiente.id) && c.tipo === 'iluminacion_usos_generales' ? acc + c.puntosIUG : acc, 0);
+          const asignadoTUG = datos.circuitosCalculados.reduce((acc, c) => 
+            c.ambientesIds.includes(ambiente.id) && (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) ? acc + c.puntosTUG : acc, 0);
+          const asignadoTUE = datos.circuitosCalculados.reduce((acc, c) => 
+            c.ambientesIds.includes(ambiente.id) && c.tipo === 'usos_especiales' ? acc + c.puntosTUE : acc, 0);
+
+          const completadoIUG = asignadoIUG >= ambiente.puntosIUG;
+          const completadoTUG = asignadoTUG >= ambiente.puntosTUG;
+          const completadoTUE = asignadoTUE >= ambiente.puntosTUE;
+
           return (
             <div key={ambiente.id} className="space-y-3 border-l-2 border-slate-800 pl-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-white">{ambiente.nombre}</h3>
-                <div className="text-[10px] text-slate-400 bg-slate-900 px-2 py-1 rounded space-x-2">
-                    <span>IUG: {ambiente.puntosIUG}</span>
-                    <span>TUG: {ambiente.puntosTUG}</span>
-                    <span>TUE: {ambiente.puntosTUE}</span>
+                <div className="text-[10px] text-slate-400 bg-slate-900 px-2 py-1 rounded space-x-3">
+                    <span className={completadoIUG ? 'text-emerald-400' : 'text-amber-400'}>IUG: {asignadoIUG}/{ambiente.puntosIUG}</span>
+                    <span className={completadoTUG ? 'text-emerald-400' : 'text-amber-400'}>TUG: {asignadoTUG}/{ambiente.puntosTUG}</span>
+                    <span className={completadoTUE ? 'text-emerald-400' : 'text-amber-400'}>TUE: {asignadoTUE}/{ambiente.puntosTUE}</span>
                 </div>
               </div>
               

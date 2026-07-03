@@ -34,10 +34,10 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
         const updated = { ...a, ...updates };
         const pmu = calcularPuntosMinimosAmbiente(updated.nombre, updated.superficie, updated.longitud);
         
-        // Si es cambio de medidas, actualizar los puntos si el valor actual es menor al nuevo mínimo
+        // Si es cambio de medidas, actualizar los puntos al nuevo mínimo (permitir disminuir si el cálculo lo requiere)
         if (updates.superficie !== undefined || updates.longitud !== undefined || updates.nombre !== undefined) {
-          if ((updated.puntosTUG || 0) < pmu.tug) updated.puntosTUG = pmu.tug;
-          if ((updated.puntosIUG || 0) < pmu.iug) updated.puntosIUG = pmu.iug;
+          updated.puntosTUG = pmu.tug;
+          updated.puntosIUG = pmu.iug;
         }
 
         return updated;
