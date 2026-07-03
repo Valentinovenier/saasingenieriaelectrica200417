@@ -7,9 +7,9 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS projects (
   id TEXT PRIMARY KEY,
-  userId TEXT NOT NULL,
+  user_id TEXT NOT NULL,
   name TEXT NOT NULL,
   data TEXT NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (userId) REFERENCES users(id)
+  FOREIGN KEY (user_id) REFERENCES users(id)
 );
