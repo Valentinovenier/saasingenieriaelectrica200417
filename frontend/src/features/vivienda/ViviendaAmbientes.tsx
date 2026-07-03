@@ -84,30 +84,41 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
             <div className="col-span-4 flex justify-around bg-slate-950/50 rounded-lg py-1">
                 <div className="text-center">
                     <p className="text-[10px] text-slate-500 uppercase">IUG</p>
-                    <p className="font-bold text-[var(--accent)]">{a.puntosIUG || 0}</p>
-                </div>
-                <div className="text-center">
-                    <p className="text-[10px] text-slate-500 uppercase">TUG</p>
                     <input 
                       type="number" 
                       className="w-12 bg-transparent text-center font-bold text-[var(--accent)] outline-none focus:border-b border-[var(--accent)]" 
-                      value={a.puntosTUG || 0}
+                      value={a.puntosIUG || 0}
                       onChange={(e) => {
                         const val = parseInt(e.target.value) || 0;
-                        updateAmbiente(a.id, { puntosTUG: val });
+                        const min = calcularPuntosMinimosAmbiente(a.nombre, a.superficie, a.longitud).iug;
+                        updateAmbiente(a.id, { puntosIUG: Math.max(val, min) });
                       }}
                     />
                 </div>
                 <div className="text-center">
+                    <p className="text-[10px] text-slate-500 uppercase">TUG</p>
+                    <input 
+                    type="number" 
+                    className="w-12 bg-transparent text-center font-bold text-[var(--accent)] outline-none focus:border-b border-[var(--accent)]" 
+                    value={a.puntosTUG || 0}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      const min = calcularPuntosMinimosAmbiente(a.nombre, a.superficie, a.longitud).tug;
+                      updateAmbiente(a.id, { puntosTUG: Math.max(val, min) });
+                    }}
+                    />
+                    </div>
+                    <div className="text-center">
                     <p className="text-[10px] text-slate-500 uppercase">TUE</p>
                     <input 
-                      type="number" 
-                      className="w-12 bg-transparent text-center font-bold text-[var(--accent)] outline-none focus:border-b border-[var(--accent)]" 
-                      value={a.puntosTUE || 0}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value) || 0;
-                        updateAmbiente(a.id, { puntosTUE: val });
-                      }}
+                    type="number" 
+                    className="w-12 bg-transparent text-center font-bold text-[var(--accent)] outline-none focus:border-b border-[var(--accent)]" 
+                    value={a.puntosTUE || 0}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      // TUE no tiene un mínimo definido automáticamente en la función, permitimos edición libre
+                      updateAmbiente(a.id, { puntosTUE: val });
+                    }}
                     />
                 </div>
             </div>
