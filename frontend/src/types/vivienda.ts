@@ -15,9 +15,11 @@ export interface Ambiente {
   longitud: number;
   puntosIUG: number;
   puntosTUG: number;
+  puntosTUE: number;
   // Campos para control de asignación automática/manual
   circuitoIUGId?: string;
   circuitoTUGId?: string;
+  circuitoTUEId?: string;
 }
 
 export interface CircuitoCalculado {
@@ -26,6 +28,7 @@ export interface CircuitoCalculado {
   tipo: TipoCircuito;
   puntosIUG: number;
   puntosTUG: number;
+  puntosTUE: number;
   ambientesIds: string[];
 }
 

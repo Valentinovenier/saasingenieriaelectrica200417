@@ -36,8 +36,12 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
             const amb = datos.ambientes.find(a => a.id === id);
             return acc + (c.tipo === 'tomacorrientes_usos_generales' ? (amb?.puntosTUG || 0) : 0);
         }, 0);
+        const puntosTUE = nuevosAmbientes.reduce((acc, id) => {
+            const amb = datos.ambientes.find(a => a.id === id);
+            return acc + (c.tipo === 'usos_especiales' ? (amb?.puntosTUE || 0) : 0);
+        }, 0);
 
-        return { ...c, ambientesIds: nuevosAmbientes, puntosIUG, puntosTUG };
+        return { ...c, ambientesIds: nuevosAmbientes, puntosIUG, puntosTUG, puntosTUE };
       }
       return c;
     });
@@ -62,9 +66,10 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                   const isSelected = circuito.ambientesIds.includes(ambiente.id);
                   const info = getCircuitoInfo(circuito.tipo);
                   
-                  // Validar compatibilidad (solo IUG a circuitos IUG, TUG a TUG)
+                  // Validar compatibilidad (solo IUG a circuitos IUG, TUG a TUG, TUE a usos_especiales)
                   const esCompatible = (circuito.tipo === 'iluminacion_usos_generales' && ambiente.puntosIUG > 0) ||
-                                       (circuito.tipo === 'tomacorrientes_usos_generales' && ambiente.puntosTUG > 0);
+                                       (circuito.tipo === 'tomacorrientes_usos_generales' && ambiente.puntosTUG > 0) ||
+                                       (circuito.tipo === 'usos_especiales' && ambiente.puntosTUE > 0);
 
                   return (
                     <button

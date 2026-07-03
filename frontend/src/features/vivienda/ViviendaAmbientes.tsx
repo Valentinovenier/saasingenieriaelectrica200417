@@ -24,7 +24,7 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
     const existentes = datos.ambientes.filter(a => a.nombre.startsWith(tipo)).length;
     const nuevoNombre = `${tipo} ${existentes + 1}`;
     
-    const nuevoAmbiente: Ambiente = { id: Date.now().toString(), nombre: nuevoNombre, superficie: 0, longitud: 0, puntosIUG: 0, puntosTUG: 0 };
+    const nuevoAmbiente: Ambiente = { id: Date.now().toString(), nombre: nuevoNombre, superficie: 0, longitud: 0, puntosIUG: 0, puntosTUG: 0, puntosTUE: 0 };
     onChange({ ...project, datosVivienda: { ...datos, ambientes: [...datos.ambientes, nuevoAmbiente] } });
   };
 
@@ -91,6 +91,18 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
                       onChange={(e) => {
                         const val = parseInt(e.target.value) || 0;
                         updateAmbiente(a.id, { puntosTUG: val });
+                      }}
+                    />
+                </div>
+                <div className="text-center">
+                    <p className="text-[10px] text-slate-500 uppercase">TUE</p>
+                    <input 
+                      type="number" 
+                      className="w-12 bg-transparent text-center font-bold text-[var(--accent)] outline-none focus:border-b border-[var(--accent)]" 
+                      value={a.puntosTUE || 0}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 0;
+                        updateAmbiente(a.id, { puntosTUE: val });
                       }}
                     />
                 </div>

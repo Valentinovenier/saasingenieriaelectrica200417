@@ -21,28 +21,37 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
 
     const totalIUG = datos.ambientes.reduce((acc, a) => acc + (a.puntosIUG || 0), 0);
     const totalTUG = datos.ambientes.reduce((acc, a) => acc + (a.puntosTUG || 0), 0);
+    const totalTUE = datos.ambientes.reduce((acc, a) => acc + (a.puntosTUE || 0), 0);
     
     // Comparar con circuitos existentes para evitar actualizaciones innecesarias (prevenir bucles)
     const numCircuitosIUG = Math.ceil(totalIUG / 13);
     const numCircuitosTUG = Math.ceil(totalTUG / 13);
+    const numCircuitosTUE = totalTUE > 0 ? 1 : 0; // TUE según necesidad
 
     const actualesIUG = datos.circuitosCalculados.filter(c => c.tipo === 'iluminacion_usos_generales').length;
     const actualesTUG = datos.circuitosCalculados.filter(c => c.tipo === 'tomacorrientes_usos_generales').length;
+    const actualesTUE = datos.circuitosCalculados.filter(c => c.tipo === 'usos_especiales').length;
 
-    if (numCircuitosIUG === actualesIUG && numCircuitosTUG === actualesTUG) return;
+    if (numCircuitosIUG === actualesIUG && numCircuitosTUG === actualesTUG && numCircuitosTUE === actualesTUE) return;
 
     const nuevosCircuitos: CircuitoCalculado[] = [];
     
     for (let i = 0; i < Math.max(numCircuitosIUG, 1); i++) {
         nuevosCircuitos.push({ 
             id: `iug-${i}`, nombre: `Circuito IUG ${i + 1}`, 
-            tipo: 'iluminacion_usos_generales', puntosIUG: 0, puntosTUG: 0, ambientesIds: [] 
+            tipo: 'iluminacion_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] 
         });
     }
     for (let i = 0; i < Math.max(numCircuitosTUG, 1); i++) {
         nuevosCircuitos.push({ 
             id: `tug-${i}`, nombre: `Circuito TUG ${i + 1}`, 
-            tipo: 'tomacorrientes_usos_generales', puntosIUG: 0, puntosTUG: 0, ambientesIds: [] 
+            tipo: 'tomacorrientes_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] 
+        });
+    }
+    for (let i = 0; i < numCircuitosTUE; i++) {
+        nuevosCircuitos.push({ 
+            id: `tue-${i}`, nombre: `Circuito Especial ${i + 1}`, 
+            tipo: 'usos_especiales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] 
         });
     }
 
