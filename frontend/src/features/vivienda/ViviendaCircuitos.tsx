@@ -17,15 +17,22 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
 
   // Lógica de cálculo automático
   useEffect(() => {
+    if (!datos.ambientes) return;
+
     const totalIUG = datos.ambientes.reduce((acc, a) => acc + (a.puntosIUG || 0), 0);
     const totalTUG = datos.ambientes.reduce((acc, a) => acc + (a.puntosTUG || 0), 0);
     
-    const nuevosCircuitos: CircuitoCalculado[] = [];
-    
-    // Cálculo simplificado de circuitos necesarios (15 bocas máx)
+    // Comparar con circuitos existentes para evitar actualizaciones innecesarias (prevenir bucles)
     const numCircuitosIUG = Math.ceil(totalIUG / 13);
     const numCircuitosTUG = Math.ceil(totalTUG / 13);
 
+    const actualesIUG = datos.circuitosCalculados.filter(c => c.tipo === 'iluminacion_usos_generales').length;
+    const actualesTUG = datos.circuitosCalculados.filter(c => c.tipo === 'tomacorrientes_usos_generales').length;
+
+    if (numCircuitosIUG === actualesIUG && numCircuitosTUG === actualesTUG) return;
+
+    const nuevosCircuitos: CircuitoCalculado[] = [];
+    
     for (let i = 0; i < Math.max(numCircuitosIUG, 1); i++) {
         nuevosCircuitos.push({ 
             id: `iug-${i}`, nombre: `Circuito IUG ${i + 1}`, 
@@ -40,7 +47,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
     }
 
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
-  }, [datos.ambientes.length]); // Dependencia simplificada para evitar bucles
+  }, [datos.ambientes, datos.circuitosCalculados.length]);
 
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
