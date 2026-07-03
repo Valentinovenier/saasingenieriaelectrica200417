@@ -85,11 +85,13 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                   const isSelected = circuito.ambientesIds.includes(ambiente.id);
                   const info = getCircuitoInfo(circuito.tipo);
                   
-                  // Calcular bocas actuales del circuito
-                  const bocasCircuito = circuito.ambientesIds.reduce((acc, id) => {
-                      const amb = datos.ambientes.find(a => a.id === id);
-                      return acc + (amb ? (amb.puntosIUG + amb.puntosTUG) : 0);
-                  }, 0);
+                  // Calcular bocas correctas para el tipo de circuito
+                  let bocasCircuito = 0;
+                  if (circuito.tipo === 'iluminacion_usos_generales') bocasCircuito = circuito.puntosIUG + (circuito.tieneTomacorrientesDerivados ? circuito.puntosTUG : 0);
+                  else if (circuito.tipo === 'tomacorrientes_usos_generales') bocasCircuito = circuito.puntosTUG;
+                  else if (circuito.tipo === 'usos_especiales') bocasCircuito = circuito.puntosTUE;
+                  else bocasCircuito = 0;
+                  
                   const superaLimite = bocasCircuito > 15;
 
                   // Validar compatibilidad estricta
@@ -97,7 +99,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                   if (circuito.tipo === 'iluminacion_usos_generales') esCompatible = ambiente.puntosIUG > 0;
                   else if (circuito.tipo === 'tomacorrientes_usos_generales') esCompatible = ambiente.puntosTUG > 0;
                   else if (circuito.tipo === 'usos_especiales') esCompatible = ambiente.puntosTUE > 0;
-                  else if (circuito.tipo === 'usos_especificos') esCompatible = true; // Permisivo para específicos
+                  else if (circuito.tipo === 'usos_especificos') esCompatible = true; 
 
                   return (
                     <button
@@ -115,23 +117,34 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                       <span className="text-xs mb-1">{circuito.nombre}</span>
                       <span className={isSelected ? 'text-black/70' : 'text-slate-500'}>{info.label}</span>
                       {isSelected && (
-                        <div className="flex flex-col items-center mt-1">
-                            <input 
-                                type="number"
-                                className={`w-12 bg-transparent text-center font-bold outline-none ${superaLimite ? 'text-red-500' : 'text-slate-300'}`}
-                                value={bocasCircuito}
-                                onClick={(e) => e.stopPropagation()}
-                                onChange={(e) => {
-                                    const val = parseInt(e.target.value) || 0;
-                                    // Determinar qué campo actualizar basado en el tipo
-                                    const campo: 'puntosIUG' | 'puntosTUG' | 'puntosTUE' = 
-                                        circuito.tipo === 'iluminacion_usos_generales' ? 'puntosIUG' :
-                                        circuito.tipo === 'tomacorrientes_usos_generales' ? 'puntosTUG' : 'puntosTUE';
-                                    updateBocasCircuito(circuito.id, campo, val);
-                                }}
-                            />
+                        <div className="flex flex-col items-center mt-1 gap-1">
+                            {/* Input para IUG */}
+                            {(circuito.tipo === 'iluminacion_usos_generales') && (
+                                <div className="flex items-center gap-1">
+                                    <span className="text-[9px]">IUG:</span>
+                                    <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={circuito.puntosIUG} 
+                                      onClick={(e) => e.stopPropagation()}
+                                      onChange={(e) => updateBocasCircuito(circuito.id, 'puntosIUG', parseInt(e.target.value) || 0)} />
+                                </div>
+                            )}
+                            {/* Input para TUG en IUG derivado o TUG normal */}
+                            {(circuito.tipo === 'tomacorrientes_usos_generales' || (circuito.tipo === 'iluminacion_usos_generales' && circuito.tieneTomacorrientesDerivados)) && (
+                                <div className="flex items-center gap-1">
+                                    <span className="text-[9px]">TUG:</span>
+                                    <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={circuito.puntosTUG} 
+                                      onClick={(e) => e.stopPropagation()}
+                                      onChange={(e) => updateBocasCircuito(circuito.id, 'puntosTUG', parseInt(e.target.value) || 0)} />
+                                </div>
+                            )}
+                            {/* Input para TUE */}
+                            {circuito.tipo === 'usos_especiales' && (
+                                <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={circuito.puntosTUE}
+                                   onClick={(e) => e.stopPropagation()}
+                                   onChange={(e) => updateBocasCircuito(circuito.id, 'puntosTUE', parseInt(e.target.value) || 0)} />
+                            )}
+                            
                             <span className={`text-[9px] ${superaLimite ? 'text-red-500 font-bold' : 'text-slate-600'}`}>
-                                / 15 bocas
+                                {bocasCircuito} / 15 bocas
                             </span>
                         </div>
                       )}
