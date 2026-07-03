@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
-  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitos: [] };
+  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
   
   const [localDatos, setLocalDatos] = useState(datos);
 

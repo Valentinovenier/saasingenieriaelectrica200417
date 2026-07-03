@@ -13,7 +13,7 @@ const TIPOS_AMBIENTES = [
 ];
 
 export const ViviendaAmbientes = ({ project, onChange }: Props) => {
-  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitos: [] };
+  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
 
   const needsLongitud = (nombre: string) => {
     const n = nombre.toLowerCase();
@@ -24,7 +24,7 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
     const existentes = datos.ambientes.filter(a => a.nombre.startsWith(tipo)).length;
     const nuevoNombre = `${tipo} ${existentes + 1}`;
     
-    const nuevoAmbiente: Ambiente = { id: Date.now().toString(), nombre: nuevoNombre, superficie: 0, longitud: 0, circuitos: [] };
+    const nuevoAmbiente: Ambiente = { id: Date.now().toString(), nombre: nuevoNombre, superficie: 0, longitud: 0, puntosIUG: 0, puntosTUG: 0 };
     onChange({ ...project, datosVivienda: { ...datos, ambientes: [...datos.ambientes, nuevoAmbiente] } });
   };
 
@@ -34,10 +34,6 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
         const updated = { ...a, ...updates };
         const pmu = calcularPuntosMinimosAmbiente(updated.nombre, updated.superficie, updated.longitud);
         
-        // Mantener o actualizar los mínimos
-        updated.puntosIUGMinimo = pmu.iug;
-        updated.puntosTUGMinimo = pmu.tug;
-
         // Si es cambio de medidas, actualizar los puntos si el valor actual es menor al nuevo mínimo
         if (updates.superficie !== undefined || updates.longitud !== undefined || updates.nombre !== undefined) {
           if ((updated.puntosTUG || 0) < pmu.tug) updated.puntosTUG = pmu.tug;
@@ -92,10 +88,9 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
                       type="number" 
                       className="w-12 bg-transparent text-center font-bold text-[var(--accent)] outline-none focus:border-b border-[var(--accent)]" 
                       value={a.puntosTUG || 0}
-                      min={a.puntosTUGMinimo || 0}
                       onChange={(e) => {
                         const val = parseInt(e.target.value) || 0;
-                        updateAmbiente(a.id, { puntosTUG: Math.max(val, a.puntosTUGMinimo || 0) });
+                        updateAmbiente(a.id, { puntosTUG: val });
                       }}
                     />
                 </div>
