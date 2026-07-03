@@ -27,16 +27,22 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
             ? c.ambientesIds.filter(id => id !== ambiente.id)
             : [...c.ambientesIds, ambiente.id];
 
-        // Recalcular puntos del circuito sumando los puntos correspondientes al tipo del circuito
-        const puntosIUG = c.tipo === 'iluminacion_usos_generales' 
-            ? nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosIUG || 0); }, 0)
-            : c.puntosIUG;
-        const puntosTUG = c.tipo === 'tomacorrientes_usos_generales'
-            ? nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUG || 0); }, 0)
-            : c.puntosTUG;
-        const puntosTUE = c.tipo === 'usos_especiales'
-            ? nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUE || 0); }, 0)
-            : c.puntosTUE;
+        // Recalcular puntos del circuito sumando puntos correspondientes al tipo del circuito
+        // IUG: suma IUG (y TUG si tiene derivados), TUG: suma TUG, TUE: suma TUE
+        let puntosIUG = c.puntosIUG;
+        let puntosTUG = c.puntosTUG;
+        let puntosTUE = c.puntosTUE;
+
+        if (c.tipo === 'iluminacion_usos_generales') {
+            puntosIUG = nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosIUG || 0); }, 0);
+            if (c.tieneTomacorrientesDerivados) {
+                puntosTUG = nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUG || 0); }, 0);
+            }
+        } else if (c.tipo === 'tomacorrientes_usos_generales') {
+            puntosTUG = nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUG || 0); }, 0);
+        } else if (c.tipo === 'usos_especiales') {
+            puntosTUE = nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUE || 0); }, 0);
+        }
 
         return { ...c, ambientesIds: nuevosAmbientes, puntosIUG, puntosTUG, puntosTUE };
       }
