@@ -89,16 +89,17 @@ export interface Tablero {
   nombre: string;
   conductorAlimentacion: Conductor;
   proteccionCabecera: Proteccion;
-  subTableros: Tablero[];
+  subTableros: (Tablero | TableroSeccional)[];
   circuitosTerminales: CircuitoTerminal[];
 }
 
 export interface TableroSeccional {
   id: string;
-  name: string;
+  nombre: string;
   tipo: 'Fuerza Motriz' | 'Iluminación';
   potenciaTotal: number;
-  subTableros: TableroSeccional[];
+  subTableros: (Tablero | TableroSeccional)[];
+  circuitosTerminales: CircuitoTerminal[];
   proteccionCabecera?: Proteccion;
   proteccionesSalida: Proteccion[];
 }
