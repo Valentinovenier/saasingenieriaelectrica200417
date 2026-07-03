@@ -55,9 +55,8 @@ export async function onRequestPost(context) {
       headers: { 'Content-Type': 'application/json' } 
     });
   } catch (e: any) {
-    const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
-    return new Response(JSON.stringify({ error: `Error en Servidor: ${e.message}` }), { 
-        status, 
+    return new Response(JSON.stringify({ error: `Error detallado en Servidor: ${e.message}`, stack: e.stack }), { 
+        status: 500, 
         headers: { 'Content-Type': 'application/json' } 
       });
     }
