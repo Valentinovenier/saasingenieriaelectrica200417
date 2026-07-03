@@ -40,8 +40,8 @@ export const ResidentialTopologyEditor = ({ project, onChange }: { project: Proj
         return {
             ...node,
             subTableros: node.subTableros.map(t => 
-                t.id === nextId ? updateRecursive(nextNode, currentPath.slice(1)) : t
-            )
+                t.id === nextId ? updateRecursive(nextNode, currentPath.slice(1)) : (t as Tablero | TableroSeccional)
+            ) as (Tablero | TableroSeccional)[]
         };
     };
 

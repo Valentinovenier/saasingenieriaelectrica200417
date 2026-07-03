@@ -281,7 +281,7 @@ export const TablerosVivienda = ({ project, onChange }: { project: Project; onCh
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-sm font-semibold text-white">Tramo: Cabecera $ightarrow$ Salida</h4>
                 <div className="text-amber-400 text-xs font-bold">
-                  "I_{diseño}": {getAggregateCurrent(currentNode, project).toFixed(1)} A
+                  I_diseno: {getAggregateCurrent(currentNode, project).toFixed(1)} A
                 </div>
               </div>
               <ViviendaConductorForm 
@@ -294,12 +294,12 @@ export const TablerosVivienda = ({ project, onChange }: { project: Project; onCh
             {/* TRAMO 2: Salida a Circuitos / Sub-tableros */}
             
             {/* Tramos hacia Circuitos Terminales */}
-            {(currentNode.circuitosTerminales || []).map((circuito, idx) => (
+            {(currentNode.circuitosTerminales || []).map((circuito: any, idx: number) => (
               <div key={circuito.id} className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700">
                 <div className="flex justify-between items-center mb-4">
                   <h4 className="text-sm font-semibold text-white">Tramo: Salida $ightarrow$ {circuito.nombre}</h4>
                   <div className="text-amber-400 text-xs font-bold">
-                    "I_{diseño}": {getEffectiveCurrent(circuito, project).toFixed(1)} A
+                    "I_diseno": {getEffectiveCurrent(circuito, project).toFixed(1)} A
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-4 items-end">
@@ -323,12 +323,12 @@ export const TablerosVivienda = ({ project, onChange }: { project: Project; onCh
             ))}
 
             {/* Tramos hacia Sub-tableros */}
-            {(currentNode.subTableros || []).map((sub) => (
+            {(currentNode.subTableros || []).map((sub: any) => (
                <div key={sub.id} className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700">
                  <div className="flex justify-between items-center mb-4">
                    <h4 className="text-sm font-semibold text-white">Tramo: Salida $ightarrow$ {sub.nombre}</h4>
                    <div className="text-amber-400 text-xs font-bold">
-                     "I_{diseño}": {getAggregateCurrent(sub, project).toFixed(1)} A
+                     "I_diseno": {getAggregateCurrent(sub, project).toFixed(1)} A
                    </div>
                  </div>
                  <ViviendaConductorForm 
@@ -373,7 +373,7 @@ export const TablerosVivienda = ({ project, onChange }: { project: Project; onCh
                   </button>
                 </div>
                 <div className="space-y-2">
-                  {(currentNode.subTableros || []).map((sub) => (
+                  {(currentNode.subTableros || []).map((sub: any) => (
                     <div key={sub.id} className="flex items-center justify-between bg-slate-900/50 p-2 rounded-lg border border-slate-800">
                       <span className="text-sm text-slate-300 truncate max-w-[120px]">{sub.nombre}</span>
                       <div className="flex gap-1">
@@ -411,7 +411,7 @@ export const TablerosVivienda = ({ project, onChange }: { project: Project; onCh
                   </button>
                 </div>
                 <div className="space-y-2">
-                  {(currentNode.circuitosTerminales || []).map((circuito, idx) => (
+                  {(currentNode.circuitosTerminales || []).map((circuito: any, idx: number) => (
                     <div key={circuito.id} className="flex items-center justify-between bg-slate-900/50 p-2 rounded-lg border border-slate-800">
                       <span className="text-sm text-slate-300 truncate max-w-[120px]">{circuito.nombre}</span>
                       <div className="flex gap-1">
