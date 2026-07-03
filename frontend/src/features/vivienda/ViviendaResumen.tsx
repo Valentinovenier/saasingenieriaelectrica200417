@@ -36,8 +36,8 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
 
   const potenciaTotalSinSimultaneidad = circuitosConPotencia.reduce((acc, c) => acc + c.potenciaCalculada, 0);
   
-  // Coeficiente de simultaneidad simplificado
-  const coefSimultaneidad = datos.circuitos.length > 5 ? 0.7 : 0.8;
+  // Coeficiente de simultaneidad basado en la cantidad de CIRCUITOS MÍNIMOS requeridos por la norma
+  const coefSimultaneidad = minCircuitos > 5 ? 0.7 : 0.8;
   const dpms = potenciaTotalSinSimultaneidad * coefSimultaneidad;
 
   const grado = datos.gradoElectrificacion || 'Minimo';
@@ -106,7 +106,7 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                 <span className="text-xs font-bold uppercase">Nota de cálculo</span>
               </div>
               <p className="text-[10px] text-slate-400 leading-relaxed">
-                El DPMS se calcula sobre la suma de las potencias de los circuitos asignados, aplicando un factor de simultaneidad del {coefSimultaneidad * 100}% basado en la cantidad de circuitos.
+                El DPMS se calcula sobre la suma de las potencias de los circuitos asignados, aplicando un factor de simultaneidad del {coefSimultaneidad * 100}% basado en los circuitos mínimos requeridos por la norma para su grado de electrificación.
               </p>
             </div>
           </div>

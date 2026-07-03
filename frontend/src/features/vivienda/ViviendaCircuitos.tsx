@@ -73,8 +73,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                         >
                             <option value="iluminacion_usos_generales">IUG (Iluminación)</option>
                             <option value="tomacorrientes_usos_generales">TUG (Tomacorrientes)</option>
-                            <option value="iluminacion_con_tomacorrientes">IUG + TUG</option>
-                            <option value="usos_especiales">Usos Especiales</option>
+                            <option value="usos_especiales">TUE (Usos Específicos)</option>
                         </select>
                     </div>
                     <button 

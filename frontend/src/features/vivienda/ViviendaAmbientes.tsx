@@ -33,7 +33,18 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
         if (a.id !== id) return a;
         const updated = { ...a, ...updates };
         const pmu = calcularPuntosMinimosAmbiente(updated.nombre, updated.superficie, updated.longitud);
-        return { ...updated, puntosIUG: pmu.iug, puntosTUG: pmu.tug };
+        
+        // Mantener o actualizar los mínimos
+        updated.puntosIUGMinimo = pmu.iug;
+        updated.puntosTUGMinimo = pmu.tug;
+
+        // Si es cambio de medidas, actualizar los puntos si el valor actual es menor al nuevo mínimo
+        if (updates.superficie !== undefined || updates.longitud !== undefined || updates.nombre !== undefined) {
+          if ((updated.puntosTUG || 0) < pmu.tug) updated.puntosTUG = pmu.tug;
+          if ((updated.puntosIUG || 0) < pmu.iug) updated.puntosIUG = pmu.iug;
+        }
+
+        return updated;
     });
     onChange({ ...project, datosVivienda: { ...datos, ambientes: nuevosAmbientes } });
   };
@@ -57,7 +68,11 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
       <div className="space-y-3">
         {datos.ambientes.map((a) => (
           <div key={a.id} className="grid grid-cols-12 gap-3 items-center bg-slate-900 p-3 rounded-lg text-sm">
-            <span className="col-span-2 text-white font-medium">{a.nombre}</span>
+            <input 
+              className="col-span-2 bg-slate-950 p-2 rounded border border-slate-700 text-white font-medium" 
+              value={a.nombre} 
+              onChange={(e) => updateAmbiente(a.id, { nombre: e.target.value })} 
+            />
             
             <div className="col-span-3 flex gap-2">
                 <input type="number" className="w-full bg-slate-950 p-2 rounded border border-slate-700 text-white" value={a.superficie || ''} onChange={(e) => updateAmbiente(a.id, { superficie: parseFloat(e.target.value) || 0 })} placeholder="m²" />
@@ -66,19 +81,24 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
                 )}
             </div>
             
-            <div className="col-span-3 flex justify-around bg-slate-950/50 rounded-lg py-1">
+            <div className="col-span-4 flex justify-around bg-slate-950/50 rounded-lg py-1">
                 <div className="text-center">
                     <p className="text-[10px] text-slate-500 uppercase">IUG</p>
                     <p className="font-bold text-[var(--accent)]">{a.puntosIUG || 0}</p>
                 </div>
                 <div className="text-center">
                     <p className="text-[10px] text-slate-500 uppercase">TUG</p>
-                    <p className="font-bold text-[var(--accent)]">{a.puntosTUG || 0}</p>
+                    <input 
+                      type="number" 
+                      className="w-12 bg-transparent text-center font-bold text-[var(--accent)] outline-none focus:border-b border-[var(--accent)]" 
+                      value={a.puntosTUG || 0}
+                      min={a.puntosTUGMinimo || 0}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 0;
+                        updateAmbiente(a.id, { puntosTUG: Math.max(val, a.puntosTUGMinimo || 0) });
+                      }}
+                    />
                 </div>
-            </div>
-
-            <div className="col-span-3 text-slate-500 italic text-[10px] text-center">
-                Siguiente: asignar circuitos
             </div>
             
             <button onClick={() => removeAmbiente(a.id)} className="col-span-1 text-red-400 p-2 flex justify-center">

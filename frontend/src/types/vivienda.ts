@@ -4,7 +4,6 @@
 export type TipoCircuito = 
   | 'iluminacion_usos_generales'
   | 'tomacorrientes_usos_generales'
-  | 'iluminacion_con_tomacorrientes'
   | 'usos_especiales'
   | 'usos_especificos'
   | 'usos_especificos_mbtf';
@@ -16,6 +15,8 @@ export interface Ambiente {
   longitud: number;
   puntosIUG?: number;
   puntosTUG?: number;
+  puntosIUGMinimo?: number;
+  puntosTUGMinimo?: number;
   circuitos?: string[];
 }
 
