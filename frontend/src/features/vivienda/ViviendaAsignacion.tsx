@@ -110,11 +110,9 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                     >
                       <span className="text-xs mb-1">{circuito.nombre}</span>
                       <span className={isSelected ? 'text-black/70' : 'text-slate-500'}>{info.label}</span>
-                      {isSelected && (
-                          <span className={`text-[9px] mt-1 ${superaLimite ? 'text-red-600' : 'text-slate-700'}`}>
-                              {bocasCircuito} / 15 bocas
-                          </span>
-                      )}
+                      <span className={`text-[9px] mt-1 ${superaLimite ? 'text-red-500 font-bold' : isSelected ? 'text-black/60' : 'text-slate-500'}`}>
+                          {bocasCircuito} / 15 bocas
+                      </span>
                     </button>
                   );
                 })}

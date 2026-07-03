@@ -100,17 +100,37 @@ export const calcularPuntosMinimosAmbiente = (
 
 /**
  * AEA 770: Calcula la Demanda de Potencia Máxima Simultánea (DPMS)
- * Basado en la cantidad de bocas y coeficientes de simultaneidad.
+ * Basado en la cantidad de bocas y coeficientes de simultaneidad, con reglas específicas por tipo.
  */
 export const calcularDPMS = (circuitos: any[]): number => {
     let potenciaTotal = 0;
-    
-    // Potencia estimada por boca según norma (valores base)
-    const POTENCIA_BOCA_IUG = 100; // VA
-    const POTENCIA_BOCA_TUG = 150; // VA
 
     circuitos.forEach(circ => {
-        const potenciaCircuito = (circ.puntosIUG || 0) * POTENCIA_BOCA_IUG + (circ.puntosTUG || 0) * POTENCIA_BOCA_TUG;
+        let potenciaCircuito = 0;
+        
+        switch (circ.tipo) {
+            case 'iluminacion_usos_generales':
+                // Si tiene TUG derivados (puntosTUG > 0), es 2200 VA
+                // Si no, es (2/3) * puntosIUG * 60 VA
+                if (circ.puntosTUG > 0) {
+                    potenciaCircuito = 2200;
+                } else {
+                    potenciaCircuito = (2 / 3) * (circ.puntosIUG || 0) * 60;
+                }
+                break;
+            case 'tomacorrientes_usos_generales':
+                potenciaCircuito = 2200;
+                break;
+            case 'usos_especiales':
+                potenciaCircuito = 3300;
+                break;
+            case 'usos_especificos':
+                // Para específicos, usaremos el valor que se deba definir o una base
+                potenciaCircuito = 0; // Se requerirá input manual o valor definido en el específico
+                break;
+            default:
+                potenciaCircuito = 0;
+        }
         potenciaTotal += potenciaCircuito;
     });
 
