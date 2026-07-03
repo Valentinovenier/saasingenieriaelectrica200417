@@ -255,91 +255,6 @@ export const TablerosVivienda = ({ project, onChange }: { project: Project; onCh
         </div>
 
         <div className="space-y-8">
-          {/* Sección: Tramos del Nodo */}
-          <section className="space-y-4">
-            <h3 className="text-sm font-bold text-slate-500 uppercase flex items-center gap-2">
-              <Activity size={16} /> Tramos de este Tablero
-            </h3>
-            
-            {/* TRAMO 1: Cabecera a Salida */}
-            <div className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700">
-              <div className="flex justify-between items-center mb-4">
-                <h4 className="text-sm font-semibold text-white">Tramo: Cabecera $ightarrow$ Salida</h4>
-                <div className="text-amber-400 text-xs font-bold">
-                  I_diseno: {getAggregateCurrent(currentNode, project).toFixed(1)} A
-                </div>
-              </div>
-              <ViviendaConductorForm 
-                label="Configuración del conductor"
-                conductor={currentNode.conductorAlimentacion}
-                onChange={(c) => handleUpdateNode(selectedPath, { conductorAlimentacion: c })}
-              />
-            </div>
-
-            {/* TRAMO 2: Salida a Circuitos / Sub-tableros */}
-            
-            {/* Tramos hacia Circuitos Terminales */}
-            {(currentNode.circuitosTerminales || []).map((circuito: any, idx: number) => (
-              <div key={circuito.id} className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-sm font-semibold text-white">Tramo: Salida $ightarrow$ {circuito.nombre}</h4>
-                  <div className="text-amber-400 text-xs font-bold">
-                    "I_diseno": {getEffectiveCurrent(circuito, project).toFixed(1)} A
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-4 items-end">
-                   <div className="flex-1 min-w-[200px]">
-                     <ViviendaConductorForm 
-                        label="Configuración del conductor"
-                        conductor={circuito.conductor}
-                        onChange={(c) => updateCircuito(selectedPath, circuito.id, { conductor: c })}
-                      />
-                   </div>
-                   <div className="flex flex-col gap-2 w-full md:w-auto">
-                      <button 
-                        onClick={() => removeCircuito(selectedPath, circuito.id)}
-                        className="flex items-center justify-center gap-1 bg-red-950/30 hover:bg-red-900/40 text-red-400 text-xs px-3 py-2 rounded-lg transition-colors"
-                      >
-                        <Trash2 size={14} /> Eliminar Circuito
-                      </button>
-                   </div>
-                </div>
-              </div>
-            ))}
-
-            {/* Tramos hacia Sub-tableros */}
-            {(currentNode.subTableros || []).map((sub: any) => (
-               <div key={sub.id} className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700">
-                 <div className="flex justify-between items-center mb-4">
-                   <h4 className="text-sm font-semibold text-white">Tramo: Salida $ightarrow$ {sub.nombre}</h4>
-                   <div className="text-amber-400 text-xs font-bold">
-                     "I_diseno": {getAggregateCurrent(sub, project).toFixed(1)} A
-                   </div>
-                 </div>
-                 <ViviendaConductorForm 
-                    label="Configuración del conductor"
-                    conductor={sub.conductorAlimentacion}
-                    onChange={(c) => {
-                      // Para actualizar un sub-tablero, necesitamos encontrar su path
-                      // Para este prototipo, vamos a buscar el path de forma recursiva
-                      const findPath = (node: any, targetId: string, currentPath: string[]): string[] | null => {
-                        if (node.id === targetId) return currentPath;
-                        if (node.subTableros) {
-                          for (const sub of node.subTableros) {
-                            const res = findPath(sub, targetId, [...currentPath, sub.id]);
-                            if (res) return res;
-                          }
-                        }
-                        return null;
-                      };
-                      const path = findPath(project.tableroPrincipal, sub.id, ['root']);
-                      if (path) handleUpdateNode(path, { conductorAlimentacion: c });
-                    }}
-                  />
-               </div>
-            ))}
-          </section>
-
           {/* Sección: Gestión de Elementos del Nodo */}
           <section className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700">
             <h3 className="text-sm font-bold text-[var(--accent)] uppercase mb-4">Elementos de este Tablero</h3>
