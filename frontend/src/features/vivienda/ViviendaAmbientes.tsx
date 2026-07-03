@@ -9,7 +9,7 @@ interface Props {
 }
 
 const TIPOS_AMBIENTES = [
-    'Estar-Comedor', 'Dormitorio', 'Cocina', 'Baño', 'Pasillo', 'Lavadero', 'Garage', 'Balcón/Galería'
+    'Estar-Comedor', 'Dormitorio', 'Cocina', 'Baño', 'Pasillo', 'Lavadero', 'Garage', 'Balcón/Galería', 'Otro'
 ];
 
 export const ViviendaAmbientes = ({ project, onChange }: Props) => {
@@ -32,12 +32,16 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
     const nuevosAmbientes = datos.ambientes.map(a => {
         if (a.id !== id) return a;
         const updated = { ...a, ...updates };
-        const pmu = calcularPuntosMinimosAmbiente(updated.nombre, updated.superficie, updated.longitud);
         
-        // Si es cambio de medidas, actualizar los puntos al nuevo mínimo (permitir disminuir si el cálculo lo requiere)
-        if (updates.superficie !== undefined || updates.longitud !== undefined || updates.nombre !== undefined) {
-          updated.puntosTUG = pmu.tug;
-          updated.puntosIUG = pmu.iug;
+        // No recalcular si es 'Otro'
+        if (!updated.nombre.toLowerCase().includes('otro')) {
+            const pmu = calcularPuntosMinimosAmbiente(updated.nombre, updated.superficie, updated.longitud);
+            
+            // Si es cambio de medidas, actualizar los puntos al nuevo mínimo
+            if (updates.superficie !== undefined || updates.longitud !== undefined || updates.nombre !== undefined) {
+              updated.puntosTUG = pmu.tug;
+              updated.puntosIUG = pmu.iug;
+            }
         }
 
         return updated;

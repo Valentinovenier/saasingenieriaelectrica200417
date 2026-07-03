@@ -128,14 +128,13 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                     >
                       <span className="text-xs mb-1">{circuito.nombre}</span>
                       <span className={isSelected ? 'text-black/70' : 'text-slate-500'}>{info.label}</span>
-                      {isSelected && (
-                        <div className="flex flex-col items-center mt-1 gap-1">
+                  {isSelected && (
+                        <div className="flex flex-col items-center mt-1 gap-1" onClick={(e) => e.stopPropagation()}>
                             {/* Input para IUG */}
                             {(circuito.tipo === 'iluminacion_usos_generales') && (
                                 <div className="flex items-center gap-1">
                                     <span className="text-[9px]">IUG:</span>
                                     <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={circuito.puntosIUG} 
-                                      onClick={(e) => e.stopPropagation()}
                                       onChange={(e) => updateBocasCircuito(circuito.id, 'puntosIUG', parseInt(e.target.value) || 0)} />
                                 </div>
                             )}
@@ -144,14 +143,12 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                                 <div className="flex items-center gap-1">
                                     <span className="text-[9px]">TUG:</span>
                                     <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={circuito.puntosTUG} 
-                                      onClick={(e) => e.stopPropagation()}
                                       onChange={(e) => updateBocasCircuito(circuito.id, 'puntosTUG', parseInt(e.target.value) || 0)} />
                                 </div>
                             )}
                             {/* Input para TUE */}
                             {circuito.tipo === 'usos_especiales' && (
                                 <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={circuito.puntosTUE}
-                                   onClick={(e) => e.stopPropagation()}
                                    onChange={(e) => updateBocasCircuito(circuito.id, 'puntosTUE', parseInt(e.target.value) || 0)} />
                             )}
                             
