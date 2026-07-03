@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Project, Tablero, TableroSeccional, CircuitoTerminal } from '../types/project';
 import { ViviendaConductorForm } from '../features/vivienda/ViviendaConductorForm';
 import { ChevronRight, ChevronDown, Plus, Trash2, Folder, Zap, List, Activity } from 'lucide-react';
+import { getAggregateCurrent, getEffectiveCurrent } from '../engine/strategies/vivienda/corriente';
 
 // --- Tipos de Navegación ---
 type NodeType = 'Tablero' | 'TableroSeccional';
@@ -17,34 +18,6 @@ interface TreeItem {
 // --- Componente Principal ---
 export const TablerosVivienda = ({ project, onChange }: { project: Project; onChange: (p: Project) => void }) => {
   const [selectedPath, setSelectedPath] = useState<string[]>(['root']);
-
-  // --- LÓGICA DE CÁLCULO DE CORRIENTES (DERECHA HACIA IZQUIERDA) ---
-
-  /**
-   * Calcula la corriente total (IB) que debe pasar por un nodo específico.
-   * La corriente de un nodo es la suma de:
-   * 1. La corriente de sus circuitos terminales asignados.
-   * 2. La corriente de todos sus sub-tableros (recursivo).
-   */
-  const getAggregateCurrent = (node: any, currentProject: Project): number => {
-    let total = 0;
-    if (node.circuitosTerminales && Array.isArray(node.circuitosTerminales)) {
-      total += node.circuitosTerminales.reduce((acc: number, c: any) => {
-        // Usamos la potencia para la estimación en la fase de configuración
-        return acc + (c.potencia || 0) / 220; 
-      }, 0);
-    }
-    if (node.subTableros && Array.isArray(node.subTableros)) {
-      total += node.subTableros.reduce((acc: number, sub: any) => {
-        return acc + getAggregateCurrent(sub, currentProject);
-      }, 0);
-    }
-    return total;
-  };
-
-  const getEffectiveCurrent = (circuito: CircuitoTerminal, currentProject: Project): number => {
-    return (circuito.potencia || 0) / 220;
-  };
 
   // --- LÓGICA DE NAVEGACIÓN ---
 
@@ -123,6 +96,12 @@ export const TablerosVivienda = ({ project, onChange }: { project: Project; onCh
   };
 
   const addSubTablero = (path: string[], type: 'Tablero' | 'TableroSeccional') => {
+    // Si estamos en la raíz (Tablero Principal), solo permitir TableroSeccional
+    if (path.length === 1 && type === 'Tablero') {
+      alert('En el Tablero Principal solo se pueden agregar Tableros Seccionales.');
+      return;
+    }
+
     const newId = `${type === 'Tablero' ? 't' : 'ts'}-${Date.now()}`;
     const newSub: any = {
       id: newId,
@@ -139,18 +118,24 @@ export const TablerosVivienda = ({ project, onChange }: { project: Project; onCh
   const removeSubTablero = (path: string[]) => {
     if (!confirm('¿Eliminar este tablero y todos sus sub-tableros?')) return;
     const targetId = path[path.length - 1];
-    const parentPath = path.slice(0, -1);
+    
     const newProject = { ...project };
-    const removeRecursive = (node: any, p: string[]): any => {
-      if (p.length === 1) return node;
+    
+    const removeRecursive = (node: any): any => {
+      if (!node.subTableros) return node;
+      
       return {
         ...node,
         subTableros: node.subTableros
           .filter((sub: any) => sub.id !== targetId)
-          .map((sub: any) => removeRecursive(sub, p.slice(1)))
+          .map((sub: any) => removeRecursive(sub))
       };
     };
-    newProject.tableroPrincipal = removeRecursive(newProject.tableroPrincipal, parentPath);
+
+    newProject.tableroPrincipal = removeRecursive(newProject.tableroPrincipal);
+    
+    // Si borramos el nodo actual, debemos resetear el path seleccionado
+    setSelectedPath(['root']);
     onChange(newProject);
   };
 

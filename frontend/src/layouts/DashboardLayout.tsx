@@ -25,7 +25,7 @@ export const DashboardLayout = ({
   const headerItems = projectSelected 
     ? [
         { icon: Settings, label: 'Parámetros', id: 'parametros' },
-        { icon: Server, label: 'Tableros Seccionales', id: 'tableros-seccionales' },
+        { icon: Server, label: 'Tableros', id: 'tableros-seccionales' },
         { icon: FileText, label: 'Conductores', id: 'conductores' },
         { icon: Zap, label: 'Esquema Unifilar', id: 'unifilar' },
         { icon: FileText, label: 'Informe', id: 'informe' },

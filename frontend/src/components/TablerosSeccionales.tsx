@@ -78,7 +78,7 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <Server size={22} className="text-[var(--accent)]" />
-          <h2 className="text-2xl font-bold text-white">Tableros Seccionales</h2>
+          <h2 className="text-2xl font-bold text-white">Tableros</h2>
         </div>
         <button
           onClick={handleGuardar}
