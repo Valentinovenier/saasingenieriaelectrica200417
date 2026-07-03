@@ -1,4 +1,5 @@
-import { Project, Tablero, BaseTablero } from '../types/project';
+import { useState } from 'react';
+import { Project, Tablero, TableroSeccional, BaseTablero } from '../types/project';
 import { ViviendaConductorForm } from '../features/vivienda/ViviendaConductorForm';
 import { Conductor } from '../types/project';
 import { calcularTramoResidencial } from '../engine/strategies/vivienda/calculador';
@@ -23,7 +24,7 @@ export const ResidentialTopologyEditor = ({ project, onChange }: { project: Proj
 
   const currentNode = getNodeByPath(project.tableroPrincipal, selectedPath);
 
-  const updateNode = (path: string[], updates: Partial<BaseTablero>) => {
+  const updateNode = (path: string[], updates: Partial<Tablero | TableroSeccional>) => {
     const newProject = { ...project };
     
     // Función recursiva para actualizar un nodo en el árbol

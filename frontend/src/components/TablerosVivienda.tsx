@@ -281,7 +281,7 @@ export const TablerosVivienda = ({ project, onChange }: { project: Project; onCh
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-sm font-semibold text-white">Tramo: Cabecera $ightarrow$ Salida</h4>
                 <div className="text-amber-400 text-xs font-bold">
-                  I_{diseño}: {getAggregateCurrent(currentNode, project).toFixed(1)} A
+                  "I_{diseño}": {getAggregateCurrent(currentNode, project).toFixed(1)} A
                 </div>
               </div>
               <ViviendaConductorForm 
@@ -299,7 +299,7 @@ export const TablerosVivienda = ({ project, onChange }: { project: Project; onCh
                 <div className="flex justify-between items-center mb-4">
                   <h4 className="text-sm font-semibold text-white">Tramo: Salida $ightarrow$ {circuito.nombre}</h4>
                   <div className="text-amber-400 text-xs font-bold">
-                    I_{diseño}: {getEffectiveCurrent(circuito, project).toFixed(1)} A
+                    "I_{diseño}": {getEffectiveCurrent(circuito, project).toFixed(1)} A
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-4 items-end">
@@ -328,7 +328,7 @@ export const TablerosVivienda = ({ project, onChange }: { project: Project; onCh
                  <div className="flex justify-between items-center mb-4">
                    <h4 className="text-sm font-semibold text-white">Tramo: Salida $ightarrow$ {sub.nombre}</h4>
                    <div className="text-amber-400 text-xs font-bold">
-                     I_{diseño}: {getAggregateCurrent(sub, project).toFixed(1)} A
+                     "I_{diseño}": {getAggregateCurrent(sub, project).toFixed(1)} A
                    </div>
                  </div>
                  <ViviendaConductorForm 
