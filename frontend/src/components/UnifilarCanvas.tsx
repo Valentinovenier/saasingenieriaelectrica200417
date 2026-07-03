@@ -75,7 +75,7 @@ export const UnifilarCanvas = () => {
                   <TableroSeccionalUnifilar className="w-full h-full text-white" />
               </foreignObject>
 
-              <text x={x} y={yBarra + 30 + SYMBOL_SIZE + 20} textAnchor="middle" fill="white" fontSize="14">{tablero.name}</text>
+              <text x={x} y={yBarra + 30 + SYMBOL_SIZE + 20} textAnchor="middle" fill="white" fontSize="14">{tablero.nombre}</text>
             </g>
           );
         })}

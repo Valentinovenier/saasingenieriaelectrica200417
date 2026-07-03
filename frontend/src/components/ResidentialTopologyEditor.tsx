@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Project, Tablero } from '../types/project';
+import { Project, Tablero, BaseTablero } from '../types/project';
 import { ViviendaConductorForm } from '../features/vivienda/ViviendaConductorForm';
 import { Conductor } from '../types/project';
 import { calcularTramoResidencial } from '../engine/strategies/vivienda/calculador';
@@ -7,9 +6,13 @@ import { calcularTramoResidencial } from '../engine/strategies/vivienda/calculad
 export const ResidentialTopologyEditor = ({ project, onChange }: { project: Project; onChange: (p: Project) => void }) => {
   const [selectedPath, setSelectedPath] = useState<string[]>(['root']); // Ruta para navegar el árbol
 
+  const isTablero = (node: BaseTablero): node is Tablero => {
+    return 'conductorAlimentacion' in node;
+  };
+
   // Función para obtener el nodo actual basado en la ruta
-  const getNodeByPath = (tablero: Tablero, path: string[]): Tablero | undefined => {
-    let current = tablero;
+  const getNodeByPath = (tablero: BaseTablero, path: string[]): BaseTablero | undefined => {
+    let current: BaseTablero = tablero;
     for (let i = 1; i < path.length; i++) {
         const next = current.subTableros.find(t => t.id === path[i]);
         if (!next) return undefined;
@@ -20,13 +23,13 @@ export const ResidentialTopologyEditor = ({ project, onChange }: { project: Proj
 
   const currentNode = getNodeByPath(project.tableroPrincipal, selectedPath);
 
-  const updateNode = (path: string[], updates: Partial<Tablero>) => {
+  const updateNode = (path: string[], updates: Partial<BaseTablero>) => {
     const newProject = { ...project };
     
     // Función recursiva para actualizar un nodo en el árbol
-    const updateRecursive = (node: Tablero, currentPath: string[]): Tablero => {
+    const updateRecursive = (node: BaseTablero, currentPath: string[]): BaseTablero => {
         if (currentPath.length === 1) {
-            return { ...node, ...updates };
+            return { ...node, ...updates } as BaseTablero;
         }
         
         const nextId = currentPath[1];
@@ -41,7 +44,7 @@ export const ResidentialTopologyEditor = ({ project, onChange }: { project: Proj
         };
     };
 
-    newProject.tableroPrincipal = updateRecursive(newProject.tableroPrincipal, path);
+    newProject.tableroPrincipal = updateRecursive(newProject.tableroPrincipal, path) as Tablero;
     onChange(newProject);
   };
 
@@ -70,11 +73,13 @@ export const ResidentialTopologyEditor = ({ project, onChange }: { project: Proj
         <div className="md:col-span-2 space-y-6">
           <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700">
              <h3 className="text-lg font-bold text-white mb-4">Tramo: Alimentación {currentNode.nombre}</h3>
-             <ViviendaConductorForm 
-                label={`Configuración: Tramo hacia ${currentNode.nombre}`}
-                conductor={currentNode.conductorAlimentacion}
-                onChange={(c) => updateNode(selectedPath, { conductorAlimentacion: c })}
-             />
+             {isTablero(currentNode) && (
+               <ViviendaConductorForm 
+                  label={`Configuración: Tramo hacia ${currentNode.nombre}`}
+                  conductor={currentNode.conductorAlimentacion}
+                  onChange={(c) => updateNode(selectedPath, { conductorAlimentacion: c })}
+               />
+             )}
           </div>
         </div>
       </div>

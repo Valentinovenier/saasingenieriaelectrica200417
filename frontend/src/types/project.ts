@@ -84,25 +84,28 @@ export interface CircuitoTerminal {
   proteccion: Proteccion;
 }
 
-export interface Tablero {
+export interface BaseTablero {
   id: string;
   nombre: string;
-  conductorAlimentacion: Conductor;
-  proteccionCabecera: Proteccion;
-  subTableros: (Tablero | TableroSeccional)[];
-  circuitosTerminales: CircuitoTerminal[];
-}
-
-export interface TableroSeccional {
-  id: string;
-  nombre: string;
-  tipo: 'Fuerza Motriz' | 'Iluminación';
-  potenciaTotal: number;
   subTableros: (Tablero | TableroSeccional)[];
   circuitosTerminales: CircuitoTerminal[];
   proteccionCabecera?: Proteccion;
+}
+
+export interface Tablero extends BaseTablero {
+  conductorAlimentacion: Conductor;
+  proteccionCabecera: Proteccion;
+}
+
+export interface TableroSeccional extends BaseTablero {
+  tipo: 'Fuerza Motriz' | 'Iluminación';
+  potenciaTotal: number;
   proteccionesSalida: Proteccion[];
 }
+
+export const isTablero = (node: BaseTablero): node is Tablero => {
+  return 'conductorAlimentacion' in node;
+};
 
 export interface TableroSeccionalSimple {
   id: string;
