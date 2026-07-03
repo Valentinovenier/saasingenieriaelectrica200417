@@ -27,30 +27,16 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
             ? c.ambientesIds.filter(id => id !== ambiente.id)
             : [...c.ambientesIds, ambiente.id];
 
-        // Calcular total de bocas en el circuito (suma de puntos IUG + TUG de los ambientes asignados)
-        const totalBocas = nuevosAmbientes.reduce((acc, id) => {
-            const amb = datos.ambientes.find(a => a.id === id);
-            return acc + (amb ? (amb.puntosIUG + amb.puntosTUG) : 0);
-        }, 0);
-
-        if (totalBocas > 15) {
-             // Opcional: Podríamos prevenir la asignación o solo avisar.
-             // Aquí dejo que se asigne pero el usuario verá el aviso.
-        }
-        
-        // Recalcular puntos del circuito
-        const puntosIUG = nuevosAmbientes.reduce((acc, id) => {
-            const amb = datos.ambientes.find(a => a.id === id);
-            return acc + (c.tipo === 'iluminacion_usos_generales' ? (amb?.puntosIUG || 0) : 0);
-        }, 0);
-        const puntosTUG = nuevosAmbientes.reduce((acc, id) => {
-            const amb = datos.ambientes.find(a => a.id === id);
-            return acc + (c.tipo === 'tomacorrientes_usos_generales' ? (amb?.puntosTUG || 0) : 0);
-        }, 0);
-        const puntosTUE = nuevosAmbientes.reduce((acc, id) => {
-            const amb = datos.ambientes.find(a => a.id === id);
-            return acc + (c.tipo === 'usos_especiales' ? (amb?.puntosTUE || 0) : 0);
-        }, 0);
+        // Recalcular puntos del circuito sumando los puntos correspondientes al tipo del circuito
+        const puntosIUG = c.tipo === 'iluminacion_usos_generales' 
+            ? nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosIUG || 0); }, 0)
+            : c.puntosIUG;
+        const puntosTUG = c.tipo === 'tomacorrientes_usos_generales'
+            ? nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUG || 0); }, 0)
+            : c.puntosTUG;
+        const puntosTUE = c.tipo === 'usos_especiales'
+            ? nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUE || 0); }, 0)
+            : c.puntosTUE;
 
         return { ...c, ambientesIds: nuevosAmbientes, puntosIUG, puntosTUG, puntosTUE };
       }
@@ -59,6 +45,14 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
 
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
   };
+
+  const updateBocasCircuito = (circuitoId: string, tipo: 'puntosIUG' | 'puntosTUG' | 'puntosTUE', valor: number) => {
+      const nuevosCircuitos = datos.circuitosCalculados.map(c => 
+          c.id === circuitoId ? { ...c, [tipo]: valor } : c
+      );
+      onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
+  };
+
 
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
@@ -115,9 +109,25 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                       <span className="text-xs mb-1">{circuito.nombre}</span>
                       <span className={isSelected ? 'text-black/70' : 'text-slate-500'}>{info.label}</span>
                       {isSelected && (
-                        <span className={`text-[9px] mt-1 ${superaLimite ? 'text-red-500 font-bold' : 'text-slate-600'}`}>
-                            {bocasCircuito} / 15 bocas
-                        </span>
+                        <div className="flex flex-col items-center mt-1">
+                            <input 
+                                type="number"
+                                className={`w-12 bg-transparent text-center font-bold outline-none ${superaLimite ? 'text-red-500' : 'text-slate-300'}`}
+                                value={bocasCircuito}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) => {
+                                    const val = parseInt(e.target.value) || 0;
+                                    // Determinar qué campo actualizar basado en el tipo
+                                    const campo: 'puntosIUG' | 'puntosTUG' | 'puntosTUE' = 
+                                        circuito.tipo === 'iluminacion_usos_generales' ? 'puntosIUG' :
+                                        circuito.tipo === 'tomacorrientes_usos_generales' ? 'puntosTUG' : 'puntosTUE';
+                                    updateBocasCircuito(circuito.id, campo, val);
+                                }}
+                            />
+                            <span className={`text-[9px] ${superaLimite ? 'text-red-500 font-bold' : 'text-slate-600'}`}>
+                                / 15 bocas
+                            </span>
+                        </div>
                       )}
                     </button>
                   );

@@ -110,9 +110,9 @@ export const calcularDPMS = (circuitos: any[]): number => {
         
         switch (circ.tipo) {
             case 'iluminacion_usos_generales':
-                // Si tiene TUG derivados (puntosTUG > 0), es 2200 VA
+                // Si tiene TUG derivados (marcado manualmente), es 2200 VA
                 // Si no, es (2/3) * puntosIUG * 60 VA
-                if (circ.puntosTUG > 0) {
+                if (circ.tieneTomacorrientesDerivados) {
                     potenciaCircuito = 2200;
                 } else {
                     potenciaCircuito = (2 / 3) * (circ.puntosIUG || 0) * 60;
