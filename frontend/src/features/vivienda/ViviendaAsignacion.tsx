@@ -16,6 +16,28 @@ const getCircuitoInfo = (tipo: TipoCircuito) => {
   }
 };
 
+const recalculateCircuitTotals = (ambientes: Ambiente[], circuitos: CircuitoCalculado[]) => {
+  return circuitos.map(c => {
+    const puntosIUG = c.ambientesIds.reduce((acc, id) => { 
+        const amb = ambientes.find(a => a.id === id); 
+        return acc + (c.tipo === 'iluminacion_usos_generales' ? (amb?.puntosIUG || 0) : 0); 
+    }, 0);
+    
+    const puntosTUG = c.ambientesIds.reduce((acc, id) => { 
+        const amb = ambientes.find(a => a.id === id); 
+        const suma = (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) 
+            ? (amb?.puntosTUG || 0) : 0;
+        return acc + suma; 
+    }, 0);
+
+    const puntosTUE = c.tipo === 'usos_especiales'
+        ? c.ambientesIds.reduce((acc, id) => { const amb = ambientes.find(a => a.id === id); return acc + (amb?.puntosTUE || 0); }, 0)
+        : c.puntosTUE;
+
+    return { ...c, puntosIUG, puntosTUG, puntosTUE };
+  });
+};
+
 export const ViviendaAsignacion = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
 
@@ -27,37 +49,21 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
             ? c.ambientesIds.filter(id => id !== ambiente.id)
             : [...c.ambientesIds, ambiente.id];
 
-        // Recalcular puntos del circuito sumando puntos correspondientes de TODOS los ambientes asignados
-        const puntosIUG = nuevosAmbientes.reduce((acc, id) => { 
-            const amb = datos.ambientes.find(a => a.id === id); 
-            return acc + (c.tipo === 'iluminacion_usos_generales' ? (amb?.puntosIUG || 0) : 0); 
-        }, 0);
-        
-        const puntosTUG = nuevosAmbientes.reduce((acc, id) => { 
-            const amb = datos.ambientes.find(a => a.id === id); 
-            // Si es TUG o IUG con derivados, suma puntosTUG
-            const suma = (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) 
-                ? (amb?.puntosTUG || 0) : 0;
-            return acc + suma; 
-        }, 0);
-
-        const puntosTUE = c.tipo === 'usos_especiales'
-            ? nuevosAmbientes.reduce((acc, id) => { const amb = datos.ambientes.find(a => a.id === id); return acc + (amb?.puntosTUE || 0); }, 0)
-            : c.puntosTUE;
-
-        return { ...c, ambientesIds: nuevosAmbientes, puntosIUG, puntosTUG, puntosTUE };
+        return { ...c, ambientesIds: nuevosAmbientes };
       }
       return c;
     });
 
-    onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
+    const recalculados = recalculateCircuitTotals(datos.ambientes, nuevosCircuitos);
+    onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: recalculados } });
   };
 
-  const updateBocasCircuito = (circuitoId: string, tipo: 'puntosIUG' | 'puntosTUG' | 'puntosTUE', valor: number) => {
-      const nuevosCircuitos = datos.circuitosCalculados.map(c => 
-          c.id === circuitoId ? { ...c, [tipo]: valor } : c
+  const updateAmbienteBocas = (ambienteId: string, tipo: 'puntosIUG' | 'puntosTUG' | 'puntosTUE', valor: number) => {
+      const nuevosAmbientes = datos.ambientes.map(a => 
+          a.id === ambienteId ? { ...a, [tipo]: valor } : a
       );
-      onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
+      const recalculados = recalculateCircuitTotals(nuevosAmbientes, datos.circuitosCalculados);
+      onChange({ ...project, datosVivienda: { ...datos, ambientes: nuevosAmbientes, circuitosCalculados: recalculados } });
   };
 
 
@@ -70,13 +76,6 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
       <div className="space-y-8">
         {datos.ambientes.map((ambiente) => {
           // Calcular lo asignado para este ambiente ESPECÍFICO
-          // El problema es que el circuito guarda el total, no la parte de cada ambiente. 
-          // Para que el contador sea correcto, necesitamos saber cuánto aporta el ambiente X al circuito Y.
-          // Como no guardamos ese desglose, el contador actual suma el total del circuito si el ambiente está asignado, lo cual es incorrecto.
-
-          // Solución: Solo contar si el ambiente está asignado, pero necesitamos una forma de distribuir el total del circuito.
-          // Por ahora, asumiremos que cada ambiente asignado al circuito contribuye con la carga mínima del ambiente si no hay edición manual.
-
           const asignadoIUG = datos.circuitosCalculados.reduce((acc, c) => 
             c.ambientesIds.includes(ambiente.id) && c.tipo === 'iluminacion_usos_generales' ? acc + ambiente.puntosIUG : acc, 0);
           const asignadoTUG = datos.circuitosCalculados.reduce((acc, c) => 
@@ -142,22 +141,22 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                             {(circuito.tipo === 'iluminacion_usos_generales') && (
                                 <div className="flex items-center gap-1">
                                     <span className="text-[9px]">IUG:</span>
-                                    <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={circuito.puntosIUG} 
-                                      onChange={(e) => updateBocasCircuito(circuito.id, 'puntosIUG', parseInt(e.target.value) || 0)} />
+                                    <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={ambiente.puntosIUG} 
+                                      onChange={(e) => updateAmbienteBocas(ambiente.id, 'puntosIUG', parseInt(e.target.value) || 0)} />
                                 </div>
                             )}
                             {/* Input para TUG en IUG derivado o TUG normal */}
                             {(circuito.tipo === 'tomacorrientes_usos_generales' || (circuito.tipo === 'iluminacion_usos_generales' && circuito.tieneTomacorrientesDerivados)) && (
                                 <div className="flex items-center gap-1">
                                     <span className="text-[9px]">TUG:</span>
-                                    <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={circuito.puntosTUG} 
-                                      onChange={(e) => updateBocasCircuito(circuito.id, 'puntosTUG', parseInt(e.target.value) || 0)} />
+                                    <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={ambiente.puntosTUG} 
+                                      onChange={(e) => updateAmbienteBocas(ambiente.id, 'puntosTUG', parseInt(e.target.value) || 0)} />
                                 </div>
                             )}
                             {/* Input para TUE */}
                             {circuito.tipo === 'usos_especiales' && (
-                                <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={circuito.puntosTUE}
-                                   onChange={(e) => updateBocasCircuito(circuito.id, 'puntosTUE', parseInt(e.target.value) || 0)} />
+                                <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={ambiente.puntosTUE}
+                                   onChange={(e) => updateAmbienteBocas(ambiente.id, 'puntosTUE', parseInt(e.target.value) || 0)} />
                             )}
                             
                             <span className={`text-[9px] ${superaLimite ? 'text-red-500 font-bold' : 'text-slate-600'}`}>
