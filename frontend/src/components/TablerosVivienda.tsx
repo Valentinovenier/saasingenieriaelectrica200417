@@ -66,9 +66,20 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
             <FolderTree size={16} className="text-[var(--accent)]" />
             <span className="font-bold text-white flex-1">{tablero.nombre}</span>
             <span className="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 uppercase">{tablero.tipo}</span>
-            {tablero.tipo !== 'SubSeccional' && (
-                <button onClick={() => addTablero(tablero.tipo === 'Principal' ? 'Seccional' : 'SubSeccional', tablero.id)} className="text-[var(--accent)] hover:bg-slate-800 p-1 rounded">
-                    <Plus size={16} />
+            {tablero.tipo === 'Principal' && (
+                <button 
+                  onClick={() => addTablero('Seccional', tablero.id)} 
+                  className="flex items-center gap-1 text-[var(--accent)] hover:bg-slate-800 px-2 py-1 rounded text-xs font-bold"
+                >
+                    <Plus size={14} /> Tablero Seccional
+                </button>
+            )}
+            {tablero.tipo === 'Seccional' && (
+                <button 
+                  onClick={() => addTablero('SubSeccional', tablero.id)} 
+                  className="flex items-center gap-1 text-[var(--accent)] hover:bg-slate-800 px-2 py-1 rounded text-xs font-bold"
+                >
+                    <Plus size={14} /> Tablero Sub-seccional
                 </button>
             )}
         </div>
