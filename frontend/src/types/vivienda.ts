@@ -33,13 +33,22 @@ export interface CircuitoCalculado {
   ambientesIds: string[];
 }
 
+export interface TableroVivienda {
+  id: string;
+  nombre: string;
+  tipo: 'Principal' | 'Seccional' | 'SubSeccional';
+  tableroPadreId?: string; // Para definir la jerarquía
+  circuitosIds: string[];
+}
+
 export interface DatosVivienda {
   superficieCubierta: number;
   superficieSemicubierta: number;
   superficieLimiteManual?: number;
   gradoElectrificacion?: 'Minimo' | 'Medio' | 'Elevado' | 'Superior';
   ambientes: Ambiente[];
-  circuitosCalculados: CircuitoCalculado[]; // Nuevo campo
+  circuitosCalculados: CircuitoCalculado[];
+  tableros: TableroVivienda[];
 }
 
 export interface CondicionesTramoResidencial {

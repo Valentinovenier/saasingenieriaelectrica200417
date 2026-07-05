@@ -139,32 +139,37 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                       <span className="text-xs mb-1">{circuito.nombre}</span>
                       <span className={isSelected ? 'text-black/70' : 'text-slate-500'}>{info.label}</span>
                   {isSelected && (
-                        <div className="flex flex-col items-center mt-1 gap-1" onClick={(e) => e.stopPropagation()}>
-                            {/* Input para IUG */}
-                            {(circuito.tipo === 'iluminacion_usos_generales') && (
-                                <div className="flex items-center gap-1">
-                                    <span className="text-[9px]">IUG:</span>
-                                    <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={ambiente.puntosIUG} 
-                                      onChange={(e) => updateAmbienteBocas(ambiente.id, 'puntosIUG', parseInt(e.target.value) || 0)} />
-                                </div>
-                            )}
-                            {/* Input para TUG en IUG derivado o TUG normal */}
-                            {(circuito.tipo === 'tomacorrientes_usos_generales' || (circuito.tipo === 'iluminacion_usos_generales' && circuito.tieneTomacorrientesDerivados)) && (
-                                <div className="flex items-center gap-1">
-                                    <span className="text-[9px]">TUG:</span>
-                                    <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={ambiente.puntosTUG} 
-                                      onChange={(e) => updateAmbienteBocas(ambiente.id, 'puntosTUG', parseInt(e.target.value) || 0)} />
-                                </div>
-                            )}
-                            {/* Input para TUE */}
-                            {circuito.tipo === 'usos_especiales' && (
-                                <input type="number" className="w-8 bg-transparent text-center font-bold outline-none" value={ambiente.puntosTUE}
-                                   onChange={(e) => updateAmbienteBocas(ambiente.id, 'puntosTUE', parseInt(e.target.value) || 0)} />
-                            )}
+                        <div className="mt-3 pt-3 border-t border-black/10 w-full flex flex-col gap-2 animate-in fade-in slide-in-from-top-1" onClick={(e) => e.stopPropagation()}>
+                            <div className="grid grid-cols-2 gap-2 text-[10px]">
+                                {/* Input para IUG */}
+                                {(circuito.tipo === 'iluminacion_usos_generales') && (
+                                    <div className="flex flex-col items-center bg-black/10 p-1.5 rounded">
+                                        <span className="font-bold uppercase text-[8px] opacity-70">IUG</span>
+                                        <input type="number" className="w-full bg-transparent text-center font-bold text-sm outline-none" value={ambiente.puntosIUG} 
+                                          onChange={(e) => updateAmbienteBocas(ambiente.id, 'puntosIUG', parseInt(e.target.value) || 0)} />
+                                    </div>
+                                )}
+                                {/* Input para TUG */}
+                                {(circuito.tipo === 'tomacorrientes_usos_generales' || (circuito.tipo === 'iluminacion_usos_generales' && circuito.tieneTomacorrientesDerivados)) && (
+                                    <div className="flex flex-col items-center bg-black/10 p-1.5 rounded">
+                                        <span className="font-bold uppercase text-[8px] opacity-70">TUG</span>
+                                        <input type="number" className="w-full bg-transparent text-center font-bold text-sm outline-none" value={ambiente.puntosTUG} 
+                                          onChange={(e) => updateAmbienteBocas(ambiente.id, 'puntosTUG', parseInt(e.target.value) || 0)} />
+                                    </div>
+                                )}
+                                {/* Input para TUE */}
+                                {circuito.tipo === 'usos_especiales' && (
+                                    <div className="flex flex-col items-center bg-black/10 p-1.5 rounded col-span-2">
+                                        <span className="font-bold uppercase text-[8px] opacity-70">TUE</span>
+                                        <input type="number" className="w-full bg-transparent text-center font-bold text-sm outline-none" value={ambiente.puntosTUE}
+                                           onChange={(e) => updateAmbienteBocas(ambiente.id, 'puntosTUE', parseInt(e.target.value) || 0)} />
+                                    </div>
+                                )}
+                            </div>
                             
-                            <span className={`text-[9px] ${superaLimite ? 'text-red-500 font-bold' : 'text-slate-600'}`}>
+                            <div className={`text-[9px] font-bold text-center ${superaLimite ? 'text-red-700' : 'text-black/60'}`}>
                                 {bocasCircuito} / 15 bocas
-                            </span>
+                            </div>
                         </div>
                       )}
                     </button>
