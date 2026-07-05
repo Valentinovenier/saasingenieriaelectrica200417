@@ -56,38 +56,40 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
         </button>
       </div>
       
-      <section className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
-        <h3 className="text-xl font-bold text-white mb-4">Canalizaciones</h3>
-        <div className="space-y-2">
-            {(project.canalizaciones || []).map((can: Canalizacion) => (
-                <div key={can.id} className="flex gap-2 items-center">
-                    <input 
-                        className="bg-[var(--bg-secondary)] p-2 rounded border border-slate-700 text-white flex-1"
-                        value={can.nombre}
-                        onChange={(e) => {
-                            const updated = project.canalizaciones?.map(c => c.id === can.id ? {...c, nombre: e.target.value} : c);
-                            onChange({...project, canalizaciones: updated});
-                        }}
-                    />
-                    <button 
-                        onClick={() => onChange({...project, canalizaciones: project.canalizaciones?.filter(c => c.id !== can.id)})}
-                        className="text-red-400 p-2"
-                    >
-                        <Trash2 size={16} />
-                    </button>
-                </div>
-            ))}
-            <button 
-                onClick={() => onChange({
-                    ...project, 
-                    canalizaciones: [...(project.canalizaciones || []), { id: Date.now().toString(), nombre: 'Nueva Canalización' }]
-                })}
-                className="text-[var(--accent)] flex items-center gap-2 text-sm"
-            >
-                <Plus size={16} /> Añadir Canalización
-            </button>
-        </div>
-      </section>
+      {project.projectType !== 'Vivienda' && (
+        <section className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
+            <h3 className="text-xl font-bold text-white mb-4">Canalizaciones</h3>
+            <div className="space-y-2">
+                {(project.canalizaciones || []).map((can: Canalizacion) => (
+                    <div key={can.id} className="flex gap-2 items-center">
+                        <input 
+                            className="bg-[var(--bg-secondary)] p-2 rounded border border-slate-700 text-white flex-1"
+                            value={can.nombre}
+                            onChange={(e) => {
+                                const updated = project.canalizaciones?.map(c => c.id === can.id ? {...c, nombre: e.target.value} : c);
+                                onChange({...project, canalizaciones: updated});
+                            }}
+                        />
+                        <button 
+                            onClick={() => onChange({...project, canalizaciones: project.canalizaciones?.filter(c => c.id !== can.id)})}
+                            className="text-red-400 p-2"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+                ))}
+                <button 
+                    onClick={() => onChange({
+                        ...project, 
+                        canalizaciones: [...(project.canalizaciones || []), { id: Date.now().toString(), nombre: 'Nueva Canalización' }]
+                    })}
+                    className="text-[var(--accent)] flex items-center gap-2 text-sm"
+                >
+                    <Plus size={16} /> Añadir Canalización
+                </button>
+            </div>
+        </section>
+      )}
 
       {renderSettings()}
 

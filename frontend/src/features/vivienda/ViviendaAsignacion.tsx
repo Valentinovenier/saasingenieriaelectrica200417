@@ -92,10 +92,13 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
             <div key={ambiente.id} className="space-y-3 border-l-2 border-slate-800 pl-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-white">{ambiente.nombre}</h3>
-                <div className="text-[10px] text-slate-400 bg-slate-900 px-2 py-1 rounded space-x-3">
-                    <span className={completadoIUG ? 'text-emerald-400' : 'text-amber-400'}>IUG: {asignadoIUG}/{ambiente.puntosIUG}</span>
-                    <span className={completadoTUG ? 'text-emerald-400' : 'text-amber-400'}>TUG: {asignadoTUG}/{ambiente.puntosTUG}</span>
-                    <span className={completadoTUE ? 'text-emerald-400' : 'text-amber-400'}>TUE: {asignadoTUE}/{ambiente.puntosTUE}</span>
+                <div className="text-[10px] text-slate-400 bg-slate-900 px-2 py-1 rounded">
+                    <div className="text-center font-bold mb-1">puntos de utilización por ambiente</div>
+                    <div className="flex justify-center space-x-3">
+                        <span className={completadoIUG ? 'text-emerald-400' : 'text-amber-400'}>IUG: {asignadoIUG}/{ambiente.puntosIUG}</span>
+                        <span className={completadoTUG ? 'text-emerald-400' : 'text-amber-400'}>TUG: {asignadoTUG}/{ambiente.puntosTUG}</span>
+                        <span className={completadoTUE ? 'text-emerald-400' : 'text-amber-400'}>TUE: {asignadoTUE}/{ambiente.puntosTUE}</span>
+                    </div>
                 </div>
               </div>
               
