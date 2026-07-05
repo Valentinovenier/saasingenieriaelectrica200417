@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Project } from '../types/project';
 import { TableroVivienda, CircuitoCalculado } from '../types/vivienda';
-import { ChevronDown, ChevronRight, Plus, FolderTree } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, FolderTree, Trash2 } from 'lucide-react';
 
 interface Props {
   project: Project;
@@ -53,6 +53,11 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
     onChange({ ...project, datosVivienda: { ...datos, tableros: [...tableros, nuevoTablero] } });
   };
 
+  const deleteTablero = (id: string) => {
+    const nuevosTableros = tableros.filter(t => t.id !== id);
+    onChange({ ...project, datosVivienda: { ...datos, tableros: nuevosTableros } });
+  };
+
   const renderTableroNode = (tablero: TableroVivienda, depth = 0) => {
     const expanded = expandedNodes.has(tablero.id);
     const subTableros = tableros.filter((t: TableroVivienda) => t.tableroPadreId === tablero.id);
@@ -66,20 +71,26 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
             <FolderTree size={16} className="text-[var(--accent)]" />
             <span className="font-bold text-white flex-1">{tablero.nombre}</span>
             <span className="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 uppercase">{tablero.tipo}</span>
-            {tablero.tipo === 'Principal' && (
+            
+            {/* Botón de añadir */}
+            {tablero.tipo !== 'SubSeccional' && (
                 <button 
-                  onClick={() => addTablero('Seccional', tablero.id)} 
+                  onClick={() => addTablero(tablero.tipo === 'Principal' ? 'Seccional' : 'SubSeccional', tablero.id)} 
                   className="flex items-center gap-1 text-[var(--accent)] hover:bg-slate-800 px-2 py-1 rounded text-xs font-bold"
                 >
-                    <Plus size={14} /> Tablero Seccional
+                    <Plus size={14} /> 
+                    {tablero.tipo === 'Principal' ? 'Tablero Seccional' : 'Tablero Sub-seccional'}
                 </button>
             )}
-            {tablero.tipo === 'Seccional' && (
+            
+            {/* Botón de eliminar (solo seccionales/sub-seccionales) */}
+            {tablero.tipo !== 'Principal' && (
                 <button 
-                  onClick={() => addTablero('SubSeccional', tablero.id)} 
-                  className="flex items-center gap-1 text-[var(--accent)] hover:bg-slate-800 px-2 py-1 rounded text-xs font-bold"
+                  onClick={() => deleteTablero(tablero.id)} 
+                  className="text-red-400 hover:bg-red-900/20 p-1 rounded"
+                  title="Eliminar tablero"
                 >
-                    <Plus size={14} /> Tablero Sub-seccional
+                    <Trash2 size={16} />
                 </button>
             )}
         </div>
@@ -123,14 +134,6 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
       ) : (
         <div className="space-y-4">
             {tableros.filter((t: TableroVivienda) => t.tipo === 'Principal').map((tp: TableroVivienda) => renderTableroNode(tp))}
-            {tableros.length === 0 && (
-                <button onClick={() => {
-                    const tp: TableroVivienda = { id: 'tp', nombre: 'Tablero Principal', tipo: 'Principal', circuitosIds: [] };
-                    onChange({ ...project, datosVivienda: { ...datos, tableros: [tp] } });
-                }} className="bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold">
-                    Crear Tablero Principal
-                </button>
-            )}
         </div>
       )}
     </div>
