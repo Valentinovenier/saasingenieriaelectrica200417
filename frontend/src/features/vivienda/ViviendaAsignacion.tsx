@@ -58,12 +58,11 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: recalculados } });
   };
 
-  const updateAmbienteBocas = (ambienteId: string, tipo: 'puntosIUG' | 'puntosTUG' | 'puntosTUE', valor: number) => {
-      const nuevosAmbientes = datos.ambientes.map(a => 
-          a.id === ambienteId ? { ...a, [tipo]: valor } : a
+  const updateCircuitoBocas = (circuitoId: string, tipo: 'manualPuntosIUG' | 'manualPuntosTUG' | 'manualPuntosTUE', valor: number) => {
+      const nuevosCircuitos = datos.circuitosCalculados.map(c => 
+          c.id === circuitoId ? { ...c, [tipo]: valor } : c
       );
-      const recalculados = recalculateCircuitTotals(nuevosAmbientes, datos.circuitosCalculados);
-      onChange({ ...project, datosVivienda: { ...datos, ambientes: nuevosAmbientes, circuitosCalculados: recalculados } });
+      onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
   };
 
 
@@ -77,11 +76,11 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
         {datos.ambientes.map((ambiente) => {
           // Calcular lo asignado para este ambiente ESPECÍFICO
           const asignadoIUG = datos.circuitosCalculados.reduce((acc, c) => 
-            c.ambientesIds.includes(ambiente.id) && c.tipo === 'iluminacion_usos_generales' ? acc + ambiente.puntosIUG : acc, 0);
+            c.ambientesIds.includes(ambiente.id) && c.tipo === 'iluminacion_usos_generales' ? acc + (c.manualPuntosIUG ?? c.puntosIUG) : acc, 0);
           const asignadoTUG = datos.circuitosCalculados.reduce((acc, c) => 
-            c.ambientesIds.includes(ambiente.id) && (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) ? acc + ambiente.puntosTUG : acc, 0);
+            c.ambientesIds.includes(ambiente.id) && (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) ? acc + (c.manualPuntosTUG ?? c.puntosTUG) : acc, 0);
           const asignadoTUE = datos.circuitosCalculados.reduce((acc, c) => 
-            c.ambientesIds.includes(ambiente.id) && c.tipo === 'usos_especiales' ? acc + ambiente.puntosTUE : acc, 0);
+            c.ambientesIds.includes(ambiente.id) && c.tipo === 'usos_especiales' ? acc + (c.manualPuntosTUE ?? c.puntosTUE) : acc, 0);
 
 
           const completadoIUG = asignadoIUG >= ambiente.puntosIUG;
@@ -109,9 +108,9 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                   
                   // Calcular bocas correctas para el tipo de circuito
                   let bocasCircuito = 0;
-                  if (circuito.tipo === 'iluminacion_usos_generales') bocasCircuito = circuito.puntosIUG + (circuito.tieneTomacorrientesDerivados ? circuito.puntosTUG : 0);
-                  else if (circuito.tipo === 'tomacorrientes_usos_generales') bocasCircuito = circuito.puntosTUG;
-                  else if (circuito.tipo === 'usos_especiales') bocasCircuito = circuito.puntosTUE;
+                  if (circuito.tipo === 'iluminacion_usos_generales') bocasCircuito = (circuito.manualPuntosIUG ?? circuito.puntosIUG) + (circuito.tieneTomacorrientesDerivados ? (circuito.manualPuntosTUG ?? circuito.puntosTUG) : 0);
+                  else if (circuito.tipo === 'tomacorrientes_usos_generales') bocasCircuito = (circuito.manualPuntosTUG ?? circuito.puntosTUG);
+                  else if (circuito.tipo === 'usos_especiales') bocasCircuito = (circuito.manualPuntosTUE ?? circuito.puntosTUE);
                   else bocasCircuito = 0;
                   
                   const superaLimite = bocasCircuito > 15;
@@ -140,6 +139,33 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                       <span className={isSelected ? 'text-black/70' : 'text-slate-500'}>{info.label}</span>
                   {isSelected && (
                         <div className="mt-3 pt-3 border-t border-black/10 w-full flex flex-col gap-2 animate-in fade-in slide-in-from-top-1" onClick={(e) => e.stopPropagation()}>
+                            <div className="grid grid-cols-2 gap-2 text-[10px]">
+                                {/* Input para IUG */}
+                                {(circuito.tipo === 'iluminacion_usos_generales') && (
+                                    <div className="flex flex-col items-center bg-black/10 p-1.5 rounded">
+                                        <span className="font-bold uppercase text-[8px] opacity-70">IUG</span>
+                                        <input type="number" className="w-full bg-transparent text-center font-bold text-sm outline-none" value={circuito.manualPuntosIUG ?? circuito.puntosIUG} 
+                                          onChange={(e) => updateCircuitoBocas(circuito.id, 'manualPuntosIUG', parseInt(e.target.value) || 0)} />
+                                    </div>
+                                )}
+                                {/* Input para TUG */}
+                                {(circuito.tipo === 'tomacorrientes_usos_generales' || (circuito.tipo === 'iluminacion_usos_generales' && circuito.tieneTomacorrientesDerivados)) && (
+                                    <div className="flex flex-col items-center bg-black/10 p-1.5 rounded">
+                                        <span className="font-bold uppercase text-[8px] opacity-70">TUG</span>
+                                        <input type="number" className="w-full bg-transparent text-center font-bold text-sm outline-none" value={circuito.manualPuntosTUG ?? circuito.puntosTUG} 
+                                          onChange={(e) => updateCircuitoBocas(circuito.id, 'manualPuntosTUG', parseInt(e.target.value) || 0)} />
+                                    </div>
+                                )}
+                                {/* Input para TUE */}
+                                {circuito.tipo === 'usos_especiales' && (
+                                    <div className="flex flex-col items-center bg-black/10 p-1.5 rounded col-span-2">
+                                        <span className="font-bold uppercase text-[8px] opacity-70">TUE</span>
+                                        <input type="number" className="w-full bg-transparent text-center font-bold text-sm outline-none" value={circuito.manualPuntosTUE ?? circuito.puntosTUE}
+                                           onChange={(e) => updateCircuitoBocas(circuito.id, 'manualPuntosTUE', parseInt(e.target.value) || 0)} />
+                                    </div>
+                                )}
+                            </div>
+                            
                             <div className={`text-[9px] font-bold text-center ${superaLimite ? 'text-red-700' : 'text-black/60'}`}>
                                 {bocasCircuito} / 15 bocas
                             </div>

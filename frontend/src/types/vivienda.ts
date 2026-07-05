@@ -29,6 +29,9 @@ export interface CircuitoCalculado {
   puntosIUG: number;
   puntosTUG: number;
   puntosTUE: number;
+  manualPuntosIUG?: number;
+  manualPuntosTUG?: number;
+  manualPuntosTUE?: number;
   tieneTomacorrientesDerivados?: boolean;
   ambientesIds: string[];
 }
