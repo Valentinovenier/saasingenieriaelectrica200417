@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Project, Canalizacion } from '../../types/project';
-import { Trash2, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { Project } from '../../types/project';
 import { 
   calcularSuperficieLimite, 
   determinarGradoElectrificacion, 
@@ -67,40 +66,6 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
           <p className="text-lg font-bold text-white">{circuitosMinimos}</p>
         </div>
       </div>
-
-      {/* Sección de Canalizaciones movida aquí */}
-      <section className="bg-slate-900 p-4 rounded-xl border border-slate-800">
-        <h3 className="text-lg font-bold text-white mb-4">Canalizaciones</h3>
-        <div className="space-y-2">
-            {(project.canalizaciones || []).map((can: Canalizacion) => (
-                <div key={can.id} className="flex gap-2 items-center">
-                    <input 
-                        className="bg-slate-950 p-2 rounded border border-slate-700 text-white flex-1"
-                        value={can.nombre}
-                        onChange={(e) => {
-                            const updated = project.canalizaciones?.map(c => c.id === can.id ? {...c, nombre: e.target.value} : c);
-                            onChange({...project, canalizaciones: updated});
-                        }}
-                    />
-                    <button 
-                        onClick={() => onChange({...project, canalizaciones: project.canalizaciones?.filter(c => c.id !== can.id)})}
-                        className="text-red-400 p-2"
-                    >
-                        <Trash2 size={16} />
-                    </button>
-                </div>
-            ))}
-            <button 
-                onClick={() => onChange({
-                    ...project, 
-                    canalizaciones: [...(project.canalizaciones || []), { id: Date.now().toString(), nombre: 'Nueva Canalización' }]
-                })}
-                className="text-[var(--accent)] flex items-center gap-2 text-sm font-bold"
-            >
-                <Plus size={16} /> Añadir Canalización
-            </button>
-        </div>
-      </section>
     </div>
   );
 };

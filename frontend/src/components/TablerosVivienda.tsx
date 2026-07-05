@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Project } from '../types/project';
 import { TableroVivienda, CircuitoCalculado } from '../types/vivienda';
-import { ChevronDown, ChevronRight, Plus, Zap, FolderTree } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, FolderTree } from 'lucide-react';
 
 interface Props {
   project: Project;
@@ -11,6 +11,16 @@ interface Props {
 export const TablerosVivienda = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [], tableros: [] };
   const tableros = datos.tableros || [];
+
+  // Estado para gestionar nodos expandidos por ID
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(tableros.map(t => t.id)));
+
+  const toggleExpand = (id: string) => {
+    const next = new Set(expandedNodes);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setExpandedNodes(next);
+  };
 
   const toggleCircuitoEnTablero = (tableroId: string, circuitoId: string) => {
     const nuevosTableros = tableros.map((t: TableroVivienda) => {
@@ -44,14 +54,13 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
   };
 
   const renderTableroNode = (tablero: TableroVivienda, depth = 0) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [expanded, setExpanded] = useState(true);
+    const expanded = expandedNodes.has(tablero.id);
     const subTableros = tableros.filter((t: TableroVivienda) => t.tableroPadreId === tablero.id);
 
     return (
       <div key={tablero.id} className={`${depth > 0 ? 'ml-6' : ''} border-l border-slate-700 pl-4 space-y-2`}>
         <div className="flex items-center gap-2 bg-slate-900 p-3 rounded-lg border border-slate-800">
-            <button onClick={() => setExpanded(!expanded)}>
+            <button onClick={() => toggleExpand(tablero.id)}>
                 {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </button>
             <FolderTree size={16} className="text-[var(--accent)]" />
