@@ -48,7 +48,7 @@ export interface DatosVivienda {
   gradoElectrificacion?: 'Minimo' | 'Medio' | 'Elevado' | 'Superior';
   ambientes: Ambiente[];
   circuitosCalculados: CircuitoCalculado[];
-  tableros: TableroVivienda[];
+  tableros?: TableroVivienda[];
 }
 
 export interface CondicionesTramoResidencial {
