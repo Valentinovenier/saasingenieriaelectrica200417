@@ -10,10 +10,17 @@ export const ProteccionesPage = () => {
   const fetchProtecciones = () => {
     setLoading(true);
     fetch('/api/protecciones')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('Error en la respuesta');
+        return res.json();
+      })
       .then((data) => {
         setProtecciones(data);
         setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error fetching protecciones:', err);
+        setLoading(false); // Asegurar que loading sea false en caso de error
       });
   };
 
