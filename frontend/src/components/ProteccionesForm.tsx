@@ -5,7 +5,7 @@ export const ProteccionesForm = ({ onClose, onSave }: { onClose: () => void, onS
   const [formData, setFormData] = useState({
     marca_id: 1, 
     modelo: '',
-    tipo_proteccion: 'PIA',
+    tipo_proteccion: 'Interruptor Automático',
     in_amp: 0,
     curva_disparo: 'C',
     polos: 1,
@@ -27,27 +27,66 @@ export const ProteccionesForm = ({ onClose, onSave }: { onClose: () => void, onS
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-[var(--bg-secondary)] p-6 rounded-xl w-full max-w-2xl border border-slate-800">
-        <h3 className="text-xl font-bold text-white mb-4">Nueva Protección</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <input className="bg-[var(--bg-primary)] p-2 rounded text-white" placeholder="Modelo" onChange={(e) => setFormData({...formData, modelo: e.target.value})} />
-          <input className="bg-[var(--bg-primary)] p-2 rounded text-white" placeholder="Corriente Nominal (A)" type="number" onChange={(e) => setFormData({...formData, in_amp: Number(e.target.value)})} />
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-[var(--bg-secondary)] p-8 rounded-2xl w-full max-w-2xl border border-slate-700 shadow-2xl">
+        <h3 className="text-2xl font-bold text-white mb-6 border-b border-slate-700 pb-4">Nueva Protección</h3>
+        
+        <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[var(--text-secondary)]">Modelo</label>
+            <input className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" placeholder="Ej: iC60N" onChange={(e) => setFormData({...formData, modelo: e.target.value})} />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[var(--text-secondary)]">Corriente Nominal (In)</label>
+            <input className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" placeholder="Ej: 20" type="number" onChange={(e) => setFormData({...formData, in_amp: Number(e.target.value)})} />
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[var(--text-secondary)]">Tipo</label>
+            <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" onChange={(e) => setFormData({...formData, tipo_proteccion: e.target.value})}>
+              <option value="Interruptor Automático">Interruptor Automático</option>
+              <option value="Interruptor Diferencial">Interruptor Diferencial</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[var(--text-secondary)]">Polos</label>
+            <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" onChange={(e) => setFormData({...formData, polos: Number(e.target.value)})}>
+              <option value={1}>1 Polo</option>
+              <option value={2}>2 Polos</option>
+              <option value={3}>3 Polos</option>
+              <option value={4}>4 Polos</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[var(--text-secondary)]">Curva</label>
+            <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" onChange={(e) => setFormData({...formData, curva_disparo: e.target.value})}>
+              <option value="B">Curva B</option>
+              <option value="C">Curva C</option>
+              <option value="D">Curva D</option>
+            </select>
+          </div>
         </div>
         
-        <h4 className="text-white mt-6 mb-2">Capacidades de Corte</h4>
-        {formData.capacidades.map((cap, i) => (
-          <div key={i} className="flex gap-2 mb-2">
-            <input className="bg-[var(--bg-primary)] p-1 rounded text-white w-20" placeholder="Ue (V)" type="number" onChange={(e) => updateCapacidad(i, 'tension_v', Number(e.target.value))} />
-            <input className="bg-[var(--bg-primary)] p-1 rounded text-white w-20" placeholder="Icn" type="number" onChange={(e) => updateCapacidad(i, 'icn_ka', Number(e.target.value))} />
-            <input className="bg-[var(--bg-primary)] p-1 rounded text-white w-20" placeholder="Icu" type="number" onChange={(e) => updateCapacidad(i, 'icu_ka', Number(e.target.value))} />
-          </div>
-        ))}
-        <button onClick={addCapacidad} className="text-[var(--accent)] text-sm flex items-center gap-1"><Plus size={16}/> Añadir tensión</button>
+        <h4 className="text-lg font-semibold text-white mt-8 mb-4 border-b border-slate-700 pb-2">Capacidades de Corte</h4>
+        <div className="space-y-3">
+          {formData.capacidades.map((cap, i) => (
+            <div key={i} className="grid grid-cols-4 gap-3 items-center bg-[var(--bg-primary)] p-3 rounded-lg border border-slate-700">
+              <input className="bg-transparent text-white text-sm" placeholder="Ue (V)" type="number" onChange={(e) => updateCapacidad(i, 'tension_v', Number(e.target.value))} />
+              <input className="bg-transparent text-white text-sm" placeholder="Icn (kA)" type="number" onChange={(e) => updateCapacidad(i, 'icn_ka', Number(e.target.value))} />
+              <input className="bg-transparent text-white text-sm" placeholder="Icu (kA)" type="number" onChange={(e) => updateCapacidad(i, 'icu_ka', Number(e.target.value))} />
+              <input className="bg-transparent text-white text-sm" placeholder="Ics (kA)" type="number" onChange={(e) => updateCapacidad(i, 'ics_ka', Number(e.target.value))} />
+            </div>
+          ))}
+        </div>
+        <button onClick={addCapacidad} className="text-[var(--accent)] text-sm font-medium mt-3 flex items-center gap-2 hover:text-white transition-colors">
+          <Plus size={16}/> Añadir nivel de tensión
+        </button>
 
-        <div className="flex justify-end gap-2 mt-6">
-          <button onClick={onClose} className="px-4 py-2 text-white">Cancelar</button>
-          <button onClick={() => onSave(formData)} className="bg-[var(--accent)] text-white px-4 py-2 rounded-lg">Guardar</button>
+        <div className="flex justify-end gap-3 mt-8">
+          <button onClick={onClose} className="px-6 py-2 text-white hover:bg-slate-700 rounded-lg transition-colors">Cancelar</button>
+          <button onClick={() => onSave(formData)} className="bg-[var(--accent)] hover:opacity-90 text-white px-6 py-2 rounded-lg font-medium transition-all">Guardar Protección</button>
         </div>
       </div>
     </div>
