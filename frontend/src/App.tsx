@@ -14,6 +14,7 @@ import { useProject } from './context/ProjectDataContext';
 import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
 import { UnifilarPage } from './components/UnifilarPage';
+import { ProteccionesPage } from './components/ProteccionesPage';
 
 export default function App() {
   const { isAuthenticated, loading, logout } = useAuth();
@@ -241,6 +242,8 @@ export default function App() {
         return <ProjectReport project={selectedProject} />;
       case 'unifilar':
         return <UnifilarPage />;
+      case 'protecciones':
+        return <ProteccionesPage />;
       default:
         return <div className="text-white">Sección no implementada.</div>;
     }
