@@ -1,6 +1,6 @@
 import { Project } from '../../types/project';
 import { Ambiente, CircuitoCalculado, TipoCircuito } from '../../types/vivienda';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 interface Props {
   project: Project;
@@ -16,28 +16,6 @@ const getCircuitoInfo = (tipo: TipoCircuito) => {
   }
 };
 
-const recalculateCircuitTotals = (ambientes: Ambiente[], circuitos: CircuitoCalculado[]) => {
-  return circuitos.map(c => {
-    const puntosIUG = c.ambientesIds.reduce((acc, id) => { 
-        const amb = ambientes.find(a => a.id === id); 
-        return acc + (c.tipo === 'iluminacion_usos_generales' ? (amb?.puntosIUG || 0) : 0); 
-    }, 0);
-    
-    const puntosTUG = c.ambientesIds.reduce((acc, id) => { 
-        const amb = ambientes.find(a => a.id === id); 
-        const suma = (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) 
-            ? (amb?.puntosTUG || 0) : 0;
-        return acc + suma; 
-    }, 0);
-
-    const puntosTUE = c.tipo === 'usos_especiales'
-        ? c.ambientesIds.reduce((acc, id) => { const amb = ambientes.find(a => a.id === id); return acc + (amb?.puntosTUE || 0); }, 0)
-        : c.puntosTUE;
-
-    return { ...c, puntosIUG, puntosTUG, puntosTUE };
-  });
-};
-
 export const ViviendaAsignacion = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
 
@@ -48,136 +26,73 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
         const nuevosAmbientes = estaAsignado 
             ? c.ambientesIds.filter(id => id !== ambiente.id)
             : [...c.ambientesIds, ambiente.id];
-
         return { ...c, ambientesIds: nuevosAmbientes };
       }
       return c;
     });
 
-    const recalculados = recalculateCircuitTotals(datos.ambientes, nuevosCircuitos);
-    onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: recalculados } });
+    onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
   };
 
-  const updateCircuitoBocas = (circuitoId: string, tipo: 'manualPuntosIUG' | 'manualPuntosTUG' | 'manualPuntosTUE', valor: number) => {
+  const updateCircuitoBocas = (circuitoId: string, tipo: 'manualPuntosIUG' | 'manualPuntosTUG' | 'manualPuntosTUE', valor: number, ambienteId: string) => {
+      // Necesitamos una estructura más compleja para guardar tomas por ambiente y circuito
+      // POR AHORA mantendremos la lógica actual pero simplificaremos la UI
       const nuevosCircuitos = datos.circuitosCalculados.map(c => 
           c.id === circuitoId ? { ...c, [tipo]: valor } : c
       );
       onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
   };
 
-
   return (
-    <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-        <h2 className="text-xl font-bold text-white">Asignación de Ambientes a Circuitos</h2>
+    <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-8">
+      
+      {/* 1. Resumen Superior */}
+      <div className="bg-slate-900 p-4 rounded-lg border border-slate-700">
+        <h3 className="text-sm font-bold text-slate-400 mb-3 uppercase">Estado de Circuitos</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {datos.circuitosCalculados.map(c => {
+                // Cálculo simple de tomas para el resumen
+                let totalTomas = (c.manualPuntosIUG ?? c.puntosIUG) + (c.manualPuntosTUG ?? c.puntosTUG) + (c.manualPuntosTUE ?? c.puntosTUE);
+                const superaLimite = totalTomas > 15;
+                return (
+                    <div key={c.id} className={`p-3 rounded border ${superaLimite ? 'border-red-900 bg-red-950/30' : 'border-slate-700 bg-slate-950'}`}>
+                        <div className="text-white text-xs font-bold truncate">{c.nombre}</div>
+                        <div className={`text-lg font-black ${superaLimite ? 'text-red-500' : 'text-emerald-500'}`}>
+                            {totalTomas}<span className="text-xs text-slate-500">/15</span>
+                        </div>
+                    </div>
+                )
+            })}
+        </div>
       </div>
 
-      <div className="space-y-8">
-        {datos.ambientes.map((ambiente) => {
-          // Calcular lo asignado para este ambiente ESPECÍFICO
-          const asignadoIUG = datos.circuitosCalculados.reduce((acc, c) => 
-            c.ambientesIds.includes(ambiente.id) && c.tipo === 'iluminacion_usos_generales' ? acc + (c.manualPuntosIUG ?? c.puntosIUG) : acc, 0);
-          const asignadoTUG = datos.circuitosCalculados.reduce((acc, c) => 
-            c.ambientesIds.includes(ambiente.id) && (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) ? acc + (c.manualPuntosTUG ?? c.puntosTUG) : acc, 0);
-          const asignadoTUE = datos.circuitosCalculados.reduce((acc, c) => 
-            c.ambientesIds.includes(ambiente.id) && c.tipo === 'usos_especiales' ? acc + (c.manualPuntosTUE ?? c.puntosTUE) : acc, 0);
-
-
-          const completadoIUG = asignadoIUG >= ambiente.puntosIUG;
-          const completadoTUG = asignadoTUG >= ambiente.puntosTUG;
-          const completadoTUE = asignadoTUE >= ambiente.puntosTUE;
-
-          return (
-            <div key={ambiente.id} className="space-y-3 border-l-2 border-slate-800 pl-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-white">{ambiente.nombre}</h3>
-                <div className="text-[10px] text-slate-400 bg-slate-900 px-2 py-1 rounded">
-                    <div className="text-center font-bold mb-1">puntos de utilización por ambiente</div>
-                    <div className="flex justify-center space-x-3">
-                        <span className={completadoIUG ? 'text-emerald-400' : 'text-amber-400'}>IUG: {asignadoIUG}/{ambiente.puntosIUG}</span>
-                        <span className={completadoTUG ? 'text-emerald-400' : 'text-amber-400'}>TUG: {asignadoTUG}/{ambiente.puntosTUG}</span>
-                        <span className={completadoTUE ? 'text-emerald-400' : 'text-amber-400'}>TUE: {asignadoTUE}/{ambiente.puntosTUE}</span>
-                    </div>
+      {/* 2. Asignación por Ambiente */}
+      <div className="space-y-6">
+        <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Asignación por Ambiente</h2>
+        {datos.ambientes.map((ambiente) => (
+            <div key={ambiente.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center bg-slate-950/50 p-4 rounded-lg border border-slate-800">
+                <h3 className="text-md font-semibold text-white">{ambiente.nombre}</h3>
+                
+                <div className="col-span-2 flex flex-wrap gap-2">
+                    {datos.circuitosCalculados.map(circuito => {
+                        const isSelected = circuito.ambientesIds.includes(ambiente.id);
+                        return (
+                            <button
+                                key={circuito.id}
+                                onClick={() => toggleAmbienteEnCircuito(ambiente, circuito.id)}
+                                className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${
+                                    isSelected 
+                                    ? 'bg-[var(--accent)] border-[var(--accent)] text-black' 
+                                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
+                                }`}
+                            >
+                                {circuito.nombre}
+                            </button>
+                        )
+                    })}
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {datos.circuitosCalculados.map((circuito) => {
-                  const isSelected = circuito.ambientesIds.includes(ambiente.id);
-                  const info = getCircuitoInfo(circuito.tipo);
-                  
-                  // Calcular bocas correctas para el tipo de circuito
-                  let bocasCircuito = 0;
-                  if (circuito.tipo === 'iluminacion_usos_generales') bocasCircuito = (circuito.manualPuntosIUG ?? circuito.puntosIUG) + (circuito.tieneTomacorrientesDerivados ? (circuito.manualPuntosTUG ?? circuito.puntosTUG) : 0);
-                  else if (circuito.tipo === 'tomacorrientes_usos_generales') bocasCircuito = (circuito.manualPuntosTUG ?? circuito.puntosTUG);
-                  else if (circuito.tipo === 'usos_especiales') bocasCircuito = (circuito.manualPuntosTUE ?? circuito.puntosTUE);
-                  else bocasCircuito = 0;
-                  
-                  const superaLimite = bocasCircuito > 15;
-
-                  // Validar compatibilidad estricta
-                  let esCompatible = false;
-                  if (circuito.tipo === 'iluminacion_usos_generales') esCompatible = ambiente.puntosIUG > 0;
-                  else if (circuito.tipo === 'tomacorrientes_usos_generales') esCompatible = ambiente.puntosTUG > 0;
-                  else if (circuito.tipo === 'usos_especiales') esCompatible = ambiente.puntosTUE > 0;
-                  else if (circuito.tipo === 'usos_especificos') esCompatible = true; 
-
-                  return (
-                    <button
-                      key={circuito.id}
-                      onClick={() => toggleAmbienteEnCircuito(ambiente, circuito.id)}
-                      disabled={!esCompatible}
-                      className={`flex flex-col items-center justify-center p-2 rounded-lg border text-[10px] font-bold transition-all ${
-                        isSelected
-                          ? 'bg-[var(--accent)] border-[var(--accent)] text-black shadow-lg shadow-[var(--accent)]/20'
-                          : esCompatible 
-                            ? 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
-                            : 'bg-slate-950 border-slate-800 text-slate-700 cursor-not-allowed'
-                      }`}
-                    >
-                      <span className="text-xs mb-1">{circuito.nombre}</span>
-                      <span className={isSelected ? 'text-black/70' : 'text-slate-500'}>{info.label}</span>
-                  {isSelected && (
-                        <div className="mt-3 pt-3 border-t border-black/10 w-full flex flex-col gap-2 animate-in fade-in slide-in-from-top-1" onClick={(e) => e.stopPropagation()}>
-                            <div className="grid grid-cols-2 gap-2 text-[10px]">
-                                {/* Input para IUG */}
-                                {(circuito.tipo === 'iluminacion_usos_generales') && (
-                                    <div className="flex flex-col items-center bg-black/10 p-1.5 rounded">
-                                        <span className="font-bold uppercase text-[8px] opacity-70">IUG</span>
-                                        <input type="number" className="w-full bg-transparent text-center font-bold text-sm outline-none" value={circuito.manualPuntosIUG ?? circuito.puntosIUG} 
-                                          onChange={(e) => updateCircuitoBocas(circuito.id, 'manualPuntosIUG', parseInt(e.target.value) || 0)} />
-                                    </div>
-                                )}
-                                {/* Input para TUG */}
-                                {(circuito.tipo === 'tomacorrientes_usos_generales' || (circuito.tipo === 'iluminacion_usos_generales' && circuito.tieneTomacorrientesDerivados)) && (
-                                    <div className="flex flex-col items-center bg-black/10 p-1.5 rounded">
-                                        <span className="font-bold uppercase text-[8px] opacity-70">TUG</span>
-                                        <input type="number" className="w-full bg-transparent text-center font-bold text-sm outline-none" value={circuito.manualPuntosTUG ?? circuito.puntosTUG} 
-                                          onChange={(e) => updateCircuitoBocas(circuito.id, 'manualPuntosTUG', parseInt(e.target.value) || 0)} />
-                                    </div>
-                                )}
-                                {/* Input para TUE */}
-                                {circuito.tipo === 'usos_especiales' && (
-                                    <div className="flex flex-col items-center bg-black/10 p-1.5 rounded col-span-2">
-                                        <span className="font-bold uppercase text-[8px] opacity-70">TUE</span>
-                                        <input type="number" className="w-full bg-transparent text-center font-bold text-sm outline-none" value={circuito.manualPuntosTUE ?? circuito.puntosTUE}
-                                           onChange={(e) => updateCircuitoBocas(circuito.id, 'manualPuntosTUE', parseInt(e.target.value) || 0)} />
-                                    </div>
-                                )}
-                            </div>
-                            
-                            <div className={`text-[9px] font-bold text-center ${superaLimite ? 'text-red-700' : 'text-black/60'}`}>
-                                {bocasCircuito} / 15 bocas
-                            </div>
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
             </div>
-          );
-        })}
+        ))}
       </div>
     </div>
   );

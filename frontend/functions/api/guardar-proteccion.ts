@@ -95,3 +95,46 @@ export async function onRequestPost(context) {
   }
 }
 
+export async function onRequestPut(context) {
+  const { request, env } = context;
+  try {
+    await verifyAuth(request, env);
+    const body = await request.json() as any;
+    const { id, marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, specs_tecnicas, capacidades } = body;
+
+    // 1. Actualizar la protección
+    await env.DB.prepare(
+      'UPDATE protecciones SET marca_id = ?, modelo = ?, tipo_proteccion = ?, in_amp = ?, curva_disparo = ?, polos = ?, specs_tecnicas = ? WHERE id = ?'
+    )
+    .bind(marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, JSON.stringify(specs_tecnicas || {}), id)
+    .run();
+
+    // 2. Eliminar capacidades antiguas y insertar las nuevas (Batch)
+    const statements = [];
+    statements.push(env.DB.prepare('DELETE FROM capacidades_corte WHERE proteccion_id = ?').bind(id));
+    
+    if (capacidades && Array.isArray(capacidades)) {
+      capacidades.forEach(cap => {
+        statements.push(
+          env.DB.prepare(
+            'INSERT INTO capacidades_corte (proteccion_id, tension_v, icn_ka, icu_ka, ics_ka) VALUES (?, ?, ?, ?, ?)'
+          )
+          .bind(id, cap.tension_v, cap.icn_ka, cap.icu_ka, cap.ics_ka)
+        );
+      });
+    }
+    
+    await env.DB.batch(statements);
+
+    return new Response(JSON.stringify({ success: true }), { 
+      status: 200, 
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+    });
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: 'Error al actualizar la protección', details: e.message, stack: e.stack }), { 
+      status: 500, 
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+    });
+  }
+}
+
