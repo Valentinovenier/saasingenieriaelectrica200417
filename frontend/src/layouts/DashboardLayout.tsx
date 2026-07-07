@@ -18,7 +18,6 @@ export const DashboardLayout = ({
   // Menú global lateral
   const sidebarItems = [
     { icon: LayoutDashboard, label: 'Inicio', id: 'inicio' },
-    { icon: Zap, label: 'Protecciones', id: 'protecciones' },
     { icon: Settings, label: 'Configuración', id: 'settings' },
   ];
 
@@ -28,7 +27,7 @@ export const DashboardLayout = ({
         { icon: Settings, label: 'Parámetros', id: 'parametros' },
         { icon: Server, label: 'Tableros', id: 'tableros-seccionales' },
         { icon: FileText, label: 'Conductores', id: 'conductores' },
-        { icon: Zap, label: 'Esquema Unifilar', id: 'unifilar' },
+        { icon: Zap, label: 'Protecciones', id: 'protecciones' },
         { icon: FileText, label: 'Informe', id: 'informe' },
       ]
     : [];

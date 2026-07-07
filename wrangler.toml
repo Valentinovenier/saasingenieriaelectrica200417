@@ -1,5 +1,6 @@
 name = "saasingenieriaelectrica200417"
 pages_build_output_dir = "frontend/dist"
+compatibility_date = "2026-07-06"
 compatibility_flags = [ "nodejs_compat" ]
 
 [vars]
