@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Project } from '../types/project';
 import { TableroVivienda, CircuitoCalculado } from '../types/vivienda';
 import { ChevronDown, ChevronRight, Plus, FolderTree, Trash2 } from 'lucide-react';
@@ -11,6 +11,14 @@ interface Props {
 export const TablerosVivienda = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [], tableros: [] };
   const tableros = datos.tableros || [];
+
+  // Asegurar tablero principal por defecto
+  useEffect(() => {
+    if (datos.circuitosCalculados.length > 0 && !tableros.find(t => t.tipo === 'Principal')) {
+        const tp: TableroVivienda = { id: 'tp', nombre: 'Tablero Principal', tipo: 'Principal', circuitosIds: [] };
+        onChange({ ...project, datosVivienda: { ...datos, tableros: [...tableros, tp] } });
+    }
+  }, [datos.circuitosCalculados, tableros, project, onChange, datos]);
 
   // Estado para gestionar nodos expandidos por ID
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(tableros.map(t => t.id)));
