@@ -1,22 +1,39 @@
-export async function onRequestGet(context) {
-  const { env } = context;
+import jwt from 'jsonwebtoken';
+
+async function verifyAuth(request, env) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new Error('Faltan credenciales de autorización');
+  }
+  
+  const token = authHeader.split(' ')[1];
+  const SECRET = env.SECRET_KEY || 'fallback_secret_key_for_development';
   try {
+    return jwt.verify(token, SECRET) as any;
+  } catch (e: any) {
+    throw new Error(`Token inválido o expirado: ${e.message}`);
+  }
+}
+
+export async function onRequestGet(context) {
+  const { request, env } = context;
+  try {
+    await verifyAuth(request, env);
     const { results } = await env.DB.prepare('SELECT * FROM protecciones').all();
     return new Response(JSON.stringify(results), { 
       status: 200, 
       headers: { 'Content-Type': 'application/json' } 
     });
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message }), { 
-      status: 500, 
-      headers: { 'Content-Type': 'application/json' } 
-    });
+    const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
+    return new Response(JSON.stringify({ error: e.message }), { status, headers: { 'Content-Type': 'application/json' } });
   }
 }
 
 export async function onRequestPost(context) {
   const { request, env } = context;
   try {
+    await verifyAuth(request, env);
     const body = await request.json() as any;
     const { marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, specs_tecnicas, capacidades } = body;
 
@@ -48,8 +65,9 @@ export async function onRequestPost(context) {
     });
   } catch (e: any) {
     await env.DB.prepare('ROLLBACK').run();
+    const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
     return new Response(JSON.stringify({ error: 'Error al crear la protección', details: e.message }), { 
-      status: 500, 
+      status, 
       headers: { 'Content-Type': 'application/json' } 
     });
   }
