@@ -6,9 +6,12 @@ interface Env {
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
-  const { method } = request;
+  const method = request.method;
 
-  // GET: Listar protecciones (opcionalmente filtradas por usuario si fuera necesario en el futuro)
+  // Log para depuración
+  console.log(`API call: ${method} ${request.url}`);
+
+  // GET: Listar protecciones
   if (method === 'GET') {
     const { results } = await env.DB.prepare(
       'SELECT * FROM protecciones'
@@ -25,11 +28,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       // Usar transacción para asegurar la integridad
       await env.DB.prepare('BEGIN TRANSACTION').run();
       
-      const proteccion = await env.DB.prepare(
+      await env.DB.prepare(
         'INSERT INTO protecciones (marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, specs_tecnicas) VALUES (?, ?, ?, ?, ?, ?, ?)'
       )
-      .bind(marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, JSON.stringify(specs_tecnicas))
-      .first();
+      .bind(marca_id || 1, modelo, tipo_proteccion, in_amp, curva_disparo, polos, JSON.stringify(specs_tecnicas || {}))
+      .run();
       
       // Obtener el ID insertado
       const idResult = await env.DB.prepare('SELECT last_insert_rowid() as id').first();
@@ -48,9 +51,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
       await env.DB.prepare('COMMIT').run();
       return Response.json({ success: true, proteccion_id }, { status: 201 });
-    } catch (e) {
+    } catch (e: any) {
       await env.DB.prepare('ROLLBACK').run();
-      return Response.json({ error: 'Error al crear la protección' }, { status: 500 });
+      return Response.json({ error: 'Error al crear la protección', details: e.message }, { status: 500 });
     }
   }
 
