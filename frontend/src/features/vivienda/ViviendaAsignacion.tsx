@@ -34,6 +34,13 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
   };
 
+  const updateCircuitoBocas = (circuitoId: string, tipo: 'manualPuntosIUG' | 'manualPuntosTUG' | 'manualPuntosTUE', valor: number, ambienteId: string) => {
+      const nuevosCircuitos = datos.circuitosCalculados.map(c => 
+          c.id === circuitoId ? { ...c, [tipo]: valor } : c
+      );
+      onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
+  };
+
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-8">
       
