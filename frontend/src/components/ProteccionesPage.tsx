@@ -9,7 +9,7 @@ export const ProteccionesPage = () => {
 
   const fetchProtecciones = () => {
     setLoading(true);
-    fetch('/api/protecciones')
+    fetch('/api/guardar-proteccion')
       .then((res) => {
         if (!res.ok) throw new Error('Error en la respuesta');
         return res.json();
@@ -29,7 +29,7 @@ export const ProteccionesPage = () => {
   }, []);
 
   const handleSave = async (data: any) => {
-    await fetch('/api/protecciones', {
+    await fetch('/api/guardar-proteccion', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
