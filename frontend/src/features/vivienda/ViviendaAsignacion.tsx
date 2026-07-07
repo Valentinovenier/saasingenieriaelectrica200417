@@ -18,6 +18,11 @@ const getCircuitoInfo = (tipo: TipoCircuito) => {
 
 export const ViviendaAsignacion = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
+  
+  // Inicializar tomas por ambiente si no existen (debería ser parte del tipo Project en el futuro)
+  if (!datos.tomasPorAmbiente) {
+      datos.tomasPorAmbiente = {};
+  }
 
   const toggleAmbienteEnCircuito = (ambiente: Ambiente, circuitoId: string) => {
     const nuevosCircuitos = datos.circuitosCalculados.map(c => {
@@ -34,11 +39,13 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
   };
 
-  const updateCircuitoBocas = (circuitoId: string, tipo: 'manualPuntosIUG' | 'manualPuntosTUG' | 'manualPuntosTUE', valor: number, ambienteId: string) => {
-      const nuevosCircuitos = datos.circuitosCalculados.map(c => 
-          c.id === circuitoId ? { ...c, [tipo]: valor } : c
-      );
-      onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
+  const updateTomas = (ambienteId: string, circuitoId: string, tipo: 'IUG' | 'TUG' | 'TUE', valor: number) => {
+      const nuevasTomas = { ...datos.tomasPorAmbiente };
+      if (!nuevasTomas[ambienteId]) nuevasTomas[ambienteId] = {};
+      if (!nuevasTomas[ambienteId][circuitoId]) nuevasTomas[ambienteId][circuitoId] = { IUG: 0, TUG: 0, TUE: 0 };
+      nuevasTomas[ambienteId][circuitoId][tipo] = valor;
+      
+      onChange({ ...project, datosVivienda: { ...datos, tomasPorAmbiente: nuevasTomas } });
   };
 
   return (
@@ -49,7 +56,13 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
         <h3 className="text-sm font-bold text-slate-400 mb-4 uppercase tracking-wider">Carga de Circuitos (Máx 15 por circuito)</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {datos.circuitosCalculados.map(c => {
-                let totalTomas = (c.manualPuntosIUG ?? c.puntosIUG) + (c.manualPuntosTUG ?? c.puntosTUG) + (c.manualPuntosTUE ?? c.puntosTUE);
+                // Sumar tomas de todos los ambientes para este circuito
+                let totalTomas = Object.values(datos.tomasPorAmbiente || {}).reduce((acc, amb) => {
+                    const tomas = amb[c.id];
+                    if (!tomas) return acc;
+                    return acc + (tomas.IUG || 0) + (tomas.TUG || 0) + (tomas.TUE || 0);
+                }, 0);
+                
                 const superaLimite = totalTomas > 15;
                 return (
                     <div key={c.id} className={`p-3 rounded border flex justify-between items-center ${superaLimite ? 'border-red-900 bg-red-950/30' : 'border-slate-700 bg-slate-950'}`}>
@@ -67,9 +80,11 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
       <div className="space-y-6">
         <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Asignación por Ambiente</h2>
         {datos.ambientes.map((ambiente) => {
-          const asignadoIUG = datos.circuitosCalculados.reduce((acc, c) => c.ambientesIds.includes(ambiente.id) && c.tipo === 'iluminacion_usos_generales' ? acc + (c.manualPuntosIUG ?? c.puntosIUG) : acc, 0);
-          const asignadoTUG = datos.circuitosCalculados.reduce((acc, c) => c.ambientesIds.includes(ambiente.id) && (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) ? acc + (c.manualPuntosTUG ?? c.puntosTUG) : acc, 0);
-          const asignadoTUE = datos.circuitosCalculados.reduce((acc, c) => c.ambientesIds.includes(ambiente.id) && c.tipo === 'usos_especiales' ? acc + (c.manualPuntosTUE ?? c.puntosTUE) : acc, 0);
+            // Calcular asignado local (para mostrar en el ambiente)
+            const tomasAmbiente = datos.tomasPorAmbiente?.[ambiente.id] || {};
+            const asignadoIUG = Object.values(tomasAmbiente).reduce((acc, c) => acc + (c.IUG || 0), 0);
+            const asignadoTUG = Object.values(tomasAmbiente).reduce((acc, c) => acc + (c.TUG || 0), 0);
+            const asignadoTUE = Object.values(tomasAmbiente).reduce((acc, c) => acc + (c.TUE || 0), 0);
 
           return (
             <div key={ambiente.id} className="bg-slate-950/50 p-4 rounded-lg border border-slate-800 space-y-4">
@@ -101,24 +116,23 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                             )
                         })}
                     </div>
-                    {/* Campos de entrada para tomas por circuito seleccionado */}
+                    {/* Campos de entrada para tomas por circuito seleccionado en este ambiente */}
                     {datos.circuitosCalculados.filter(c => c.ambientesIds.includes(ambiente.id)).map(circuito => (
                         <div key={`input-${circuito.id}`} className="flex items-center gap-3 bg-black/20 p-2 rounded text-[10px]">
                             <span className="font-bold text-white w-20">{circuito.nombre}</span>
                             {circuito.tipo === 'iluminacion_usos_generales' && (
                                 <input type="number" placeholder="IUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
-                                    defaultValue={circuito.manualPuntosIUG ?? 0}
-                                    onChange={(e) => updateCircuitoBocas(circuito.id, 'manualPuntosIUG', parseInt(e.target.value) || 0, ambiente.id)} />
+                                    value={datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.IUG ?? 0}
+                                    onChange={(e) => updateTomas(ambiente.id, circuito.id, 'IUG', parseInt(e.target.value) || 0)} />
                             )}
                             {(circuito.tipo === 'tomacorrientes_usos_generales' || (circuito.tipo === 'iluminacion_usos_generales' && circuito.tieneTomacorrientesDerivados)) && (
                                 <input type="number" placeholder="TUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
-                                    defaultValue={circuito.manualPuntosTUG ?? 0}
-                                    onChange={(e) => updateCircuitoBocas(circuito.id, 'manualPuntosTUG', parseInt(e.target.value) || 0, ambiente.id)} />
+                                    value={datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.TUG ?? 0}
+                                    onChange={(e) => updateTomas(ambiente.id, circuito.id, 'TUG', parseInt(e.target.value) || 0)} />
                             )}
                         </div>
                     ))}
                 </div>
-
             </div>
         )})}
       </div>
