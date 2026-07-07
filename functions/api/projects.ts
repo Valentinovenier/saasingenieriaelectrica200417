@@ -1,12 +1,8 @@
 import jwt from 'jsonwebtoken';
 
 async function verifyAuth(request, env) {
-  // Depuración: registrar todos los encabezados
-  console.log('Headers recibidos:', JSON.stringify(Object.fromEntries(request.headers.entries())));
-  
-  const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
+  const authHeader = request.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.log('Encabezado Authorization faltante o mal formado.');
     throw new Error('Faltan credenciales de autorización');
   }
   
@@ -39,19 +35,17 @@ export async function onRequestPost(context) {
     const user = await verifyAuth(request, env);
     const { id, name, data } = await request.json();
 
-    // VALIDACIÓN CRÍTICA: Verificar que el usuario existe en la DB para evitar error de Foreign Key
     const userExists = await env.DB.prepare('SELECT id FROM users WHERE id = ?')
       .bind(user.userId)
       .first();
 
     if (!userExists) {
-      return new Response(JSON.stringify({ error: `El usuario con ID ${user.userId} no existe en la base de datos. Por favor, regístrate de nuevo.` }), { 
+      return new Response(JSON.stringify({ error: `El usuario con ID ${user.userId} no existe en la base de datos.` }), { 
         status: 400, 
         headers: { 'Content-Type': 'application/json' } 
       });
     }
 
-    // INSERT final coincidiendo exactamente con tu esquema
     await env.DB.prepare('INSERT INTO projects (id, user_id, name, data) VALUES (?, ?, ?, ?)')
       .bind(id, user.userId, name, JSON.stringify(data))
       .run();
@@ -61,48 +55,78 @@ export async function onRequestPost(context) {
       headers: { 'Content-Type': 'application/json' } 
     });
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: `Error en Servidor: ${e.message}` }), { 
-      status, 
-      headers: { 'Content-Type': 'application/json' } 
-    });
-  }
-}
+    return new Response(JSON.stringify({ error: `Error detallado en Servidor: ${e.message}`, stack: e.stack }), { 
+        status: 500, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
+    }
+    }
 
-export async function onRequestDelete(context) {
-  const { request, env } = context;
-  try {
+    export async function onRequestDelete(context) {
+    const { request, env } = context;
+    try {
     const user = await verifyAuth(request, env);
     const url = new URL(request.url);
     const projectId = url.searchParams.get('id');
 
     if (!projectId) {
-      return new Response(JSON.stringify({ error: 'ID de proyecto requerido' }), { status: 400 });
+      return new Response(JSON.stringify({ error: 'Falta el ID del proyecto' }), { 
+        status: 400, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
     }
 
-    const project = await env.DB.prepare('SELECT id FROM projects WHERE id = ? AND user_id = ?')
+    const result = await env.DB.prepare('DELETE FROM projects WHERE id = ? AND user_id = ?')
       .bind(projectId, user.userId)
-      .first();
+      .run();
 
-    if (!project) {
-      return new Response(JSON.stringify({ error: 'Proyecto no encontrado o no autorizado' }), { status: 404 });
+    if (result.changes === 0) {
+      return new Response(JSON.stringify({ error: 'Proyecto no encontrado o no autorizado' }), { 
+        status: 404, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
     }
 
-    await env.DB.prepare('DELETE FROM projects WHERE id = ?').bind(projectId).run();
+    return new Response(JSON.stringify({ success: true }), { 
+      status: 200, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
+    } catch (e: any) {
+    const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
+    return new Response(JSON.stringify({ error: `Error en Servidor: ${e.message}` }), { 
+      status, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
+    }
+    }
 
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+export async function onRequestPut(context) {
+  const { request, env } = context;
+  try {
+    const user = await verifyAuth(request, env);
+    const { id, name, data } = await request.json();
+
+    const result = await env.DB.prepare('UPDATE projects SET name = ?, data = ? WHERE id = ? AND user_id = ?')
+      .bind(name, JSON.stringify(data), id, user.userId)
+      .run();
+
+    if (result.changes === 0) {
+      return new Response(JSON.stringify({ error: 'Proyecto no encontrado o no autorizado' }), { 
+        status: 404, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true }), { 
+      status: 200, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+    const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
+    return new Response(JSON.stringify({ error: `Error en Servidor: ${e.message}` }), { 
+      status, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
   }
-}
-
-export async function onRequestOptions() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
 }
 
