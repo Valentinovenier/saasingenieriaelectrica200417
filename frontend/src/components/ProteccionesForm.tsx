@@ -14,7 +14,7 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
   });
 
   const addCapacidad = () => {
-    setFormData(prev => ({
+    setFormData((prev: any) => ({
       ...prev,
       capacidades: [...prev.capacidades, { tension_v: 400, icn_ka: 0, icu_ka: 0, ics_ka: 0 }]
     }));
@@ -23,7 +23,7 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
   const updateCapacidad = (index: number, field: string, value: number) => {
     const caps = [...formData.capacidades];
     caps[index] = { ...caps[index], [field]: value };
-    setFormData(prev => ({ ...prev, capacidades: caps }));
+    setFormData((prev: any) => ({ ...prev, capacidades: caps }));
   };
 
   return (
@@ -73,7 +73,7 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
         
         <h4 className="text-lg font-semibold text-white mt-8 mb-4 border-b border-slate-700 pb-2">Capacidades de Corte</h4>
         <div className="space-y-3">
-          {formData.capacidades.map((cap, i) => (
+          {formData.capacidades.map((cap: any, i: number) => (
             <div key={i} className="grid grid-cols-4 gap-3 items-center bg-[var(--bg-primary)] p-3 rounded-lg border border-slate-700">
               <input className="bg-transparent text-white text-sm" value={cap.tension_v} placeholder="Ue (V)" type="number" onChange={(e) => updateCapacidad(i, 'tension_v', Number(e.target.value))} />
               <input className="bg-transparent text-white text-sm" value={cap.icn_ka} placeholder="Icn (kA)" type="number" onChange={(e) => updateCapacidad(i, 'icn_ka', Number(e.target.value))} />
