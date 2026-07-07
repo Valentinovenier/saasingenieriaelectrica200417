@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Zap, Trash2 } from 'lucide-react';
 import { ProteccionesForm } from './ProteccionesForm';
+import { useAuth } from '../context/AuthContext';
 
 export const ProteccionesPage = () => {
+  const { isAuthenticated } = useAuth();
   const [protecciones, setProtecciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
 
   const fetchProtecciones = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
     setLoading(true);
-    fetch('/api/guardar-proteccion')
+    fetch('/api/guardar-proteccion', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then((res) => {
         if (!res.ok) throw new Error('Error en la respuesta');
         return res.json();
@@ -20,7 +29,7 @@ export const ProteccionesPage = () => {
       })
       .catch((err) => {
         console.error('Error fetching protecciones:', err);
-        setLoading(false); // Asegurar que loading sea false en caso de error
+        setLoading(false);
       });
   };
 
@@ -29,9 +38,13 @@ export const ProteccionesPage = () => {
   }, []);
 
   const handleSave = async (data: any) => {
+    const token = localStorage.getItem('token');
     await fetch('/api/guardar-proteccion', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
       body: JSON.stringify(data)
     });
     setShowForm(false);
