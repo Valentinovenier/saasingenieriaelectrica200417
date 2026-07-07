@@ -75,24 +75,43 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                     </div>
                 </div>
                 
-                <div className="flex flex-wrap gap-2">
-                    {datos.circuitosCalculados.map(circuito => {
-                        const isSelected = circuito.ambientesIds.includes(ambiente.id);
-                        return (
-                            <button
-                                key={circuito.id}
-                                onClick={() => toggleAmbienteEnCircuito(ambiente, circuito.id)}
-                                className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${
-                                    isSelected 
-                                    ? 'bg-[var(--accent)] border-[var(--accent)] text-black' 
-                                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
-                                }`}
-                            >
-                                {circuito.nombre}
-                            </button>
-                        )
-                    })}
+                <div className="col-span-2 space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                        {datos.circuitosCalculados.map(circuito => {
+                            const isSelected = circuito.ambientesIds.includes(ambiente.id);
+                            return (
+                                <button
+                                    key={circuito.id}
+                                    onClick={() => toggleAmbienteEnCircuito(ambiente, circuito.id)}
+                                    className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${
+                                        isSelected 
+                                        ? 'bg-[var(--accent)] border-[var(--accent)] text-black' 
+                                        : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
+                                    }`}
+                                >
+                                    {circuito.nombre}
+                                </button>
+                            )
+                        })}
+                    </div>
+                    {/* Campos de entrada para tomas por circuito seleccionado */}
+                    {datos.circuitosCalculados.filter(c => c.ambientesIds.includes(ambiente.id)).map(circuito => (
+                        <div key={`input-${circuito.id}`} className="flex items-center gap-3 bg-black/20 p-2 rounded text-[10px]">
+                            <span className="font-bold text-white w-20">{circuito.nombre}</span>
+                            {circuito.tipo === 'iluminacion_usos_generales' && (
+                                <input type="number" placeholder="IUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
+                                    defaultValue={circuito.manualPuntosIUG ?? 0}
+                                    onChange={(e) => updateCircuitoBocas(circuito.id, 'manualPuntosIUG', parseInt(e.target.value) || 0, ambiente.id)} />
+                            )}
+                            {(circuito.tipo === 'tomacorrientes_usos_generales' || (circuito.tipo === 'iluminacion_usos_generales' && circuito.tieneTomacorrientesDerivados)) && (
+                                <input type="number" placeholder="TUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
+                                    defaultValue={circuito.manualPuntosTUG ?? 0}
+                                    onChange={(e) => updateCircuitoBocas(circuito.id, 'manualPuntosTUG', parseInt(e.target.value) || 0, ambiente.id)} />
+                            )}
+                        </div>
+                    ))}
                 </div>
+
             </div>
         )})}
       </div>

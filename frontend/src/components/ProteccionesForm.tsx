@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { X, Plus } from 'lucide-react';
 
 export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: () => void, onSave: (data: any) => void, initialData?: any }) => {
-  const [formData, setFormData] = useState(initialData || {
+  const [formData, setFormData] = useState(initialData ? {
+    ...initialData,
+    capacidades: initialData.capacidades || []
+  } : {
     marca_id: 1, 
     modelo: '',
     tipo_proteccion: 'Interruptor Automático',
