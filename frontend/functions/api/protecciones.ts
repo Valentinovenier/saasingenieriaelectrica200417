@@ -33,11 +33,14 @@ export async function onRequestGet(context) {
     const { results } = await env.DB.prepare('SELECT * FROM protecciones').all();
     return new Response(JSON.stringify(results), { 
       status: 200, 
-      headers: { 'Content-Type': 'application/json' } 
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
     });
   } catch (e: any) {
     const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
-    return new Response(JSON.stringify({ error: e.message }), { status, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: e.message, stack: e.stack }), { 
+      status, 
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+    });
   }
 }
 
@@ -72,14 +75,16 @@ export async function onRequestPost(context) {
     await env.DB.prepare('COMMIT').run();
     return new Response(JSON.stringify({ success: true, proteccion_id }), { 
       status: 201, 
-      headers: { 'Content-Type': 'application/json' } 
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
     });
   } catch (e: any) {
-    await env.DB.prepare('ROLLBACK').run();
+    // Attempt rollback if error occurred after transaction start
+    try { await env.DB.prepare('ROLLBACK').run(); } catch(rbErr) {}
+
     const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
-    return new Response(JSON.stringify({ error: 'Error al crear la protección', details: e.message }), { 
+    return new Response(JSON.stringify({ error: 'Error al crear la protección', details: e.message, stack: e.stack }), { 
       status, 
-      headers: { 'Content-Type': 'application/json' } 
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
     });
   }
 }
