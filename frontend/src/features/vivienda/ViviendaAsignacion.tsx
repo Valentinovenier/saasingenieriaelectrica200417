@@ -1,5 +1,5 @@
 import { Project } from '../../types/project';
-import { Ambiente, CircuitoCalculado, TipoCircuito } from '../../types/vivienda';
+import { Ambiente, CircuitoCalculado, TipoCircuito, TomasCircuito } from '../../types/vivienda';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface Props {
@@ -17,7 +17,7 @@ const getCircuitoInfo = (tipo: TipoCircuito) => {
 };
 
 export const ViviendaAsignacion = ({ project, onChange }: Props) => {
-  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
+  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [], tomasPorAmbiente: {} };
   
   // Inicializar tomas por ambiente si no existen (debería ser parte del tipo Project en el futuro)
   if (!datos.tomasPorAmbiente) {
@@ -57,7 +57,8 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {datos.circuitosCalculados.map(c => {
                 // Sumar tomas de todos los ambientes para este circuito
-                let totalTomas = Object.values(datos.tomasPorAmbiente || {}).reduce((acc, amb) => {
+                const tomasPorAmbiente = datos.tomasPorAmbiente || {};
+                let totalTomas = Object.values(tomasPorAmbiente).reduce((acc: number, amb: Record<string, TomasCircuito>) => {
                     const tomas = amb[c.id];
                     if (!tomas) return acc;
                     return acc + (tomas.IUG || 0) + (tomas.TUG || 0) + (tomas.TUE || 0);
@@ -82,9 +83,9 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
         {datos.ambientes.map((ambiente) => {
             // Calcular asignado local (para mostrar en el ambiente)
             const tomasAmbiente = datos.tomasPorAmbiente?.[ambiente.id] || {};
-            const asignadoIUG = Object.values(tomasAmbiente).reduce((acc, c) => acc + (c.IUG || 0), 0);
-            const asignadoTUG = Object.values(tomasAmbiente).reduce((acc, c) => acc + (c.TUG || 0), 0);
-            const asignadoTUE = Object.values(tomasAmbiente).reduce((acc, c) => acc + (c.TUE || 0), 0);
+            const asignadoIUG = Object.values(tomasAmbiente).reduce((acc: number, c: TomasCircuito) => acc + (c.IUG || 0), 0);
+            const asignadoTUG = Object.values(tomasAmbiente).reduce((acc: number, c: TomasCircuito) => acc + (c.TUG || 0), 0);
+            const asignadoTUE = Object.values(tomasAmbiente).reduce((acc: number, c: TomasCircuito) => acc + (c.TUE || 0), 0);
 
           return (
             <div key={ambiente.id} className="bg-slate-950/50 p-4 rounded-lg border border-slate-800 space-y-4">

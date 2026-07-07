@@ -44,6 +44,12 @@ export interface TableroVivienda {
   circuitosIds: string[];
 }
 
+export interface TomasCircuito {
+  IUG: number;
+  TUG: number;
+  TUE: number;
+}
+
 export interface DatosVivienda {
   superficieCubierta: number;
   superficieSemicubierta: number;
@@ -52,6 +58,7 @@ export interface DatosVivienda {
   ambientes: Ambiente[];
   circuitosCalculados: CircuitoCalculado[];
   tableros?: TableroVivienda[];
+  tomasPorAmbiente?: Record<string, Record<string, TomasCircuito>>;
 }
 
 export interface CondicionesTramoResidencial {
