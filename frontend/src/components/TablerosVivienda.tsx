@@ -51,14 +51,16 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
   };
 
   const addTablero = (tipo: 'Seccional' | 'SubSeccional', padreId?: string) => {
+    // Usar la referencia más actualizada de tableros obtenida de 'datos'
+    const nuevosTableros = datos.tableros || [];
     const nuevoTablero: TableroVivienda = {
         id: Date.now().toString(),
-        nombre: `${tipo} ${tableros.length + 1}`,
+        nombre: `${tipo} ${nuevosTableros.length + 1}`,
         tipo,
         tableroPadreId: padreId,
         circuitosIds: []
     };
-    onChange({ ...project, datosVivienda: { ...datos, tableros: [...tableros, nuevoTablero] } });
+    onChange({ ...project, datosVivienda: { ...datos, tableros: [...nuevosTableros, nuevoTablero] } });
   };
 
   const deleteTablero = (id: string) => {
