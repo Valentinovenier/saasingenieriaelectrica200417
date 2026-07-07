@@ -43,12 +43,12 @@ export const ViviendaTablero = ({ project, onChange }: Props) => {
     onChange({ ...project, datosVivienda: { ...datos, tableros: [...tableros, nuevoTablero] } });
   };
 
-  const renderTablero = (tablero: TableroVivienda, depth = 0) => {
+  const TableroItem = ({ tablero, depth = 0 }: { tablero: TableroVivienda; depth?: number }) => {
     const [expanded, setExpanded] = useState(true);
     const subTableros = tableros.filter(t => t.tableroPadreId === tablero.id);
 
     return (
-      <div key={tablero.id} className={`ml-${depth * 4} border-l border-slate-700 pl-4 space-y-2`}>
+      <div style={{ marginLeft: `${depth * 16}px` }} className="border-l border-slate-700 pl-4 space-y-2 mt-2">
         <div className="flex items-center gap-2 bg-slate-900 p-3 rounded-lg border border-slate-800">
             <button onClick={() => setExpanded(!expanded)}>
                 {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -62,7 +62,7 @@ export const ViviendaTablero = ({ project, onChange }: Props) => {
         </div>
         
         {expanded && (
-            <div className="space-y-2">
+            <div className="space-y-2 pl-4">
                 {datos.circuitosCalculados.map(c => {
                     const esAsignado = tablero.circuitosIds.includes(c.id);
                     const estaEnOtro = tableros.some(t => t.id !== tablero.id && t.circuitosIds.includes(c.id));
@@ -79,7 +79,7 @@ export const ViviendaTablero = ({ project, onChange }: Props) => {
                         </label>
                     );
                 })}
-                {subTableros.map(st => renderTablero(st, depth + 1))}
+                {subTableros.map(st => <TableroItem key={st.id} tablero={st} depth={depth + 1} />)}
             </div>
         )}
       </div>
@@ -91,7 +91,7 @@ export const ViviendaTablero = ({ project, onChange }: Props) => {
       <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Gestión de Tableros y Circuitos</h2>
       
       <div className="space-y-4">
-        {tableros.filter(t => t.tipo === 'Principal').map(tp => renderTablero(tp))}
+        {tableros.filter(t => t.tipo === 'Principal').map(tp => <TableroItem key={tp.id} tablero={tp} />)}
         {tableros.length === 0 && (
             <button onClick={() => {
                 const tp: TableroVivienda = { id: 'tp', nombre: 'Tablero Principal', tipo: 'Principal', circuitosIds: [] };
