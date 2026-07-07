@@ -1,6 +1,6 @@
 import { Project } from '../../types/project';
 import { Ambiente, CircuitoCalculado, TipoCircuito } from '../../types/vivienda';
-import { AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface Props {
   project: Project;
@@ -34,31 +34,21 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
   };
 
-  const updateCircuitoBocas = (circuitoId: string, tipo: 'manualPuntosIUG' | 'manualPuntosTUG' | 'manualPuntosTUE', valor: number, ambienteId: string) => {
-      // Necesitamos una estructura más compleja para guardar tomas por ambiente y circuito
-      // POR AHORA mantendremos la lógica actual pero simplificaremos la UI
-      const nuevosCircuitos = datos.circuitosCalculados.map(c => 
-          c.id === circuitoId ? { ...c, [tipo]: valor } : c
-      );
-      onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
-  };
-
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-8">
       
       {/* 1. Resumen Superior */}
-      <div className="bg-slate-900 p-4 rounded-lg border border-slate-700">
-        <h3 className="text-sm font-bold text-slate-400 mb-3 uppercase">Estado de Circuitos</h3>
+      <div className="bg-slate-900 p-5 rounded-lg border border-slate-700">
+        <h3 className="text-sm font-bold text-slate-400 mb-4 uppercase tracking-wider">Carga de Circuitos (Máx 15 por circuito)</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {datos.circuitosCalculados.map(c => {
-                // Cálculo simple de tomas para el resumen
                 let totalTomas = (c.manualPuntosIUG ?? c.puntosIUG) + (c.manualPuntosTUG ?? c.puntosTUG) + (c.manualPuntosTUE ?? c.puntosTUE);
                 const superaLimite = totalTomas > 15;
                 return (
-                    <div key={c.id} className={`p-3 rounded border ${superaLimite ? 'border-red-900 bg-red-950/30' : 'border-slate-700 bg-slate-950'}`}>
+                    <div key={c.id} className={`p-3 rounded border flex justify-between items-center ${superaLimite ? 'border-red-900 bg-red-950/30' : 'border-slate-700 bg-slate-950'}`}>
                         <div className="text-white text-xs font-bold truncate">{c.nombre}</div>
-                        <div className={`text-lg font-black ${superaLimite ? 'text-red-500' : 'text-emerald-500'}`}>
-                            {totalTomas}<span className="text-xs text-slate-500">/15</span>
+                        <div className={`text-xl font-black ${superaLimite ? 'text-red-500' : 'text-emerald-500'}`}>
+                            {totalTomas}<span className="text-sm text-slate-500 font-normal">/15</span>
                         </div>
                     </div>
                 )
@@ -69,11 +59,23 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
       {/* 2. Asignación por Ambiente */}
       <div className="space-y-6">
         <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Asignación por Ambiente</h2>
-        {datos.ambientes.map((ambiente) => (
-            <div key={ambiente.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center bg-slate-950/50 p-4 rounded-lg border border-slate-800">
-                <h3 className="text-md font-semibold text-white">{ambiente.nombre}</h3>
+        {datos.ambientes.map((ambiente) => {
+          const asignadoIUG = datos.circuitosCalculados.reduce((acc, c) => c.ambientesIds.includes(ambiente.id) && c.tipo === 'iluminacion_usos_generales' ? acc + (c.manualPuntosIUG ?? c.puntosIUG) : acc, 0);
+          const asignadoTUG = datos.circuitosCalculados.reduce((acc, c) => c.ambientesIds.includes(ambiente.id) && (c.tipo === 'tomacorrientes_usos_generales' || (c.tipo === 'iluminacion_usos_generales' && c.tieneTomacorrientesDerivados)) ? acc + (c.manualPuntosTUG ?? c.puntosTUG) : acc, 0);
+          const asignadoTUE = datos.circuitosCalculados.reduce((acc, c) => c.ambientesIds.includes(ambiente.id) && c.tipo === 'usos_especiales' ? acc + (c.manualPuntosTUE ?? c.puntosTUE) : acc, 0);
+
+          return (
+            <div key={ambiente.id} className="bg-slate-950/50 p-4 rounded-lg border border-slate-800 space-y-4">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-md font-semibold text-white">{ambiente.nombre}</h3>
+                    <div className="flex gap-4 text-[10px] font-bold bg-slate-900 p-2 rounded">
+                        <span className={asignadoIUG >= ambiente.puntosIUG ? 'text-emerald-400' : 'text-amber-400'}>IUG: {asignadoIUG}/{ambiente.puntosIUG}</span>
+                        <span className={asignadoTUG >= ambiente.puntosTUG ? 'text-emerald-400' : 'text-amber-400'}>TUG: {asignadoTUG}/{ambiente.puntosTUG}</span>
+                        <span className={asignadoTUE >= ambiente.puntosTUE ? 'text-emerald-400' : 'text-amber-400'}>TUE: {asignadoTUE}/{ambiente.puntosTUE}</span>
+                    </div>
+                </div>
                 
-                <div className="col-span-2 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                     {datos.circuitosCalculados.map(circuito => {
                         const isSelected = circuito.ambientesIds.includes(ambiente.id);
                         return (
@@ -92,7 +94,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                     })}
                 </div>
             </div>
-        ))}
+        )})}
       </div>
     </div>
   );
