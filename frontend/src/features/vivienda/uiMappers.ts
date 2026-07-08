@@ -5,6 +5,8 @@ export const METODOS_INSTALACION_VIVIENDA = [
   { label: 'Cañería a la vista', value: 'B2' },
   { label: 'Bajo contrapiso', value: 'A1' },
   { label: 'Cielorraso suspendido', value: 'A2' },
+  { label: 'Cañería enterrada (D1)', value: 'D1' },
+  { label: 'Directamente enterrado (D2)', value: 'D2' },
 ];
 
 export const TIPOS_CIRCUITO_VIVIENDA = [
