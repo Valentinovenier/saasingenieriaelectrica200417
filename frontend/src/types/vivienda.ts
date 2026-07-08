@@ -55,6 +55,7 @@ export interface DatosVivienda {
   superficieSemicubierta: number;
   superficieLimiteManual?: number;
   gradoElectrificacion?: 'Minimo' | 'Medio' | 'Elevado' | 'Superior';
+  varianteElectrificacion?: string;
   ambientes: Ambiente[];
   circuitosCalculados: CircuitoCalculado[];
   tableros?: TableroVivienda[];
