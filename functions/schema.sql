@@ -39,8 +39,7 @@ CREATE TABLE IF NOT EXISTS capacidades_corte (
   proteccion_id INTEGER NOT NULL,
   tension_v NUMERIC NOT NULL,
   icn_ka NUMERIC,
-  icu_ka NUMERIC,
-  ics_ka NUMERIC,
+  clase_limitacion INTEGER,
   FOREIGN KEY (proteccion_id) REFERENCES protecciones(id)
 );
 

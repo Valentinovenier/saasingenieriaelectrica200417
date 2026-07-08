@@ -9,17 +9,17 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
     marca_id: 1, 
     modelo: '',
     tipo_proteccion: 'Interruptor Automático',
-    in_amp: 0,
+    in_amp: 1,
     curva_disparo: 'C',
     polos: 1,
     specs_tecnicas: {},
-    capacidades: [{ tension_v: 230, icn_ka: 6, icu_ka: 0, ics_ka: 0 }]
+    capacidades: [{ tension_v: 230, icn_ka: 3, clase_limitacion: 1 }]
   });
 
   const addCapacidad = () => {
     setFormData((prev: any) => ({
       ...prev,
-      capacidades: [...prev.capacidades, { tension_v: 400, icn_ka: 0, icu_ka: 0, ics_ka: 0 }]
+      capacidades: [...prev.capacidades, { tension_v: 400, icn_ka: 3, clase_limitacion: 1 }]
     }));
   };
 
@@ -43,7 +43,11 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-[var(--text-secondary)]">Corriente Nominal (In)</label>
-            <input className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.in_amp} placeholder="Ej: 20" type="number" onChange={(e) => setFormData({...formData, in_amp: Number(e.target.value)})} />
+            <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.in_amp} onChange={(e) => setFormData({...formData, in_amp: Number(e.target.value)})}>
+              {[1, 2, 3, 4, 6, 10, 16, 20, 25, 32, 40, 50, 63].map(val => (
+                <option key={val} value={val}>{val} A</option>
+              ))}
+            </select>
           </div>
           
           <div className="space-y-2">
@@ -77,11 +81,22 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
         <h4 className="text-lg font-semibold text-white mt-8 mb-4 border-b border-slate-700 pb-2">Capacidades de Corte</h4>
         <div className="space-y-3">
           {formData.capacidades.map((cap: any, i: number) => (
-            <div key={i} className="grid grid-cols-4 gap-3 items-center bg-[var(--bg-primary)] p-3 rounded-lg border border-slate-700">
-              <input className="bg-transparent text-white text-sm" value={cap.tension_v} placeholder="Ue (V)" type="number" onChange={(e) => updateCapacidad(i, 'tension_v', Number(e.target.value))} />
-              <input className="bg-transparent text-white text-sm" value={cap.icn_ka} placeholder="Icn (kA)" type="number" onChange={(e) => updateCapacidad(i, 'icn_ka', Number(e.target.value))} />
-              <input className="bg-transparent text-white text-sm" value={cap.icu_ka} placeholder="Icu (kA)" type="number" onChange={(e) => updateCapacidad(i, 'icu_ka', Number(e.target.value))} />
-              <input className="bg-transparent text-white text-sm" value={cap.ics_ka} placeholder="Ics (kA)" type="number" onChange={(e) => updateCapacidad(i, 'ics_ka', Number(e.target.value))} />
+            <div key={i} className="grid grid-cols-3 gap-3 items-center bg-[var(--bg-primary)] p-3 rounded-lg border border-slate-700">
+              <select className="bg-transparent text-white text-sm" value={cap.tension_v} onChange={(e) => updateCapacidad(i, 'tension_v', Number(e.target.value))}>
+                <option value={230}>230 V</option>
+                <option value={400}>400 V</option>
+              </select>
+              <select className="bg-transparent text-white text-sm" value={cap.icn_ka} onChange={(e) => updateCapacidad(i, 'icn_ka', Number(e.target.value))}>
+                <option value={3}>3000 A</option>
+                <option value={4.5}>4500 A</option>
+                <option value={6}>6000 A</option>
+                <option value={10}>10000 A</option>
+              </select>
+              <select className="bg-transparent text-white text-sm" value={cap.clase_limitacion} onChange={(e) => updateCapacidad(i, 'clase_limitacion', Number(e.target.value))}>
+                <option value={1}>Clase 1</option>
+                <option value={2}>Clase 2</option>
+                <option value={3}>Clase 3</option>
+              </select>
             </div>
           ))}
         </div>
