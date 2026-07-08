@@ -101,6 +101,12 @@ export const calcularPuntosMinimosAmbiente = (
 
 /**
  * AEA 770: Calcula la Potencia Instalada (PI) y la Demanda de Potencia Máxima Simultánea (DPMS)
+ * 
+ * Basado en Tabla 770.8.1:
+ * - IUG (sin tomas derivados): (2/3) * puntos * 60 VA
+ * - IUG (con tomas derivados): 2200 VA
+ * - TUG (Tomacorrientes): 2200 VA
+ * - TUE (Usos Especiales): 3300 VA
  */
 export const calcularPotencias = (circuitos: any[], grado: 'Minimo' | 'Medio' | 'Elevado' | 'Superior'): { potenciaInstalada: number; potenciaMaximaSimultanea: number } => {
     let potenciaTotal = 0;
@@ -123,7 +129,7 @@ export const calcularPotencias = (circuitos: any[], grado: 'Minimo' | 'Medio' | 
                 potenciaCircuito = 3300;
                 break;
             case 'usos_especificos':
-                potenciaCircuito = 0; 
+                potenciaCircuito = circ.potenciaManual || 0; 
                 break;
             default:
                 potenciaCircuito = 0;
@@ -132,10 +138,8 @@ export const calcularPotencias = (circuitos: any[], grado: 'Minimo' | 'Medio' | 
     });
 
     const minimos = obtenerCircuitosMinimos(grado);
-    // Obtener factor según la tabla, default 0.6 para más de 6
+    // Obtener factor según la tabla AEA 770.7.IV (cantidad de circuitos MÍNIMOS del grado)
     const factorSimultaneidad = (FACTORES_SIMULTANEIDAD_VIVIENDA.cantidadCircuitos as any)[minimos] || 0.6;
-    
-    console.log('DEBUG [calcularPotencias]:', { grado, minimos, factorSimultaneidad, potenciaTotal });
     
     return {
         potenciaInstalada: potenciaTotal,
