@@ -135,6 +135,8 @@ export const calcularPotencias = (circuitos: any[], grado: 'Minimo' | 'Medio' | 
     // Obtener factor según la tabla, default 0.6 para más de 6
     const factorSimultaneidad = (FACTORES_SIMULTANEIDAD_VIVIENDA.cantidadCircuitos as any)[minimos] || 0.6;
     
+    console.log('DEBUG [calcularPotencias]:', { grado, minimos, factorSimultaneidad, potenciaTotal });
+    
     return {
         potenciaInstalada: potenciaTotal,
         potenciaMaximaSimultanea: potenciaTotal * factorSimultaneidad

@@ -23,30 +23,32 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
     const totalTUG = datos.ambientes.reduce((acc, a) => acc + (a.puntosTUG || 0), 0);
     const totalTUE = datos.ambientes.reduce((acc, a) => acc + (a.puntosTUE || 0), 0);
     
-    // Comparar con circuitos existentes para evitar actualizaciones innecesarias (prevenir bucles)
     // Filtramos los circuitos automáticos para no contar los específicos manuales
-    const automáticos = datos.circuitosCalculados.filter(c => c.tipo !== 'usos_especificos');
+    const actualesIUGs = datos.circuitosCalculados.filter(c => c.tipo === 'iluminacion_usos_generales');
+    const actualesTUGs = datos.circuitosCalculados.filter(c => c.tipo === 'tomacorrientes_usos_generales');
+    const actualesTUEs = datos.circuitosCalculados.filter(c => c.tipo === 'usos_especiales');
     const específicos = datos.circuitosCalculados.filter(c => c.tipo === 'usos_especificos');
 
-    const numCircuitosIUG = Math.ceil(totalIUG / 13);
-    const numCircuitosTUG = Math.ceil(totalTUG / 13);
-    const numCircuitosTUE = totalTUE > 0 ? 1 : 0; // TUE según necesidad
+    const numCircuitosIUG = Math.max(Math.ceil(totalIUG / 13), 1);
+    const numCircuitosTUG = Math.max(Math.ceil(totalTUG / 13), 1);
+    const numCircuitosTUE = totalTUE > 0 ? 1 : 0; 
 
-    const actualesIUG = automáticos.filter(c => c.tipo === 'iluminacion_usos_generales').length;
-    const actualesTUG = automáticos.filter(c => c.tipo === 'tomacorrientes_usos_generales').length;
-    const actualesTUE = automáticos.filter(c => c.tipo === 'usos_especiales').length;
+    // Solo actualizar si la estructura de circuitos automáticos cambia
+    if (
+        actualesIUGs.length === numCircuitosIUG && 
+        actualesTUGs.length === numCircuitosTUG && 
+        actualesTUEs.length === numCircuitosTUE
+    ) return;
 
-    if (numCircuitosIUG === actualesIUG && numCircuitosTUG === actualesTUG && numCircuitosTUE === actualesTUE) return;
-
-    const nuevosCircuitos: CircuitoCalculado[] = [...específicos]; // Conservamos los manuales
+    const nuevosCircuitos: CircuitoCalculado[] = [...específicos]; 
     
-    for (let i = 0; i < Math.max(numCircuitosIUG, 1); i++) {
+    for (let i = 0; i < numCircuitosIUG; i++) {
         nuevosCircuitos.push({ 
             id: `iug-${i}`, nombre: `Circuito IUG ${i + 1}`, 
             tipo: 'iluminacion_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] 
         });
     }
-    for (let i = 0; i < Math.max(numCircuitosTUG, 1); i++) {
+    for (let i = 0; i < numCircuitosTUG; i++) {
         nuevosCircuitos.push({ 
             id: `tug-${i}`, nombre: `Circuito TUG ${i + 1}`, 
             tipo: 'tomacorrientes_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] 
@@ -60,7 +62,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
     }
 
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
-  }, [datos.ambientes, datos.circuitosCalculados.length]);
+  }, [datos.ambientes]);
 
   const addCircuitoEspecifico = () => {
     const nuevoCircuito: CircuitoCalculado = {
