@@ -11,7 +11,8 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
   
   // Usar la función centralizada de normas770.ts
-  const { potenciaInstalada, potenciaMaximaSimultanea } = calcularPotencias(datos.circuitosCalculados);
+  const grado = datos.gradoElectrificacion || 'Minimo';
+  const { potenciaInstalada, potenciaMaximaSimultanea } = calcularPotencias(datos.circuitosCalculados, grado);
   
   // Actualizamos el proyecto con los valores calculados
   // Esto asegura que al hacer click en guardar, el proyecto ya contenga estos valores
@@ -34,7 +35,6 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
       actualizarPotencias();
   }
 
-  const grado = datos.gradoElectrificacion || 'Minimo';
   const minCircuitosMap: Record<string, number> = { 'Minimo': 2, 'Medio': 3, 'Elevado': 5, 'Superior': 6 };
   const minCircuitos = minCircuitosMap[grado] || 2;
   
@@ -87,6 +87,12 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
               <div className="flex justify-between items-center text-sm">
                 <span className="text-slate-400">Potencia Máxima (DPMS):</span>
                 <span className="text-emerald-400 font-bold">{potenciaMaximaSimultanea.toFixed(0)} VA</span>
+              </div>
+              <div className="flex justify-between items-center text-sm pt-2 border-t border-slate-800">
+                <span className="text-slate-400">Tipo de Instalación Sugerido:</span>
+                <span className="text-white font-bold">
+                    {potenciaMaximaSimultanea > 7000 ? 'Trifásica' : 'Monofásica'}
+                </span>
               </div>
             </div>
           </div>
