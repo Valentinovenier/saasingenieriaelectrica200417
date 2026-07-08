@@ -1,14 +1,13 @@
 // Datos específicos para viviendas según AEA-90364-7-770
-// Factores de simultaneidad y demanda
+// Factores de simultaneidad y demanda (Tabla 770.7.IV)
 
 export const FACTORES_SIMULTANEIDAD_VIVIENDA = {
-  // Ejemplos simplificados, se deben completar según la norma
+  // Factores de simultaneidad según cantidad de circuitos terminales
   cantidadCircuitos: {
     2: 1.0,
-    3: 0.9,
-    4: 0.8,
-    5: 0.75,
-    // ... completar según norma
+    3: 0.8,
+    5: 0.7,
+    6: 0.6,
   },
   tipoCarga: {
     iluminacion: 0.6,
