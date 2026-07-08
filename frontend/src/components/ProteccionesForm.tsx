@@ -79,20 +79,25 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
         </div>
         
         <h4 className="text-lg font-semibold text-white mt-8 mb-4 border-b border-slate-700 pb-2">Capacidades de Corte</h4>
+        <div className="grid grid-cols-3 gap-3 mb-2 px-2">
+          <label className="text-xs font-medium text-[var(--text-secondary)]">Ue (V)</label>
+          <label className="text-xs font-medium text-[var(--text-secondary)]">Icn (kA)</label>
+          <label className="text-xs font-medium text-[var(--text-secondary)]">Clase Lim.</label>
+        </div>
         <div className="space-y-3">
           {formData.capacidades.map((cap: any, i: number) => (
             <div key={i} className="grid grid-cols-3 gap-3 items-center bg-[var(--bg-primary)] p-3 rounded-lg border border-slate-700">
-              <select className="bg-transparent text-white text-sm" value={cap.tension_v} onChange={(e) => updateCapacidad(i, 'tension_v', Number(e.target.value))}>
+              <select className="bg-[var(--bg-secondary)] text-white p-2 rounded text-sm border border-slate-700" value={cap.tension_v} onChange={(e) => updateCapacidad(i, 'tension_v', Number(e.target.value))}>
                 <option value={230}>230 V</option>
                 <option value={400}>400 V</option>
               </select>
-              <select className="bg-transparent text-white text-sm" value={cap.icn_ka} onChange={(e) => updateCapacidad(i, 'icn_ka', Number(e.target.value))}>
+              <select className="bg-[var(--bg-secondary)] text-white p-2 rounded text-sm border border-slate-700" value={cap.icn_ka} onChange={(e) => updateCapacidad(i, 'icn_ka', Number(e.target.value))}>
                 <option value={3}>3000 A</option>
                 <option value={4.5}>4500 A</option>
                 <option value={6}>6000 A</option>
                 <option value={10}>10000 A</option>
               </select>
-              <select className="bg-transparent text-white text-sm" value={cap.clase_limitacion} onChange={(e) => updateCapacidad(i, 'clase_limitacion', Number(e.target.value))}>
+              <select className="bg-[var(--bg-secondary)] text-white p-2 rounded text-sm border border-slate-700" value={cap.clase_limitacion} onChange={(e) => updateCapacidad(i, 'clase_limitacion', Number(e.target.value))}>
                 <option value={1}>Clase 1</option>
                 <option value={2}>Clase 2</option>
                 <option value={3}>Clase 3</option>
