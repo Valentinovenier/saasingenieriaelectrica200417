@@ -72,7 +72,8 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
                                 if (conductor.normaCable === 'IRAM 2178') {
                                     return ['B1', 'B2', 'D1', 'D2'].includes(m.value);
                                 } else {
-                                    return ['B1', 'B2'].includes(m.value);
+                                    // IRAM-NM 247-3 y IRAM 62267 solo permiten B1
+                                    return m.value === 'B1';
                                 }
                             })
                             .map((m: {label: string, value: string}) => (

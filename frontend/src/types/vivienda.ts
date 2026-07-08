@@ -59,6 +59,8 @@ export interface DatosVivienda {
   circuitosCalculados: CircuitoCalculado[];
   tableros?: TableroVivienda[];
   tomasPorAmbiente?: Record<string, Record<string, TomasCircuito>>;
+  potenciaInstalada?: number;
+  potenciaMaximaSimultanea?: number;
 }
 
 export interface CondicionesTramoResidencial {

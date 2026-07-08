@@ -5,14 +5,15 @@ import { ViviendaAmbientes } from './ViviendaAmbientes';
 import { ViviendaCircuitos } from './ViviendaCircuitos';
 import { ViviendaAsignacion } from './ViviendaAsignacion';
 import { ViviendaResumen } from './ViviendaResumen';
-import { ChevronRight, ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, CheckCircle2, Save } from 'lucide-react';
 
 interface Props {
   project: Project;
   onChange: (p: Project) => void;
+  onSave?: (p: Project) => void;
 }
 
-export const ViviendaWorkflow = ({ project, onChange }: Props) => {
+export const ViviendaWorkflow = ({ project, onChange, onSave }: Props) => {
   if (!project) return null;
 
   const [step, setStep] = useState(1);
@@ -74,13 +75,21 @@ export const ViviendaWorkflow = ({ project, onChange }: Props) => {
           <ChevronLeft size={20} /> Anterior
         </button>
         
-        <button 
-          onClick={nextStep} 
-          disabled={step === totalSteps}
-          className="flex items-center gap-2 px-6 py-2 bg-[var(--accent)] text-black rounded-lg font-bold hover:opacity-90 transition-opacity disabled:bg-slate-700 disabled:text-slate-500"
-        >
-          Siguiente <ChevronRight size={20} />
-        </button>
+        {step < totalSteps ? (
+          <button 
+            onClick={nextStep} 
+            className="flex items-center gap-2 px-6 py-2 bg-[var(--accent)] text-black rounded-lg font-bold hover:opacity-90 transition-opacity"
+          >
+            Siguiente <ChevronRight size={20} />
+          </button>
+        ) : (
+          <button 
+            onClick={() => onSave && onSave(project)} 
+            className="flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-500 transition-colors"
+          >
+            Guardar <Save size={20} />
+          </button>
+        )}
       </div>
     </div>
   );
