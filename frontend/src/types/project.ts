@@ -37,6 +37,10 @@ export interface Conductor {
   canalizacionId?: string;
   tipoTramo?: 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal';
   tipoCircuito?: string;
+  normaCable?: 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178';
+  tempSuelo?: number;
+  resistividadTermica?: number;
+  separacionBordes?: string;
 }
 
 export interface Proteccion {
@@ -73,6 +77,10 @@ export interface CondicionesTramo {
   material?: MaterialConductor;
   disposicion?: 'trebol' | 'contacto' | 'separado';
   plano?: 'horizontal' | 'vertical';
+  normaCable?: string;
+  tempSuelo?: number;
+  resistividadTermica?: number;
+  separacionBordes?: string;
 }
 
 export interface CircuitoTerminal {
@@ -135,6 +143,7 @@ export interface Project {
   tableros?: TableroSeccional[];
   tablerosSeccionales?: TableroSeccionalSimple[];
   conductores?: Record<string, Conductor>;
+  informeConductores?: Conductor[];
   canalizaciones?: Canalizacion[];
   
   tempAmbiente?: number;

@@ -8,29 +8,31 @@ import {
   FACTORES_AGRUPAMIENTO_B52_21 
 } from '../../../../data/factoresAgrupamiento';
 
-export const getFactorTemperatura = (aislacion: string, temperatura: number, tipoInstalacionAire: boolean): number => {
+export const getFactorTemperatura = (aislacion: string, temperatura: number, tipoInstalacionAire: boolean, tempSuelo?: number): number => {
   let aisKey = aislacion === 'Mineral' ? 'Mineral_70' : aislacion;
   const tempMap = tipoInstalacionAire ? FACTORES_TEMPERATURA_AIRE : FACTORES_TEMPERATURA_TIERRA;
-  return tempMap[aisKey]?.[temperatura] || 1.0;
+  const tempFinal = (!tipoInstalacionAire && tempSuelo !== undefined) ? tempSuelo : temperatura;
+  return tempMap[aisKey]?.[tempFinal] || 1.0;
 };
 
 export const getFactorAgrupamiento = (
     nCircuitos: number, 
     metodo: string, 
     tipoCable: 'Unipolar' | 'Multipolar' | undefined,
-    disposicion: string = 'en_contacto'
+    disposicion: string = 'en_contacto',
+    separacionBordes?: string
 ): number => {
   if (nCircuitos <= 1) return 1.0;
   
   if (metodo.startsWith('D2')) {
       const nCirc = nCircuitos > 6 ? 6 : nCircuitos;
       const tabla = FACTORES_AGRUPAMIENTO_B52_18[nCirc] || FACTORES_AGRUPAMIENTO_B52_18[2];
-      return tabla[disposicion] || tabla['en_contacto'] || 0.5;
+      return tabla[separacionBordes || disposicion] || tabla['en_contacto'] || 0.5;
   }
   if (metodo.startsWith('D1')) {
       const nCirc = nCircuitos > 6 ? 6 : nCircuitos;
       const tabla = FACTORES_AGRUPAMIENTO_B52_19[nCirc] || FACTORES_AGRUPAMIENTO_B52_19[2];
-      return tabla[disposicion] || tabla['en_contacto'] || 0.6;
+      return tabla[separacionBordes || disposicion] || tabla['en_contacto'] || 0.6;
   }
   if (metodo === 'E') {
       const nCirc = nCircuitos > 6 ? 6 : nCircuitos;

@@ -64,12 +64,16 @@ export interface DatosVivienda {
 export interface CondicionesTramoResidencial {
   tipoTramo: 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal';
   tipoCircuito: TipoCircuito;
-  metodoInstalacion: 'B2' | 'D1' | 'D2' | 'sinEnvoltura';
+  metodoInstalacion: 'B2' | 'D1' | 'D2' | 'sinEnvoltura' | string;
   longitudMetros: number;
   corrienteDiseñoAmperes: number;
   temperaturaAmbiente: number;
   canalizacionId?: string;
   cosPhi?: number;
+  normaCable?: string;
+  tempSuelo?: number;
+  resistividadTermica?: number;
+  separacionBordes?: string;
 }
 
 export interface ResultadoCalculoResidencial {

@@ -7,6 +7,7 @@ import { getFactorTemperatura, getFactorAgrupamiento } from '../industrial/helpe
 import { getCircuitosPorCanalizacion } from '../industrial/canalizacionService';
 import { calcularImpedanciaTransformador } from '../industrial/transformador';
 import { PARAMETROS_CALCULO_VIVIENDA } from '../../../data/vivienda/parametrosCalculo';
+import { getFactorResistividad } from '../../../data/factoresResistividad';
 
 export const calcularTramoResidencial = (
   condiciones: CondicionesTramoResidencial,
@@ -100,9 +101,11 @@ export const calcularTramoResidencial = (
         continue;
     }
 
-    const factorTemp = getFactorTemperatura('PVC', condiciones.temperaturaAmbiente, true);
-    const factorAgrup = getFactorAgrupamiento(nCircuitos, condiciones.metodoInstalacion, 'Multipolar');
-    IzCorregida = IzBase * factorTemp * factorAgrup;
+    const esInstalacionAire = !(condiciones.metodoInstalacion || '').toUpperCase().startsWith('D');
+    const factorTemp = getFactorTemperatura('PVC', condiciones.temperaturaAmbiente, esInstalacionAire, condiciones.tempSuelo);
+    const factorAgrup = getFactorAgrupamiento(nCircuitos, condiciones.metodoInstalacion, 'Multipolar', 'en_contacto', condiciones.separacionBordes);
+    const factorResistividad = condiciones.resistividadTermica ? getFactorResistividad(condiciones.metodoInstalacion, condiciones.resistividadTermica) : 1.0;
+    IzCorregida = IzBase * factorTemp * factorAgrup * factorResistividad;
 
     // PASO 4: Coordinación con Protección Termomagnética (I_B <= I_N <= I_Z)
     // Buscamos un valor comercial de termomagnética que proteja el cable y permita la carga

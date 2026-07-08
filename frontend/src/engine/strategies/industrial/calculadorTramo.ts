@@ -1,5 +1,6 @@
 import { Conductor, Proteccion, Transformador, CondicionesTramo } from '../../../types/project';
 import { K_VALUES } from './constantes';
+import { getFactorResistividad } from '../../../data/factoresResistividad';
 import { FACTORES_TEMPERATURA_AIRE, FACTORES_TEMPERATURA_TIERRA } from '../../../data/factoresTemperatura';
 import { 
   FACTORES_AGRUPAMIENTO_B52_17, 
@@ -33,7 +34,8 @@ export const calcularConductorTramo = (
   }
 
   const tempMap = tipoInstalacionAire ? FACTORES_TEMPERATURA_AIRE : FACTORES_TEMPERATURA_TIERRA;
-  const f_temp = tempMap[aisKey]?.[tempAmbiente] || 1.0;
+  const f_temp = tempMap[aisKey]?.[(condiciones.tempSuelo !== undefined && !tipoInstalacionAire) ? condiciones.tempSuelo : tempAmbiente] || 1.0;
+  const f_resistividad = condiciones.resistividadTermica ? getFactorResistividad(condiciones.metodoInstalacion || '', condiciones.resistividadTermica) : 1.0;
     
   // Refactor: Calcular factor de simetría dinámico
   const getFsimetria = (nCond: number) => {
@@ -66,7 +68,7 @@ export const calcularConductorTramo = (
       
       if (totalCircuits === 1) return 1.0;
       
-      const disp = condiciones.disposicion || 'en_contacto';
+      const disp = condiciones.separacionBordes || condiciones.disposicion || 'en_contacto';
 
       if (metodo?.startsWith('D2')) {
           if (totalCircuits > 6) advertencia = `Factor de agrupamiento: Tabla D2 soporta máximo 6 circuitos. Se utilizó el factor de 6 (calculado: ${totalCircuits}).`;
@@ -107,7 +109,7 @@ export const calcularConductorTramo = (
   let mejorResultado: any = null;
   
   for (let n = 1; n <= 20; n++) { 
-    const factorTotal = f_base_temp * getFsimetria(n) * getFagrup(n);
+    const factorTotal = f_base_temp * f_resistividad * getFsimetria(n) * getFagrup(n);
 
     for (const cable of catalogoCables) {
       if (cable.seccion > SECCION_MAX) continue;
@@ -186,6 +188,7 @@ export const calcularConductorTramo = (
         f_temp: f_base_temp,
         f_simetria: getFsimetria(n),
         f_agrup: getFagrup(n),
+        f_resistividad,
         capacidadCorto,
         energiaCorto,
         advertencia

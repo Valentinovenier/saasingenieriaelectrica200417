@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Conductor, Project, TableroSeccionalSimple } from '../types/project';
 import { useProject } from '../context/ProjectDataContext';
 import { ConductorForm } from './ConductorForm';
+import { ViviendaConductorCalculation } from './ViviendaConductorCalculation';
 import { catalogoCablesPVC, catalogoCablesXLPE, ParametrosCableCompleto } from '../data/cables';
 import { getProjectStrategy } from '../engine/factory';
 import { calcularImpedanciaTransformador } from '../engine/strategies/industrial/transformador';
@@ -21,7 +22,11 @@ const TRAMOS_VIVIENDA = [
 
 export const ConductorCalculation = ({ project, onChange }: { project: Project; onChange: (p: Project) => void }) => {
   const isVivienda = project.projectType === 'Vivienda';
-  const tramosDisponibles = isVivienda ? TRAMOS_VIVIENDA : TRAMOS_ELECTRICOS;
+  if (isVivienda) {
+      return <ViviendaConductorCalculation project={project} onChange={onChange} />;
+  }
+
+  const tramosDisponibles = TRAMOS_ELECTRICOS;
   
   const tablerosSec: TableroSeccionalSimple[] = project.tablerosSeccionales || [];
 
@@ -32,10 +37,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
   const esTramoDeTablero = !isVivienda && !tramoActual.usaPotenciaTrafo; // Solo industria usa tableros aquí
   const tableroSeleccionado: TableroSeccionalSimple | undefined = tablerosSec.find(t => t.id === selectedTableroId);
 
-  // Key única para guardar resultados
   const getTramoKey = (tramoId: string): string => {
-    if (isVivienda) return tramoId; // Viviendas tienen tramos directos
-    
     const tramo = TRAMOS_ELECTRICOS.find(t => t.id === tramoId);
     if (!tramo?.usaPotenciaTrafo && selectedTableroId) {
       return `${tramoId}__${selectedTableroId}`;
