@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Project } from '../../types/project';
 import { 
   calcularSuperficieLimite, 
@@ -14,17 +14,29 @@ interface Props {
 export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
   
-  const [localDatos, setLocalDatos] = useState(datos);
-
   // Calcular valores normativos derivados
-  const superficieLimite = calcularSuperficieLimite(localDatos);
+  const superficieLimite = calcularSuperficieLimite(datos);
   const grado = determinarGradoElectrificacion(superficieLimite);
   const circuitosMinimos = obtenerCircuitosMinimos(grado);
 
+  // Sincronizar el grado calculado con el proyecto
+  useEffect(() => {
+    if (datos.gradoElectrificacion !== grado) {
+      onChange({ 
+        ...project, 
+        datosVivienda: { 
+          ...datos, 
+          gradoElectrificacion: grado 
+        } 
+      });
+    }
+  }, [grado]);
+
   const handleUpdate = (updates: Partial<typeof datos>) => {
-    const nuevosDatos = { ...localDatos, ...updates };
-    setLocalDatos(nuevosDatos);
-    onChange({ ...project, datosVivienda: nuevosDatos });
+    onChange({ 
+      ...project, 
+      datosVivienda: { ...datos, ...updates } 
+    });
   };
 
   return (
@@ -37,7 +49,7 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
           <input 
             type="number" 
             className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-            value={localDatos.superficieCubierta}
+            value={datos.superficieCubierta}
             onChange={(e) => handleUpdate({ superficieCubierta: parseFloat(e.target.value) || 0 })}
           />
         </div>
@@ -46,7 +58,7 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
           <input 
             type="number" 
             className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-            value={localDatos.superficieSemicubierta}
+            value={datos.superficieSemicubierta}
             onChange={(e) => handleUpdate({ superficieSemicubierta: parseFloat(e.target.value) || 0 })}
           />
         </div>
