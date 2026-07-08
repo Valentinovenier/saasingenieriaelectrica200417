@@ -1,3 +1,5 @@
+import { FACTORES_SIMULTANEIDAD_VIVIENDA } from './factoresSimultaneidad';
+
 // Parámetros de cálculo y constantes específicas para cables en viviendas
 // AEA-90364-7-770
 
@@ -13,4 +15,5 @@ export const PARAMETROS_CALCULO_VIVIENDA = {
     recomendacionSeccionales: 1.0,
   },
   temperaturaAmbienteReferencia: 40, // ºC para aire según norma
+  factoresSimultaneidad: FACTORES_SIMULTANEIDAD_VIVIENDA,
 };
