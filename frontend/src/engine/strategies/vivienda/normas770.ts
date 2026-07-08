@@ -1,5 +1,6 @@
 import { DatosVivienda } from '../../../types/vivienda';
 import { FACTORES_SIMULTANEIDAD_VIVIENDA } from '../../../data/vivienda/factoresSimultaneidad';
+import { DISTRIBUCION_CIRCUITOS, GradoElectrificacion, ConfiguracionCircuitos } from '../../../data/vivienda/circuitosDistribucion';
 
 /**
  * AEA 770: Determina la superficie límite de aplicación
@@ -14,7 +15,7 @@ export const calcularSuperficieLimite = (datos: DatosVivienda): number => {
 /**
  * AEA 770: Determina el grado de electrificación
  */
-export const determinarGradoElectrificacion = (superficieLimite: number): 'Minimo' | 'Medio' | 'Elevado' | 'Superior' => {
+export const determinarGradoElectrificacion = (superficieLimite: number): GradoElectrificacion => {
   if (superficieLimite < 60) return 'Minimo';
   if (superficieLimite < 130) return 'Medio';
   if (superficieLimite < 200) return 'Elevado';
@@ -22,16 +23,16 @@ export const determinarGradoElectrificacion = (superficieLimite: number): 'Minim
 };
 
 /**
- * AEA 770: Define la cantidad mínima de circuitos por grado
+ * AEA 770: Define la cantidad mínima de circuitos por grado y variante
  */
-export const obtenerCircuitosMinimos = (grado: 'Minimo' | 'Medio' | 'Elevado' | 'Superior'): number => {
-  const minimos = {
-    'Minimo': 2,
-    'Medio': 3,
-    'Elevado': 5,
-    'Superior': 6
-  };
-  return minimos[grado];
+export const obtenerConfiguracionCircuitos = (grado: GradoElectrificacion, variante?: string): ConfiguracionCircuitos[] => {
+    return DISTRIBUCION_CIRCUITOS.filter(c => c.grado === grado && (!variante || c.variante === variante));
+};
+
+export const obtenerCircuitosMinimos = (grado: GradoElectrificacion, variante?: string): number => {
+  const configs = obtenerConfiguracionCircuitos(grado, variante);
+  if (configs.length === 0) return 0;
+  return configs[0].cantidadMinima;
 };
 
 /**
@@ -41,7 +42,7 @@ export const calcularPuntosMinimosAmbiente = (
   tipoAmbiente: string, 
   superficie: number, 
   longitud: number, 
-  grado: 'Minimo' | 'Medio' | 'Elevado' | 'Superior' = 'Minimo'
+  grado: GradoElectrificacion = 'Minimo'
 ) => {
     let iug = 0;
     let tug = 0;
@@ -108,7 +109,7 @@ export const calcularPuntosMinimosAmbiente = (
  * - TUG (Tomacorrientes): 2200 VA
  * - TUE (Usos Especiales): 3300 VA
  */
-export const calcularPotencias = (circuitos: any[], grado: 'Minimo' | 'Medio' | 'Elevado' | 'Superior'): { potenciaInstalada: number; potenciaMaximaSimultanea: number } => {
+export const calcularPotencias = (circuitos: any[], grado: GradoElectrificacion): { potenciaInstalada: number; potenciaMaximaSimultanea: number } => {
     let potenciaTotal = 0;
 
     circuitos.forEach(circ => {
@@ -134,6 +135,7 @@ export const calcularPotencias = (circuitos: any[], grado: 'Minimo' | 'Medio' | 
             default:
                 potenciaCircuito = 0;
         }
+        console.log('DEBUG [circuito]:', { id: circ.id, tipo: circ.tipo, potenciaCircuito });
         potenciaTotal += potenciaCircuito;
     });
 

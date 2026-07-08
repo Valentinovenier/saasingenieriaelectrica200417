@@ -1,8 +1,9 @@
 import { Project } from '../../types/project';
-import { obtenerCircuitosMinimos } from '../../engine/strategies/vivienda/normas770';
+import { obtenerCircuitosMinimos, obtenerConfiguracionCircuitos } from '../../engine/strategies/vivienda/normas770';
 import { Zap, AlertTriangle, Plus, Trash2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { CircuitoCalculado } from '../../types/vivienda';
+import { DISTRIBUCION_CIRCUITOS } from '../../data/vivienda/circuitosDistribucion';
 
 interface Props {
   project: Project;
@@ -10,10 +11,13 @@ interface Props {
 }
 
 export const ViviendaCircuitos = ({ project, onChange }: Props) => {
-  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
+  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [], gradoElectrificacion: 'Minimo', varianteElectrificacion: 'Única' };
   
   const grado = datos.gradoElectrificacion || 'Minimo';
-  const minCircuitos = obtenerCircuitosMinimos(grado as any);
+  const variante = datos.varianteElectrificacion || 'Única';
+  
+  const minCircuitos = obtenerCircuitosMinimos(grado as any, variante);
+  const configuraciones = obtenerConfiguracionCircuitos(grado as any);
 
   // Lógica de cálculo automático
   useEffect(() => {
@@ -85,9 +89,18 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
       <div className="flex justify-between items-center border-b border-slate-800 pb-4">
         <h2 className="text-xl font-bold text-white">Circuitos Calculados (AEA 770)</h2>
-        <button onClick={addCircuitoEspecifico} className="flex items-center gap-1 bg-[var(--accent)] text-black px-3 py-1.5 rounded-full text-xs font-bold hover:opacity-90">
-            <Plus size={14} /> Circuito Específico
-        </button>
+        <div className="flex gap-2">
+            <select 
+                value={variante} 
+                onChange={(e) => onChange({ ...project, datosVivienda: { ...datos, varianteElectrificacion: e.target.value } })}
+                className="bg-slate-900 text-white p-2 rounded-lg text-sm border border-slate-700"
+            >
+                {configuraciones.map(c => <option key={c.variante} value={c.variante}>Variante {c.variante}</option>)}
+            </select>
+            <button onClick={addCircuitoEspecifico} className="flex items-center gap-1 bg-[var(--accent)] text-black px-3 py-1.5 rounded-full text-xs font-bold hover:opacity-90">
+                <Plus size={14} /> Circuito Específico
+            </button>
+        </div>
         <div className={`px-4 py-2 rounded-lg border flex items-center gap-3 ${
             datos.circuitosCalculados.length >= minCircuitos 
             ? 'bg-emerald-900/20 border-emerald-800 text-emerald-400' 
