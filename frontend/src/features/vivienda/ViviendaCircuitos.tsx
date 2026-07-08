@@ -1,7 +1,7 @@
 import { Project } from '../../types/project';
 import { obtenerCircuitosMinimos, obtenerConfiguracionCircuitos } from '../../engine/strategies/vivienda/normas770';
-import { Zap, AlertTriangle, Plus, Trash2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { Zap, AlertTriangle, Trash2, PlusCircle } from 'lucide-react';
+import { useState } from 'react';
 import { CircuitoCalculado } from '../../types/vivienda';
 import { DISTRIBUCION_CIRCUITOS } from '../../data/vivienda/circuitosDistribucion';
 
@@ -19,66 +19,23 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
   const minCircuitos = obtenerCircuitosMinimos(grado as any, variante);
   const configuraciones = obtenerConfiguracionCircuitos(grado as any);
 
-  // Lógica de cálculo automático
-  useEffect(() => {
-    if (!datos.ambientes) return;
+  // Estados para formulario de nuevo circuito
+  const [nuevoNombre, setNuevoNombre] = useState('');
+  const [nuevoTipo, setNuevoTipo] = useState<CircuitoCalculado['tipo']>('iluminacion_usos_generales');
 
-    const totalIUG = datos.ambientes.reduce((acc, a) => acc + (a.puntosIUG || 0), 0);
-    const totalTUG = datos.ambientes.reduce((acc, a) => acc + (a.puntosTUG || 0), 0);
-    const totalTUE = datos.ambientes.reduce((acc, a) => acc + (a.puntosTUE || 0), 0);
-    
-    // Filtramos los circuitos automáticos para no contar los específicos manuales
-    const actualesIUGs = datos.circuitosCalculados.filter(c => c.tipo === 'iluminacion_usos_generales');
-    const actualesTUGs = datos.circuitosCalculados.filter(c => c.tipo === 'tomacorrientes_usos_generales');
-    const actualesTUEs = datos.circuitosCalculados.filter(c => c.tipo === 'usos_especiales');
-    const específicos = datos.circuitosCalculados.filter(c => c.tipo === 'usos_especificos');
-
-    const numCircuitosIUG = Math.max(Math.ceil(totalIUG / 13), 1);
-    const numCircuitosTUG = Math.max(Math.ceil(totalTUG / 13), 1);
-    const numCircuitosTUE = totalTUE > 0 ? 1 : 0; 
-
-    // Solo actualizar si la estructura de circuitos automáticos cambia
-    if (
-        actualesIUGs.length === numCircuitosIUG && 
-        actualesTUGs.length === numCircuitosTUG && 
-        actualesTUEs.length === numCircuitosTUE
-    ) return;
-
-    const nuevosCircuitos: CircuitoCalculado[] = [...específicos]; 
-    
-    for (let i = 0; i < numCircuitosIUG; i++) {
-        nuevosCircuitos.push({ 
-            id: `iug-${i}`, nombre: `Circuito IUG ${i + 1}`, 
-            tipo: 'iluminacion_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] 
-        });
-    }
-    for (let i = 0; i < numCircuitosTUG; i++) {
-        nuevosCircuitos.push({ 
-            id: `tug-${i}`, nombre: `Circuito TUG ${i + 1}`, 
-            tipo: 'tomacorrientes_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] 
-        });
-    }
-    for (let i = 0; i < numCircuitosTUE; i++) {
-        nuevosCircuitos.push({ 
-            id: `tue-${i}`, nombre: `Circuito Especial ${i + 1}`, 
-            tipo: 'usos_especiales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] 
-        });
-    }
-
-    onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
-  }, [datos.ambientes]);
-
-  const addCircuitoEspecifico = () => {
+  const addCircuito = () => {
+    if (!nuevoNombre) return;
     const nuevoCircuito: CircuitoCalculado = {
-        id: `esp-${Date.now()}`,
-        nombre: `Circuito Específico ${datos.circuitosCalculados.filter(c => c.tipo === 'usos_especificos').length + 1}`,
-        tipo: 'usos_especificos',
+        id: `custom-${Date.now()}`,
+        nombre: nuevoNombre,
+        tipo: nuevoTipo,
         puntosIUG: 0,
         puntosTUG: 0,
         puntosTUE: 0,
         ambientesIds: []
     };
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: [...datos.circuitosCalculados, nuevoCircuito] } });
+    setNuevoNombre('');
   };
 
   const removeCircuito = (id: string) => {
@@ -88,19 +45,14 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
       <div className="flex justify-between items-center border-b border-slate-800 pb-4">
-        <h2 className="text-xl font-bold text-white">Circuitos Calculados (AEA 770)</h2>
-        <div className="flex gap-2">
-            <select 
-                value={variante} 
-                onChange={(e) => onChange({ ...project, datosVivienda: { ...datos, varianteElectrificacion: e.target.value } })}
-                className="bg-slate-900 text-white p-2 rounded-lg text-sm border border-slate-700"
-            >
-                {configuraciones.map(c => <option key={c.variante} value={c.variante}>Variante {c.variante}</option>)}
-            </select>
-            <button onClick={addCircuitoEspecifico} className="flex items-center gap-1 bg-[var(--accent)] text-black px-3 py-1.5 rounded-full text-xs font-bold hover:opacity-90">
-                <Plus size={14} /> Circuito Específico
-            </button>
-        </div>
+        <h2 className="text-xl font-bold text-white">Circuitos (AEA 770)</h2>
+        <select 
+            value={variante} 
+            onChange={(e) => onChange({ ...project, datosVivienda: { ...datos, varianteElectrificacion: e.target.value } })}
+            className="bg-slate-900 text-white p-2 rounded-lg text-sm border border-slate-700"
+        >
+            {configuraciones.map(c => <option key={c.variante} value={c.variante}>Variante {c.variante}</option>)}
+        </select>
         <div className={`px-4 py-2 rounded-lg border flex items-center gap-3 ${
             datos.circuitosCalculados.length >= minCircuitos 
             ? 'bg-emerald-900/20 border-emerald-800 text-emerald-400' 
@@ -138,22 +90,44 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                 </label>
               )}
             </div>
-            {c.tipo === 'usos_especificos' && (
-                <button onClick={() => removeCircuito(c.id)} className="text-red-400 p-1">
-                    <Trash2 size={16} />
-                </button>
-            )}
-            <div className="text-xs text-slate-400">
-                Límite normativo: 15 bocas
-            </div>
+            <button onClick={() => removeCircuito(c.id)} className="text-red-400 p-1">
+                <Trash2 size={16} />
+            </button>
           </div>
         ))}
         {datos.circuitosCalculados.length < minCircuitos && (
             <div className="text-amber-400 text-sm flex items-center gap-2 pt-4">
                 <AlertTriangle size={16} />
-                Se requiere agregar más carga o ambientes para alcanzar los circuitos mínimos.
+                Se requiere agregar más circuitos para alcanzar los mínimos.
             </div>
         )}
+      </div>
+
+      {/* Formulario nuevo circuito */}
+      <div className="bg-slate-900 p-4 rounded-lg border border-dashed border-slate-700 flex flex-col gap-3">
+        <p className="text-sm font-bold text-white">Agregar nuevo circuito</p>
+        <div className="flex gap-2">
+            <input 
+                type="text" 
+                placeholder="Nombre del circuito" 
+                value={nuevoNombre}
+                onChange={(e) => setNuevoNombre(e.target.value)}
+                className="flex-grow bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+            />
+            <select 
+                value={nuevoTipo}
+                onChange={(e) => setNuevoTipo(e.target.value as CircuitoCalculado['tipo'])}
+                className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+            >
+                <option value="iluminacion_usos_generales">IUG</option>
+                <option value="tomacorrientes_usos_generales">TUG</option>
+                <option value="usos_especiales">TUE</option>
+                <option value="usos_especificos">Específico</option>
+            </select>
+            <button onClick={addCircuito} className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-500">
+                <PlusCircle size={16} /> Agregar
+            </button>
+        </div>
       </div>
     </div>
   );
