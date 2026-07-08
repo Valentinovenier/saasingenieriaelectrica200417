@@ -1,7 +1,7 @@
 import { Project } from '../../types/project';
-import { obtenerCircuitosMinimos, obtenerConfiguracionCircuitos } from '../../engine/strategies/vivienda/normas770';
-import { Zap, AlertTriangle, Trash2, PlusCircle } from 'lucide-react';
-import { useState } from 'react';
+import { obtenerConfiguracionCircuitos } from '../../engine/strategies/vivienda/normas770';
+import { Zap, Trash2, PlusCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { CircuitoCalculado } from '../../types/vivienda';
 import { DISTRIBUCION_CIRCUITOS } from '../../data/vivienda/circuitosDistribucion';
 
@@ -11,17 +11,39 @@ interface Props {
 }
 
 export const ViviendaCircuitos = ({ project, onChange }: Props) => {
-  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [], gradoElectrificacion: 'Minimo', varianteElectrificacion: 'Única' };
+  const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [], gradoElectrificacion: 'Minimo' };
   
   const grado = datos.gradoElectrificacion || 'Minimo';
-  const variante = datos.varianteElectrificacion || 'Única';
-  
-  const minCircuitos = obtenerCircuitosMinimos(grado as any, variante);
   const configuraciones = obtenerConfiguracionCircuitos(grado as any);
+  
+  // Establecer variante por defecto si no existe
+  const variantePorDefecto = grado === 'Minimo' ? 'Única' : 'a)';
+  const variante = datos.varianteElectrificacion || variantePorDefecto;
+  
+  const configActual = configuraciones.find(c => c.variante === variante) || configuraciones[0];
 
-  // Estados para formulario de nuevo circuito
+  // Estados para formulario
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoTipo, setNuevoTipo] = useState<CircuitoCalculado['tipo']>('iluminacion_usos_generales');
+
+  // Lógica de circuitos automáticos vs manuales
+  useEffect(() => {
+    // 1. Mantener circuitos manuales
+    const manuales = datos.circuitosCalculados.filter(c => !c.id.startsWith('auto-'));
+    
+    // 2. Generar circuitos normativos según la variante
+    const automaticos: CircuitoCalculado[] = [];
+    for (let i = 0; i < configActual.IUG; i++) automaticos.push({ id: `auto-iug-${i}`, nombre: `IUG ${i + 1}`, tipo: 'iluminacion_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
+    for (let i = 0; i < configActual.TUG; i++) automaticos.push({ id: `auto-tug-${i}`, nombre: `TUG ${i + 1}`, tipo: 'tomacorrientes_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
+    if (configActual.CLE) automaticos.push({ id: 'auto-cle', nombre: 'Libre Elección', tipo: 'usos_especiales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
+
+    const nuevosCircuitos = [...automaticos, ...manuales];
+    
+    // Solo actualizar si realmente cambió
+    if (JSON.stringify(datos.circuitosCalculados) !== JSON.stringify(nuevosCircuitos)) {
+        onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos, varianteElectrificacion: variante } });
+    }
+  }, [variante, grado]);
 
   const addCircuito = () => {
     if (!nuevoNombre) return;
@@ -46,15 +68,20 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
       <div className="flex justify-between items-center border-b border-slate-800 pb-4">
         <h2 className="text-xl font-bold text-white">Circuitos (AEA 770)</h2>
-        <div className={`px-4 py-2 rounded-lg border flex items-center gap-3 ${
-            datos.circuitosCalculados.length >= minCircuitos 
-            ? 'bg-emerald-900/20 border-emerald-800 text-emerald-400' 
-            : 'bg-red-900/20 border-red-800 text-red-400'
-        }`}>
+        {configuraciones.length > 1 && (
+            <select 
+                value={variante} 
+                onChange={(e) => onChange({ ...project, datosVivienda: { ...datos, varianteElectrificacion: e.target.value } })}
+                className="bg-slate-900 text-white p-2 rounded-lg text-sm border border-slate-700"
+            >
+                {configuraciones.map(c => <option key={c.variante} value={c.variante}>Variante {c.variante}</option>)}
+            </select>
+        )}
+        <div className="px-4 py-2 rounded-lg border bg-emerald-900/20 border-emerald-800 text-emerald-400 flex items-center gap-3">
             <Zap size={18} />
             <div>
                 <p className="text-[10px] uppercase font-bold opacity-70">Circuitos</p>
-                <p className="text-lg font-bold">{datos.circuitosCalculados.length} / {minCircuitos} Mínimos</p>
+                <p className="text-lg font-bold">{datos.circuitosCalculados.length} Totales</p>
             </div>
         </div>
       </div>
@@ -64,45 +91,26 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
           <div key={c.id} className="bg-slate-900 p-4 rounded-lg border border-slate-800 flex justify-between items-center">
             <div className="flex flex-col gap-2">
               <div>
-                <p className="font-bold text-white">{c.nombre}</p>
+                <p className="font-bold text-white">{c.nombre} {c.id.startsWith('auto-') && <span className="text-[10px] text-emerald-500">(Normativo)</span>}</p>
                 <p className="text-[10px] text-slate-500 uppercase">{c.tipo.replace(/_/g, ' ')}</p>
               </div>
-              {c.tipo === 'iluminacion_usos_generales' && (
-                <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
-                    <input 
-                        type="checkbox" 
-                        checked={!!c.tieneTomacorrientesDerivados} 
-                        onChange={(e) => {
-                            const nuevosCircuitos = datos.circuitosCalculados.map(circ => 
-                                circ.id === c.id ? { ...circ, tieneTomacorrientesDerivados: e.target.checked } : circ
-                            );
-                            onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
-                        }}
-                    />
-                    Tiene tomas derivados
-                </label>
-              )}
             </div>
-            <button onClick={() => removeCircuito(c.id)} className="text-red-400 p-1">
-                <Trash2 size={16} />
-            </button>
+            {!c.id.startsWith('auto-') && (
+                <button onClick={() => removeCircuito(c.id)} className="text-red-400 p-1">
+                    <Trash2 size={16} />
+                </button>
+            )}
           </div>
         ))}
-        {datos.circuitosCalculados.length < minCircuitos && (
-            <div className="text-amber-400 text-sm flex items-center gap-2 pt-4">
-                <AlertTriangle size={16} />
-                Se requiere agregar más circuitos para alcanzar los mínimos.
-            </div>
-        )}
       </div>
 
       {/* Formulario nuevo circuito */}
       <div className="bg-slate-900 p-4 rounded-lg border border-dashed border-slate-700 flex flex-col gap-3">
-        <p className="text-sm font-bold text-white">Agregar nuevo circuito</p>
+        <p className="text-sm font-bold text-white">Agregar circuito adicional</p>
         <div className="flex gap-2">
             <input 
                 type="text" 
-                placeholder="Nombre del circuito" 
+                placeholder="Nombre" 
                 value={nuevoNombre}
                 onChange={(e) => setNuevoNombre(e.target.value)}
                 className="flex-grow bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
