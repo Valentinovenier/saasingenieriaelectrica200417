@@ -92,8 +92,7 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
       )}
 
       {renderSettings()}
-
-      <button onClick={handleSave} className="bg-[var(--accent)] text-black px-6 py-2 rounded-xl font-bold">Guardar Configuración</button>
     </div>
   );
 };
+
