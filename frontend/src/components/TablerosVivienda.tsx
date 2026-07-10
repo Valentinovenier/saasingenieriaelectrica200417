@@ -107,7 +107,7 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
         
         {expanded && (
             <div className="space-y-2">
-                <div className="text-[10px] font-bold text-slate-500 uppercase ml-2">Circuitos Terminales</div>
+                <div className="text-[10px] font-bold text-slate-500 uppercase ml-2">Circuitos</div>
                 {datos.circuitosCalculados.map((c: CircuitoCalculado) => {
                     const esAsignado = tablero.circuitosIds.includes(c.id);
                     const estaEnOtro = tableros.some((t: TableroVivienda) => t.id !== tablero.id && t.circuitosIds.includes(c.id));

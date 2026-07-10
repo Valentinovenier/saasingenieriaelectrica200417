@@ -33,9 +33,9 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
     
     // 2. Generar circuitos normativos según la variante
     const automaticos: CircuitoCalculado[] = [];
-    for (let i = 0; i < configActual.IUG; i++) automaticos.push({ id: `auto-iug-${i}`, nombre: `IUG ${i + 1}`, tipo: 'iluminacion_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
-    for (let i = 0; i < configActual.TUG; i++) automaticos.push({ id: `auto-tug-${i}`, nombre: `TUG ${i + 1}`, tipo: 'tomacorrientes_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
-    if (configActual.CLE) automaticos.push({ id: 'auto-cle', nombre: 'Libre Elección', tipo: 'usos_especiales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
+    for (let i = 0; i < configActual.IUG; i++) automaticos.push({ id: `auto-iug-${i}`, nombre: `Circuito IUG ${i + 1}`, tipo: 'iluminacion_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
+    for (let i = 0; i < configActual.TUG; i++) automaticos.push({ id: `auto-tug-${i}`, nombre: `Circuito TUG ${i + 1}`, tipo: 'tomacorrientes_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
+    if (configActual.CLE) automaticos.push({ id: 'auto-cle', nombre: 'Circuito Especial 1', tipo: 'usos_especiales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
 
     const nuevosCircuitos = [...automaticos, ...manuales];
     
@@ -120,9 +120,9 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                 onChange={(e) => setNuevoTipo(e.target.value as CircuitoCalculado['tipo'])}
                 className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
             >
-                <option value="iluminacion_usos_generales">IUG</option>
-                <option value="tomacorrientes_usos_generales">TUG</option>
-                <option value="usos_especiales">TUE</option>
+                <option value="iluminacion_usos_generales">Circuito IUG</option>
+                <option value="tomacorrientes_usos_generales">Circuito TUG</option>
+                <option value="usos_especiales">Circuito Especial</option>
                 <option value="usos_especificos">Específico</option>
             </select>
             <button onClick={addCircuito} className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-500">
