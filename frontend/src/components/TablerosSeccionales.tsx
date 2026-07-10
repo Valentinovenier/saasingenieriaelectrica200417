@@ -21,6 +21,7 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
       id: `ts-${Date.now()}`,
       nombre: `Tablero Seccional ${maxNumero + 1}`,
       potencia: 0, // Potencia inicial 0 para que el usuario la defina
+      proteccionesSalida: []
     };
     onChange({
       ...project,
@@ -104,12 +105,20 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
                 <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Nombre</th>
                 <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Potencia (kVA)</th>
                 <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Ik (kA)</th>
+import { useState } from 'react';
+import { Project, TableroSeccionalSimple } from '../types/project';
+import { Plus, Trash2, Server, Save, Shield } from 'lucide-react';
+import { ConfiguracionProteccion } from './ConfiguracionProteccion';
+
+// ... (resto del código) ...
+
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
               {tableros.map((t, idx) => (
-                  <tr key={t.id} className="border-b border-slate-800/60 hover:bg-slate-800/30 transition-colors">
+                  <React.Fragment key={t.id}>
+                  <tr className="border-b border-slate-800/60 hover:bg-slate-800/30 transition-colors">
                     <td className="px-5 py-3 text-slate-500 text-xs">{idx + 1}</td>
                     <td className="px-5 py-3">
                       <input
@@ -147,6 +156,25 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
                       </button>
                     </td>
                   </tr>
+                  <tr>
+                    <td colSpan={5} className="px-5 py-3 bg-slate-900/50">
+                        <div className="text-xs text-slate-400 mb-2 font-bold flex items-center gap-2">
+                            <Shield size={14} /> Configuración de Protecciones: {t.nombre}
+                        </div>
+                        <ConfiguracionProteccion 
+                            proteccionCabecera={t.proteccionCabecera}
+                            proteccionesSalida={t.proteccionesSalida || []}
+                            onChange={(data) => {
+                                // Implementar lógica para guardar en 't'
+                                onChange({
+                                    ...project,
+                                    tablerosSeccionales: tableros.map(tab => tab.id === t.id ? {...tab, ...data} : tab)
+                                });
+                            }}
+                        />
+                    </td>
+                  </tr>
+                  </React.Fragment>
               ))}
             </tbody>
           </table>

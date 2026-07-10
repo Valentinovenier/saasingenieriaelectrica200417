@@ -44,10 +44,14 @@ export interface Conductor {
 }
 
 export interface Proteccion {
-  tipo: 'Termomagnética' | 'Fusible' | 'Interruptor Automático Abierto' | 'Interruptor Automático Compacto' | 'PIA';
-  valorNominal: number;
-  curva?: string;
+  id: string;
+  modelo: string;
+  tipo_proteccion: 'Interruptor Automático' | 'Fusible' | 'Interruptor Automático Abierto' | 'Interruptor Automático Compacto' | 'PIA' | 'Interruptor Diferencial' | 'Termomagnética';
+  in_amp: number;
+  curva_disparo?: string;
+  polos: number;
   marca?: 'Schneider' | 'ABB';
+  capacidades: { tension_v: number; icn_ka: number; clase_limitacion: number }[];
 }
 
 export interface Transformador {
@@ -97,18 +101,18 @@ export interface BaseTablero {
   nombre: string;
   subTableros: (Tablero | TableroSeccional)[];
   circuitosTerminales: CircuitoTerminal[];
-  proteccionCabecera?: Proteccion;
+  proteccionCabecera?: Proteccion; // Opcional para todos
+  proteccionesSalida: Proteccion[]; // Lista uniforme para todos
 }
 
 export interface Tablero extends BaseTablero {
   conductorAlimentacion: Conductor;
-  proteccionCabecera: Proteccion;
+  // proteccionCabecera es obligatoria aquí (heredada de BaseTablero)
 }
 
 export interface TableroSeccional extends BaseTablero {
   tipo: 'Fuerza Motriz' | 'Iluminación';
   potenciaTotal: number;
-  proteccionesSalida: Proteccion[];
 }
 
 export const isTablero = (node: BaseTablero): node is Tablero => {
@@ -120,6 +124,8 @@ export interface TableroSeccionalSimple {
   nombre: string;
   potencia: number;
   Ik?: number;
+  proteccionCabecera?: Proteccion;
+  proteccionesSalida: Proteccion[];
 }
 
 export interface Canalizacion {
