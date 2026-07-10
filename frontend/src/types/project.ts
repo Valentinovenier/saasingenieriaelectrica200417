@@ -119,6 +119,7 @@ export interface TableroSeccionalSimple {
   id: string;
   nombre: string;
   potencia: number;
+  Ik?: number;
 }
 
 export interface Canalizacion {

@@ -12,10 +12,14 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
   
   const agregar = () => {
     // Nombrado automático: Tablero Seccional 1, Tablero Seccional 2...
-    const count = tableros.length + 1;
+    // Buscamos el mayor número actual si existe, o usamos length + 1
+    const numerosExistentes = tableros
+        .map(t => parseInt(t.nombre.replace('Tablero Seccional ', '')) || 0)
+        .filter(n => !isNaN(n));
+    const maxNumero = numerosExistentes.length > 0 ? Math.max(...numerosExistentes) : 0;
     const nuevo: TableroSeccionalSimple = {
       id: `ts-${Date.now()}`,
-      nombre: `Tablero Seccional ${count}`,
+      nombre: `Tablero Seccional ${maxNumero + 1}`,
       potencia: 0, // Potencia inicial 0 para que el usuario la defina
     };
     onChange({
@@ -35,11 +39,11 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
     });
   };
 
-  const actualizar = (id: string, campo: 'nombre' | 'potencia', valor: string) => {
+  const actualizar = (id: string, campo: 'nombre' | 'potencia' | 'Ik', valor: string) => {
     onChange({
       ...project,
       tablerosSeccionales: tableros.map(t =>
-        t.id === id ? { ...t, [campo]: campo === 'potencia' ? (parseFloat(valor) || 0) : valor } : t
+        t.id === id ? { ...t, [campo]: campo === 'nombre' ? valor : (parseFloat(valor) || 0) } : t
       ),
     });
   };
@@ -99,6 +103,7 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
                 <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">#</th>
                 <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Nombre</th>
                 <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Potencia (kVA)</th>
+                <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Ik (kA)</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -121,6 +126,16 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
                           className="bg-slate-800 text-white text-xs rounded-lg px-3 py-1.5 border border-slate-700 w-28"
                           value={t.potencia}
                           onChange={e => actualizar(t.id, 'potencia', e.target.value)}
+                        />
+                    </td>
+                    <td className="px-4 py-3">
+                        <input
+                          type="number"
+                          step="0.01"
+                          className="bg-slate-800 text-white text-xs rounded-lg px-3 py-1.5 border border-slate-700 w-24"
+                          value={t.Ik || ''}
+                          placeholder="Ik"
+                          onChange={e => actualizar(t.id, 'Ik', e.target.value)}
                         />
                     </td>
                     <td className="px-4 py-3 text-right">
