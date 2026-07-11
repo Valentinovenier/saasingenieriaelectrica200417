@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Project } from '../types/project';
 import { TableroVivienda, CircuitoCalculado } from '../types/vivienda';
-import { ChevronDown, ChevronRight, Plus, FolderTree, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, FolderTree, Trash2, Save } from 'lucide-react';
 
 interface Props {
   project: Project;
@@ -9,8 +9,30 @@ interface Props {
 }
 
 export const TablerosVivienda = ({ project, onChange }: Props) => {
+  const [saving, setSaving] = useState(false);
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [], tableros: [] };
   const tableros = datos.tableros || [];
+
+  const handleGuardar = async () => {
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/projects', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ id: project.id, name: project.name, data: project }),
+      });
+      if (response.ok) {
+        alert('Tableros guardados exitosamente');
+      } else {
+        throw new Error('Error al guardar');
+      }
+    } catch (error: any) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   // Asegurar tablero principal por defecto
   useEffect(() => {
@@ -134,7 +156,17 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
 
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
-      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Gestión de Tableros</h2>
+      <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+        <h2 className="text-xl font-bold text-white">Gestión de Tableros</h2>
+        <button
+            onClick={handleGuardar}
+            disabled={saving}
+            className="flex items-center gap-2 bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 disabled:opacity-50"
+        >
+            <Save size={15} />
+            {saving ? 'Guardando...' : 'Guardar'}
+        </button>
+      </div>
       
       {datos.circuitosCalculados.length === 0 ? (
         <div className="text-amber-400 bg-amber-900/20 p-4 rounded-lg border border-amber-800">

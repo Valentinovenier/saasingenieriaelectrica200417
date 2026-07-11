@@ -9,6 +9,7 @@ interface Props {
 }
 
 export const TablerosSeccionales = ({ project, onChange }: Props) => {
+  const [saving, setSaving] = useState(false);
   const tableros: TableroSeccionalSimple[] = project.tablerosSeccionales || [];
   
   const agregar = () => {
@@ -49,6 +50,7 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
   };
 
   const handleGuardar = async () => {
+    setSaving(true);
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('/api/projects', {
@@ -63,6 +65,8 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
       }
     } catch (error: any) {
       alert(`Error: ${error.message}`);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -83,10 +87,11 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
             </button>
             <button
                 onClick={handleGuardar}
-                className="flex items-center gap-2 bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold text-sm"
+                disabled={saving}
+                className="flex items-center gap-2 bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 disabled:opacity-50"
             >
                 <Save size={15} />
-                Guardar
+                {saving ? 'Guardando...' : 'Guardar'}
             </button>
         </div>
       </div>
