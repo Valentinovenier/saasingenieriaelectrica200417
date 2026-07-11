@@ -45,7 +45,7 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
         case 'i': 
             return <IndustrialSettings project={project} onChange={onChange} />;
         case 'Vivienda': 
-            return <ViviendaWorkflow project={project} onChange={onChange} />;
+            return <ViviendaWorkflow project={project} onChange={onChange} onSave={handleSave} />;
         case 'Oficina': 
             return <ComercialSettings project={project} onChange={onChange} />;
         default: return null;
@@ -57,13 +57,15 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-white">Configuración: {project.name}</h2>
         <div className="flex items-center gap-4">
-            <button 
-                onClick={handleSave} 
-                disabled={saving}
-                className="bg-[var(--accent)] text-white px-6 py-2 rounded-lg font-bold hover:opacity-90 disabled:opacity-50"
-            >
-                {saving ? 'Guardando...' : 'Guardar Cambios'}
-            </button>
+            {project.projectType !== 'Vivienda' && (
+                <button 
+                    onClick={handleSave} 
+                    disabled={saving}
+                    className="bg-[var(--accent)] text-white px-6 py-2 rounded-lg font-bold hover:opacity-90 disabled:opacity-50"
+                >
+                    {saving ? 'Guardando...' : 'Guardar Cambios'}
+                </button>
+            )}
             <button onClick={onDelete} className="text-red-400 hover:text-red-300 flex items-center gap-2">
                 <Trash2 size={16} /> Eliminar
             </button>

@@ -138,27 +138,38 @@ export const ProteccionesPage = () => {
                 <div className="border-t border-slate-700 pt-4">
                   <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Protecciones por Circuito</label>
                   <div className="space-y-3">
-                    {tablero.circuitosTerminales?.map((circuito) => (
-                      <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm text-white font-medium">{circuito.nombre}</span>
-                            <span className="text-xs text-[var(--text-secondary)]">Potencia: {circuito.potencia} W</span>
+                    {tablero.circuitosTerminales?.map((circuito) => {
+                      // Cálculo simple de corriente nominal:
+                      // Monofásico (230V): I = P / 230
+                      // Trifásico (400V): I = P / (sqrt(3) * 400)
+                      const isTrifasica = project.tipoInstalacion === 'Trifásica';
+                      const tension = isTrifasica ? 400 * Math.sqrt(3) : 230;
+                      const corrienteNominal = circuito.potencia / tension;
+
+                      return (
+                        <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                          <div className="flex justify-between items-center mb-2">
+                              <span className="text-sm text-white font-medium">{circuito.nombre}</span>
+                              <span className="text-xs text-[var(--accent)] font-bold">
+                                {corrienteNominal.toFixed(2)} A
+                              </span>
+                          </div>
+                          <AsignacionProteccion 
+                            label={`Asignar Protección (Req: ${corrienteNominal.toFixed(2)} A)`}
+                            proteccion={circuito.proteccion}
+                            disponibles={protecciones}
+                            opcional={true}
+                            onChange={(p) => {
+                              // Actualizar la protección del circuito específico
+                              const nuevosCircuitos = tablero.circuitosTerminales.map(c => 
+                                c.id === circuito.id ? { ...c, proteccion: p! } : c
+                              );
+                              handleUpdateTablero(tablero.id, { circuitosTerminales: nuevosCircuitos });
+                            }}
+                          />
                         </div>
-                        <AsignacionProteccion 
-                          label="Asignar Protección (Corriente Nominal)"
-                          proteccion={circuito.proteccion}
-                          disponibles={protecciones}
-                          opcional={true}
-                          onChange={(p) => {
-                            // Actualizar la protección del circuito específico
-                            const nuevosCircuitos = tablero.circuitosTerminales.map(c => 
-                              c.id === circuito.id ? { ...c, proteccion: p! } : c
-                            );
-                            handleUpdateTablero(tablero.id, { circuitosTerminales: nuevosCircuitos });
-                          }}
-                        />
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>

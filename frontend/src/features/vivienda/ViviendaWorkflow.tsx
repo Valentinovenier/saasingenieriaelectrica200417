@@ -17,10 +17,17 @@ export const ViviendaWorkflow = ({ project, onChange, onSave }: Props) => {
   if (!project) return null;
 
   const [step, setStep] = useState(1);
+  const [saving, setSaving] = useState(false);
   const totalSteps = 5;
 
   const nextStep = () => setStep(s => Math.min(s + 1, totalSteps));
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
+
+  const handleSave = async () => {
+    setSaving(true);
+    if(onSave) await onSave(project);
+    setSaving(false);
+  };
 
   const renderStep = () => {
     switch (step) {
@@ -84,10 +91,11 @@ export const ViviendaWorkflow = ({ project, onChange, onSave }: Props) => {
           </button>
         ) : (
           <button 
-            onClick={() => onSave && onSave(project)} 
-            className="flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-500 transition-colors"
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-500 transition-colors disabled:opacity-50"
           >
-            Guardar <Save size={20} />
+            {saving ? 'Guardando...' : 'Guardar'} <Save size={20} />
           </button>
         )}
       </div>
