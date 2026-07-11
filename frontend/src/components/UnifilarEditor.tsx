@@ -16,20 +16,24 @@ const ProteccionFields = ({ label, value, onChange, tiposPermitidos }: {
     <div className="flex gap-2">
       <select 
         className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
-        value={value?.tipo || 'Termomagnética'}
+        value={value?.tipo_proteccion || 'Termomagnética'}
         onChange={(e) => onChange({ 
-          ...value,
-          tipo: e.target.value as any,
-          valorNominal: value?.valorNominal || 0,
-          marca: value?.marca || 'Schneider'
-        } as Proteccion)}
+          ...value!,
+          tipo_proteccion: e.target.value as any,
+          in_amp: value?.in_amp || 0,
+          marca: value?.marca || 'Schneider',
+          id: value?.id || Date.now().toString(),
+          modelo: value?.modelo || 'Estándar',
+          polos: value?.polos || 2,
+          capacidades: value?.capacidades || []
+        })}
       >
         {tiposPermitidos ? tiposPermitidos.map(t => <option key={t} value={t}>{t}</option>) : (
           <>
             <option value="Termomagnética">Termomagnética</option>
             <option value="Fusible">Fusible</option>
-            <option value="Interruptor Automático Abierto">Int. Aut. Abierto</option>
-            <option value="Interruptor Automático Compacto">Int. Aut. Compacto</option>
+            <option value="Interruptor Automático Abierto">Interruptor Automático Abierto</option>
+            <option value="Interruptor Automático Compacto">Interruptor Automático Compacto</option>
             <option value="PIA">PIA</option>
           </>
         )}
@@ -38,23 +42,31 @@ const ProteccionFields = ({ label, value, onChange, tiposPermitidos }: {
         type="number" 
         placeholder="A" 
         className="w-16 bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
-        value={value?.valorNominal || ''}
+        value={value?.in_amp || ''}
         onChange={(e) => onChange({ 
-          ...value,
-          tipo: value?.tipo || 'Termomagnética',
-          valorNominal: Number(e.target.value),
-          marca: value?.marca || 'Schneider'
-        } as Proteccion)}
+          ...value!,
+          tipo_proteccion: value?.tipo_proteccion || 'Termomagnética',
+          in_amp: Number(e.target.value),
+          marca: value?.marca || 'Schneider',
+          id: value?.id || Date.now().toString(),
+          modelo: value?.modelo || 'Estándar',
+          polos: value?.polos || 2,
+          capacidades: value?.capacidades || []
+        })}
       />
       <select 
         className="bg-[var(--bg-secondary)] text-white text-xs rounded p-1"
         value={value?.marca || 'Schneider'}
         onChange={(e) => onChange({ 
-          ...value,
-          tipo: value?.tipo || 'Termomagnética',
-          valorNominal: value?.valorNominal || 0,
-          marca: e.target.value as any 
-        } as Proteccion)}
+          ...value!,
+          tipo_proteccion: value?.tipo_proteccion || 'Termomagnética',
+          in_amp: value?.in_amp || 0,
+          marca: e.target.value as any,
+          id: value?.id || Date.now().toString(),
+          modelo: value?.modelo || 'Estándar',
+          polos: value?.polos || 2,
+          capacidades: value?.capacidades || []
+        })}
       >
         <option value="Schneider">Schneider</option>
         <option value="ABB">ABB</option>
@@ -88,7 +100,14 @@ export const UnifilarEditor = () => {
         <div className="mt-6 flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold text-white">Protección de Salida TGBT</h3>
             <button 
-                onClick={() => setState({...state, transformador: {...state.transformador!, proteccionesSalida: [...(state.transformador?.proteccionesSalida || []), { tipo: 'Interruptor Automático Compacto', valorNominal: 0 }] }})} 
+                onClick={() => setState({...state, transformador: {...state.transformador!, proteccionesSalida: [...(state.transformador?.proteccionesSalida || []), { 
+                    id: Date.now().toString(),
+                    modelo: 'Nuevo',
+                    tipo_proteccion: 'Interruptor Automático Compacto', 
+                    in_amp: 0,
+                    polos: 3,
+                    capacidades: []
+                }] }})} 
                 className="bg-[var(--accent)] text-white p-3 rounded-lg hover:bg-opacity-80"
             >
                 <Plus size={24} />

@@ -15,7 +15,15 @@ const test = () => {
       id: 'root',
       nombre: 'Tablero Principal',
       conductorAlimentacion: { tipo: 'Cable' },
-      proteccionCabecera: { tipo: 'Termomagnética', valorNominal: 63 },
+      proteccionCabecera: { 
+        id: 'cabecera-principal',
+        modelo: 'Estándar',
+        tipo_proteccion: 'Termomagnética',
+        in_amp: 63,
+        polos: 3,
+        capacidades: []
+      },
+      proteccionesSalida: [],
       subTableros: [],
       circuitosTerminales: []
     }

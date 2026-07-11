@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Project, TableroSeccionalSimple } from '../types/project';
-import { Plus, Trash2, Server, Save } from 'lucide-react';
+import { Plus, Trash2, Server, Save, Shield } from 'lucide-react';
+import { ConfiguracionProteccion } from './ConfiguracionProteccion';
 
 interface Props {
   project: Project;
@@ -11,8 +12,6 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
   const tableros: TableroSeccionalSimple[] = project.tablerosSeccionales || [];
   
   const agregar = () => {
-    // Nombrado automático: Tablero Seccional 1, Tablero Seccional 2...
-    // Buscamos el mayor número actual si existe, o usamos length + 1
     const numerosExistentes = tableros
         .map(t => parseInt(t.nombre.replace('Tablero Seccional ', '')) || 0)
         .filter(n => !isNaN(n));
@@ -20,7 +19,7 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
     const nuevo: TableroSeccionalSimple = {
       id: `ts-${Date.now()}`,
       nombre: `Tablero Seccional ${maxNumero + 1}`,
-      potencia: 0, // Potencia inicial 0 para que el usuario la defina
+      potencia: 0,
       proteccionesSalida: []
     };
     onChange({
@@ -67,11 +66,8 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
     }
   };
 
-  const potenciaTotal = tableros.reduce((acc, t) => acc + (Number(t.potencia) || 0), 0);
-
   return (
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 space-y-6">
-      {/* Encabezado */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <Server size={22} className="text-[var(--accent)]" />
@@ -95,7 +91,6 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
         </div>
       </div>
 
-      {/* Tabla de tableros */}
       {tableros.length > 0 ? (
         <div className="bg-[var(--bg-primary)] rounded-xl border border-slate-700 overflow-hidden">
           <table className="w-full text-sm">
@@ -105,13 +100,6 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
                 <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Nombre</th>
                 <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Potencia (kVA)</th>
                 <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Ik (kA)</th>
-import { useState } from 'react';
-import { Project, TableroSeccionalSimple } from '../types/project';
-import { Plus, Trash2, Server, Save, Shield } from 'lucide-react';
-import { ConfiguracionProteccion } from './ConfiguracionProteccion';
-
-// ... (resto del código) ...
-
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -164,8 +152,7 @@ import { ConfiguracionProteccion } from './ConfiguracionProteccion';
                         <ConfiguracionProteccion 
                             proteccionCabecera={t.proteccionCabecera}
                             proteccionesSalida={t.proteccionesSalida || []}
-                            onChange={(data) => {
-                                // Implementar lógica para guardar en 't'
+                            onChange={(data: any) => {
                                 onChange({
                                     ...project,
                                     tablerosSeccionales: tableros.map(tab => tab.id === t.id ? {...tab, ...data} : tab)

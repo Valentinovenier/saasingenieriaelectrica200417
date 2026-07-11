@@ -7,13 +7,13 @@ import { PIAUnifilar } from './symbols/ProteccionesUnifilares';
 import { Proteccion } from '../types/project';
 
 const ProteccionRenderer = ({ proteccion, className }: { proteccion?: Proteccion, className?: string }) => {
-  if (proteccion?.tipo === 'Interruptor Automático Abierto' || proteccion?.tipo === 'Interruptor Automático Compacto') {
+  if (proteccion?.tipo_proteccion === 'Interruptor Automático Abierto' || proteccion?.tipo_proteccion === 'Interruptor Automático Compacto') {
     return <InterruptorAutomaticoSvg className={className} />;
   }
-  if (proteccion?.tipo === 'PIA') {
+  if (proteccion?.tipo_proteccion === 'PIA') {
     return <PIAUnifilar className={className} />;
   }
-  return <div className={`border-2 border-dashed border-white ${className}`} title={proteccion?.tipo} />; 
+  return <div className={`border-2 border-dashed border-white ${className}`} title={proteccion?.tipo_proteccion} />; 
 };
 // Definición de tamaño base para símbolos
 const SYMBOL_SIZE = 80;
@@ -56,7 +56,7 @@ export const UnifilarCanvas = () => {
               <foreignObject x={x - SYMBOL_SIZE/2} y={yBarra + 30} width={SYMBOL_SIZE} height={SYMBOL_SIZE}>
                 <ProteccionRenderer proteccion={proteccion} className="w-full h-full text-white" />
               </foreignObject>
-              <text x={x} y={yBarra + 30 + SYMBOL_SIZE + 20} textAnchor="middle" fill="white" fontSize="14">{proteccion.valorNominal} A</text>
+              <text x={x} y={yBarra + 30 + SYMBOL_SIZE + 20} textAnchor="middle" fill="white" fontSize="14">{proteccion.in_amp} A</text>
             </g>
           );
         })}
