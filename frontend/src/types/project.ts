@@ -102,6 +102,7 @@ export interface BaseTablero {
   subTableros: (Tablero | TableroSeccional)[];
   circuitosTerminales: CircuitoTerminal[];
   proteccionCabecera?: Proteccion; // Opcional para todos
+  proteccionDiferencial?: Proteccion; // Nueva: Opcional
   proteccionesSalida: Proteccion[]; // Lista uniforme para todos
 }
 

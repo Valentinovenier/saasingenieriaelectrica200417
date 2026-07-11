@@ -38,11 +38,30 @@ export const ProteccionesPage = () => {
 
   if (!project) return <div className="text-white p-6">Por favor, selecciona un proyecto para gestionar protecciones.</div>;
 
+  const handleSave = async (data: any) => {
+    const token = localStorage.getItem('token');
+    const method = editingProteccion ? 'PUT' : 'POST';
+    const payload = editingProteccion ? { ...data, id: editingProteccion.id } : data;
+
+    await fetch('/api/guardar-proteccion', {
+      method: method,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    setShowForm(false);
+    setEditingProteccion(null);
+    fetchProtecciones();
+  };
+
   const saveProject = async (updatedProject: any) => {
     const token = localStorage.getItem('token');
     try {
       const response = await fetch(`/api/projects`, {
-        method: 'POST', // Siguiendo el patrón de App.tsx para persistir cambios
+        method: 'PUT', // Cambiado a PUT para actualizar en lugar de crear un nuevo registro
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -68,6 +87,8 @@ export const ProteccionesPage = () => {
   };
 
   const handleUpdateTablero = async (tableroId: string, updates: any) => {
+    // Lógica para actualizar el tablero específico en el proyecto
+    // Asumiendo que project tiene 'tableroPrincipal' y 'tableros'
     const newProject = { ...project };
     if (newProject.tableroPrincipal.id === tableroId) {
       newProject.tableroPrincipal = { ...newProject.tableroPrincipal, ...updates };
@@ -99,25 +120,33 @@ export const ProteccionesPage = () => {
                 <Layout size={16} /> {tablero.nombre}
               </h4>
               <div className="mt-4 space-y-4">
-                <AsignacionProteccion 
-                  label="Protección Cabecera"
-                  proteccion={tablero.proteccionCabecera}
-                  disponibles={protecciones}
-                  onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
-                />
+                <div className="grid grid-cols-1 gap-4">
+                    <AsignacionProteccion 
+                      label="Protección General (Cabecera)"
+                      proteccion={tablero.proteccionCabecera}
+                      disponibles={protecciones}
+                      onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
+                    />
+                    <AsignacionProteccion 
+                      label="Protección Diferencial"
+                      proteccion={tablero.proteccionDiferencial}
+                      disponibles={protecciones}
+                      onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
+                    />
+                </div>
                 
                 <div className="border-t border-slate-700 pt-4">
                   <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Protecciones de Salida</label>
                   <div className="space-y-2">
                     {tablero.proteccionesSalida?.map((p, idx) => (
-                      <div key={idx} className="flex gap-2 items-center">
-                        <span className="text-xs text-white bg-slate-800 p-1 rounded">{p.modelo}</span>
+                      <div key={idx} className="flex gap-2 items-center bg-slate-800 p-2 rounded">
+                        <span className="text-xs text-white">{p.modelo} ({p.tipo_proteccion})</span>
                         <button 
                           onClick={() => {
                             const nuevasSalidas = tablero.proteccionesSalida?.filter((_, i) => i !== idx);
                             handleUpdateTablero(tablero.id, { proteccionesSalida: nuevasSalidas });
                           }}
-                          className="text-red-400 hover:text-red-300"
+                          className="text-red-400 hover:text-red-300 ml-auto"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -169,12 +198,7 @@ export const ProteccionesPage = () => {
       {showForm && (
         <ProteccionesForm 
           onClose={() => { setShowForm(false); setEditingProteccion(null); }} 
-          onSave={async (data) => {
-            // Lógica existente de guardado
-            setShowForm(false);
-            setEditingProteccion(null);
-            fetchProtecciones();
-          }} 
+          onSave={handleSave} 
           initialData={editingProteccion} 
         />
       )}
