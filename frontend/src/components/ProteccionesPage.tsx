@@ -142,10 +142,10 @@ export const ProteccionesPage = () => {
                       <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-sm text-white font-medium">{circuito.nombre}</span>
-                            <span className="text-xs text-[var(--text-secondary)]">{circuito.potencia} W</span>
+                            <span className="text-xs text-[var(--text-secondary)]">Potencia: {circuito.potencia} W</span>
                         </div>
                         <AsignacionProteccion 
-                          label="Asignar Protección"
+                          label="Asignar Protección (Corriente Nominal)"
                           proteccion={circuito.proteccion}
                           disponibles={protecciones}
                           opcional={true}

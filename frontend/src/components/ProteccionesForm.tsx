@@ -29,6 +29,20 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
     setFormData((prev: any) => ({ ...prev, capacidades: caps }));
   };
 
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+        await onSave(formData);
+    } catch (error) {
+        console.error("Error al guardar:", error);
+        alert("Error al guardar la protección");
+    } finally {
+        setSaving(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-[var(--bg-secondary)] p-8 rounded-2xl w-full max-w-2xl border border-slate-700 shadow-2xl">
@@ -111,11 +125,16 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
 
         <div className="flex justify-end gap-3 mt-8">
           <button onClick={onClose} className="px-6 py-2 text-white hover:bg-slate-700 rounded-lg transition-colors">Cancelar</button>
-          <button onClick={() => onSave(formData)} className="bg-[var(--accent)] hover:opacity-90 text-white px-6 py-2 rounded-lg font-medium transition-all">
-            {initialData ? 'Actualizar Protección' : 'Guardar Protección'}
+          <button 
+            onClick={handleSave} 
+            disabled={saving}
+            className="bg-[var(--accent)] hover:opacity-90 disabled:opacity-50 text-white px-6 py-2 rounded-lg font-medium transition-all"
+          >
+            {saving ? 'Guardando...' : (initialData ? 'Actualizar Protección' : 'Guardar Protección')}
           </button>
         </div>
       </div>
     </div>
   );
+
 };
