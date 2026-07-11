@@ -136,35 +136,29 @@ export const ProteccionesPage = () => {
                 </div>
                 
                 <div className="border-t border-slate-700 pt-4">
-                  <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Protecciones de Salida</label>
-                  <div className="space-y-2">
-                    {tablero.proteccionesSalida?.map((p, idx) => (
-                      <div key={idx} className="flex gap-2 items-center bg-slate-800 p-2 rounded">
-                        <span className="text-xs text-white">{p.modelo} ({p.tipo_proteccion})</span>
-                        <button 
-                          onClick={() => {
-                            const nuevasSalidas = tablero.proteccionesSalida?.filter((_, i) => i !== idx);
-                            handleUpdateTablero(tablero.id, { proteccionesSalida: nuevasSalidas });
+                  <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Protecciones por Circuito</label>
+                  <div className="space-y-3">
+                    {tablero.circuitosTerminales?.map((circuito) => (
+                      <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm text-white font-medium">{circuito.nombre}</span>
+                            <span className="text-xs text-[var(--text-secondary)]">{circuito.potencia} W</span>
+                        </div>
+                        <AsignacionProteccion 
+                          label="Asignar Protección"
+                          proteccion={circuito.proteccion}
+                          disponibles={protecciones}
+                          opcional={true}
+                          onChange={(p) => {
+                            // Actualizar la protección del circuito específico
+                            const nuevosCircuitos = tablero.circuitosTerminales.map(c => 
+                              c.id === circuito.id ? { ...c, proteccion: p! } : c
+                            );
+                            handleUpdateTablero(tablero.id, { circuitosTerminales: nuevosCircuitos });
                           }}
-                          className="text-red-400 hover:text-red-300 ml-auto"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        />
                       </div>
                     ))}
-                    <AsignacionProteccion 
-                      label="Añadir Salida"
-                      proteccion={undefined}
-                      disponibles={protecciones}
-                      opcional={false}
-                      onChange={(p) => {
-                        if (p) {
-                          handleUpdateTablero(tablero.id, { 
-                            proteccionesSalida: [...(tablero.proteccionesSalida || []), p] 
-                          });
-                        }
-                      }}
-                    />
                   </div>
                 </div>
               </div>
