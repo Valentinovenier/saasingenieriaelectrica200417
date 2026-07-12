@@ -191,7 +191,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                                 <div className="flex items-center">
                                     <input type="number" placeholder="IUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
                                         value={datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.IUG ?? 0}
-                                        onChange={(e) => updateTomas(ambiente.id, circuito.id, 'IUG', Math.max(parseInt(e.target.value) || 0, ambiente.puntosIUG))} />
+                                        onChange={(e) => updateTomas(ambiente.id, circuito.id, 'IUG', Math.max(parseInt(e.target.value) || 0, 0))} />
                                     <button 
                                         className="ml-1 bg-slate-700 hover:bg-slate-600 text-white rounded w-6 h-6 flex items-center justify-center font-bold"
                                         onClick={() => updateTomas(ambiente.id, circuito.id, 'IUG', (datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.IUG ?? 0) + 1)}
@@ -202,7 +202,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                                 <div className="flex items-center">
                                     <input type="number" placeholder="TUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
                                         value={datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.TUG ?? 0}
-                                        onChange={(e) => updateTomas(ambiente.id, circuito.id, 'TUG', Math.max(parseInt(e.target.value) || 0, ambiente.puntosTUG))} />
+                                        onChange={(e) => updateTomas(ambiente.id, circuito.id, 'TUG', Math.max(parseInt(e.target.value) || 0, 0))} />
                                     <button 
                                         className="ml-1 bg-slate-700 hover:bg-slate-600 text-white rounded w-6 h-6 flex items-center justify-center font-bold"
                                         onClick={() => updateTomas(ambiente.id, circuito.id, 'TUG', (datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.TUG ?? 0) + 1)}
