@@ -103,6 +103,17 @@ export const ProteccionesPage = () => {
     await saveProject(newProject);
   };
 
+  const calcularCorriente = (potencia: number) => {
+    const isTrifasica = project.tipoInstalacion === 'Trifásica';
+    const tension = isTrifasica ? 400 * Math.sqrt(3) : 230;
+    return potencia / tension;
+  };
+
+  const calcularPotenciaTotal = (tablero: any) => {
+    return (tablero.circuitosTerminales || []).reduce((sum: number, c: any) => sum + (c.potencia || 0), 0) + 
+           (tablero.subTableros || []).reduce((sum: number, st: any) => sum + (st.potenciaTotal || 0), 0);
+  };
+
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
@@ -114,67 +125,72 @@ export const ProteccionesPage = () => {
         {/* Lista de Tableros */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white">Tableros</h3>
-          {[project.tableroPrincipal, ...(project.tableros || [])].map((tablero) => (
-            <div key={tablero.id} className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700">
-              <h4 className="text-white font-medium flex items-center gap-2">
-                <Layout size={16} /> {tablero.nombre}
-              </h4>
-              <div className="mt-4 space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                    <AsignacionProteccion 
-                      label="Protección General (Cabecera)"
-                      proteccion={tablero.proteccionCabecera}
-                      disponibles={protecciones}
-                      onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
-                    />
-                    <AsignacionProteccion 
-                      label="Protección Diferencial"
-                      proteccion={tablero.proteccionDiferencial}
-                      disponibles={protecciones}
-                      onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
-                    />
+          {[project.tableroPrincipal, ...(project.tableros || [])].map((tablero) => {
+            const potenciaTotal = calcularPotenciaTotal(tablero);
+            const corrienteEstimada = calcularCorriente(potenciaTotal);
+            
+            return (
+              <div key={tablero.id} className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-white font-medium flex items-center gap-2">
+                    <Layout size={16} /> {tablero.nombre}
+                  </h4>
+                  <span className="text-xs text-[var(--accent)] bg-slate-800 px-2 py-1 rounded">
+                    In Estimada: {corrienteEstimada.toFixed(2)} A
+                  </span>
                 </div>
-                
-                <div className="border-t border-slate-700 pt-4">
-                  <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Protecciones por Circuito</label>
-                  <div className="space-y-3">
-                    {tablero.circuitosTerminales?.map((circuito) => {
-                      // Cálculo simple de corriente nominal:
-                      // Monofásico (230V): I = P / 230
-                      // Trifásico (400V): I = P / (sqrt(3) * 400)
-                      const isTrifasica = project.tipoInstalacion === 'Trifásica';
-                      const tension = isTrifasica ? 400 * Math.sqrt(3) : 230;
-                      const corrienteNominal = circuito.potencia / tension;
+                <div className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                      <AsignacionProteccion 
+                        label="Protección General (Cabecera)"
+                        proteccion={tablero.proteccionCabecera}
+                        disponibles={protecciones}
+                        onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
+                      />
+                      <AsignacionProteccion 
+                        label="Protección Diferencial"
+                        proteccion={tablero.proteccionDiferencial}
+                        disponibles={protecciones}
+                        onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
+                      />
+                  </div>
+                  
+                  <div className="border-t border-slate-700 pt-4">
+                    <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Protecciones por Circuito</label>
+                    <div className="space-y-3">
+                      {tablero.circuitosTerminales?.map((circuito) => {
+                        const corrienteNominal = calcularCorriente(circuito.potencia);
 
-                      return (
-                        <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                          <div className="flex justify-between items-center mb-2">
-                              <span className="text-sm text-white font-medium">{circuito.nombre}</span>
-                              <span className="text-xs text-[var(--accent)] font-bold">
-                                {corrienteNominal.toFixed(2)} A
-                              </span>
+                        return (
+                          <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-white font-medium">{circuito.nombre}</span>
+                                <span className="text-xs text-[var(--accent)] font-bold">
+                                  {corrienteNominal.toFixed(2)} A
+                                </span>
+                            </div>
+                            <AsignacionProteccion 
+                              label={`Asignar Protección (Req: ${corrienteNominal.toFixed(2)} A)`}
+                              proteccion={circuito.proteccion}
+                              disponibles={protecciones}
+                              opcional={true}
+                              onChange={(p) => {
+                                // Actualizar la protección del circuito específico
+                                const nuevosCircuitos = tablero.circuitosTerminales.map(c => 
+                                  c.id === circuito.id ? { ...c, proteccion: p! } : c
+                                );
+                                handleUpdateTablero(tablero.id, { circuitosTerminales: nuevosCircuitos });
+                              }}
+                            />
                           </div>
-                          <AsignacionProteccion 
-                            label={`Asignar Protección (Req: ${corrienteNominal.toFixed(2)} A)`}
-                            proteccion={circuito.proteccion}
-                            disponibles={protecciones}
-                            opcional={true}
-                            onChange={(p) => {
-                              // Actualizar la protección del circuito específico
-                              const nuevosCircuitos = tablero.circuitosTerminales.map(c => 
-                                c.id === circuito.id ? { ...c, proteccion: p! } : c
-                              );
-                              handleUpdateTablero(tablero.id, { circuitosTerminales: nuevosCircuitos });
-                            }}
-                          />
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Catálogo */}
