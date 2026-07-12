@@ -21,18 +21,43 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
   // Lógica de autocompletado global
   useEffect(() => {
     if (modoAutomatico) {
+        let nuevosCircuitos = [...datos.circuitosCalculados];
+        let nuevasTomas = { ...datos.tomasPorAmbiente };
+
         datos.ambientes.forEach(ambiente => {
-            const circuitosEnAmbiente = datos.circuitosCalculados.filter(c => c.ambientesIds.includes(ambiente.id));
+            // 1. Asignar circuitos si no están asignados (lógica simplificada de asignación automática)
+            nuevosCircuitos = nuevosCircuitos.map(circuito => {
+                if (!circuito.ambientesIds.includes(ambiente.id)) {
+                    // Lógica para decidir si asignar (basado en el tipo de circuito y puntos del ambiente)
+                    const necesitaIUG = ambiente.puntosIUG > 0 && circuito.tipo === 'iluminacion_usos_generales';
+                    const necesitaTUG = ambiente.puntosTUG > 0 && circuito.tipo === 'tomacorrientes_usos_generales';
+                    
+                    if (necesitaIUG || necesitaTUG) {
+                        return { ...circuito, ambientesIds: [...circuito.ambientesIds, ambiente.id] };
+                    }
+                }
+                return circuito;
+            });
+
+            // 2. Completar tomas
+            const circuitosEnAmbiente = nuevosCircuitos.filter(c => c.ambientesIds.includes(ambiente.id));
             
             circuitosEnAmbiente.forEach(circuito => {
                 const tipoTomas = circuito.tipo === 'iluminacion_usos_generales' ? 'IUG' : 'TUG';
                 const valorMinimo = ambiente[tipoTomas === 'IUG' ? 'puntosIUG' : 'puntosTUG'] || 0;
                 
-                if ((datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.[tipoTomas] ?? 0) !== valorMinimo) {
-                    updateTomas(ambiente.id, circuito.id, tipoTomas, valorMinimo);
+                if (valorMinimo > 0) {
+                    if (!nuevasTomas[ambiente.id]) nuevasTomas[ambiente.id] = {};
+                    if (!nuevasTomas[ambiente.id][circuito.id]) nuevasTomas[ambiente.id][circuito.id] = { IUG: 0, TUG: 0, TUE: 0 };
+                    nuevasTomas[ambiente.id][circuito.id] = { 
+                        ...nuevasTomas[ambiente.id][circuito.id], 
+                        [tipoTomas]: valorMinimo 
+                    };
                 }
             });
         });
+
+        onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos, tomasPorAmbiente: nuevasTomas } });
         setModoAutomatico(false);
     }
   }, [modoAutomatico]);
@@ -72,7 +97,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                 onClick={() => setModoAutomatico(true)}
                 className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-full"
             >
-                Auto-completar Tomas (Norma)
+                Auto-completar Circuitos y Tomas (Norma)
             </button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
