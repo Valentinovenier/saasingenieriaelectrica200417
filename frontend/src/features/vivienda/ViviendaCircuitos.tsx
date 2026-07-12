@@ -64,27 +64,44 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: datos.circuitosCalculados.filter(c => c.id !== id) } });
   };
 
+  const minCircuitos = configActual.IUG + configActual.TUG + (configActual.CLE ? 1 : 0);
+
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
       <div className="flex justify-between items-center border-b border-slate-800 pb-4">
         <h2 className="text-xl font-bold text-white">Circuitos (AEA 770)</h2>
-        {configuraciones.length > 1 && (
-            <select 
-                value={variante} 
-                onChange={(e) => onChange({ ...project, datosVivienda: { ...datos, varianteElectrificacion: e.target.value } })}
-                className="bg-slate-900 text-white p-2 rounded-lg text-sm border border-slate-700"
-            >
-                {configuraciones.map(c => <option key={c.variante} value={c.variante}>Variante {c.variante}</option>)}
-            </select>
-        )}
         <div className="px-4 py-2 rounded-lg border bg-emerald-900/20 border-emerald-800 text-emerald-400 flex items-center gap-3">
             <Zap size={18} />
             <div>
-                <p className="text-[10px] uppercase font-bold opacity-70">Circuitos</p>
-                <p className="text-lg font-bold">{datos.circuitosCalculados.length} Totales</p>
+                <p className="text-[10px] uppercase font-bold opacity-70">Cantidad mínima de circuitos</p>
+                <p className="text-lg font-bold">{datos.circuitosCalculados.length} / {minCircuitos}</p>
             </div>
         </div>
       </div>
+
+      {/* Selector de variante */}
+      {configuraciones.length > 1 && (
+        <div className="bg-slate-900 p-4 rounded-lg border border-slate-800">
+            <p className="text-sm font-bold text-slate-300 mb-3">Seleccionar Variante</p>
+            <div className="flex gap-2 flex-wrap">
+                {configuraciones.map(c => (
+                    <button 
+                        key={c.variante}
+                        onClick={() => onChange({ ...project, datosVivienda: { ...datos, varianteElectrificacion: c.variante } })}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold border ${variante === c.variante ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}
+                    >
+                        Variante {c.variante}
+                    </button>
+                ))}
+            </div>
+            {/* Detalles de la variante */}
+            <div className="mt-4 text-xs text-slate-500 flex gap-4">
+                <span><strong className="text-white">{configActual.IUG}</strong> IUG</span>
+                <span><strong className="text-white">{configActual.TUG}</strong> TUG</span>
+                {configActual.CLE && <span><strong className="text-white">1</strong> Especial</span>}
+            </div>
+        </div>
+      )}
 
       <div className="space-y-3">
         {datos.circuitosCalculados.map(c => (
