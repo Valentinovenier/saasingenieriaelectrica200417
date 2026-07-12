@@ -1,6 +1,7 @@
 import { Project } from '../../types/project';
 import { Ambiente, CircuitoCalculado, TipoCircuito, TomasCircuito } from '../../types/vivienda';
 import { useState, useEffect } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface Props {
   project: Project;
@@ -10,25 +11,25 @@ interface Props {
 export const ViviendaAsignacion = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [], tomasPorAmbiente: {} };
   
-  // Inicializar tomas por ambiente si no existen
   if (!datos.tomasPorAmbiente) {
       datos.tomasPorAmbiente = {};
   }
 
-  // Estado para el modo automático global
   const [modoAutomatico, setModoAutomatico] = useState(false);
+  const [expandidos, setExpandidos] = useState<Record<string, boolean>>({});
 
-  // Lógica de autocompletado global
+  const toggleExpandido = (ambienteId: string) => {
+      setExpandidos(prev => ({ ...prev, [ambienteId]: !prev[ambienteId] }));
+  };
+
   useEffect(() => {
     if (modoAutomatico) {
         let nuevosCircuitos = [...datos.circuitosCalculados];
         let nuevasTomas = { ...datos.tomasPorAmbiente };
 
         datos.ambientes.forEach(ambiente => {
-            // 1. Asignar circuitos si no están asignados (lógica simplificada de asignación automática)
             nuevosCircuitos = nuevosCircuitos.map(circuito => {
                 if (!circuito.ambientesIds.includes(ambiente.id)) {
-                    // Lógica para decidir si asignar (basado en el tipo de circuito y puntos del ambiente)
                     const necesitaIUG = ambiente.puntosIUG > 0 && circuito.tipo === 'iluminacion_usos_generales';
                     const necesitaTUG = ambiente.puntosTUG > 0 && circuito.tipo === 'tomacorrientes_usos_generales';
                     
@@ -39,21 +40,36 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                 return circuito;
             });
 
-            // 2. Completar tomas
-            const circuitosEnAmbiente = nuevosCircuitos.filter(c => c.ambientesIds.includes(ambiente.id));
-            
-            circuitosEnAmbiente.forEach(circuito => {
-                const tipoTomas = circuito.tipo === 'iluminacion_usos_generales' ? 'IUG' : 'TUG';
-                const valorMinimo = ambiente[tipoTomas === 'IUG' ? 'puntosIUG' : 'puntosTUG'] || 0;
+            const tiposTomas = ['IUG', 'TUG'] as const;
+            tiposTomas.forEach(tipo => {
+                const puntosTotales = ambiente[tipo === 'IUG' ? 'puntosIUG' : 'puntosTUG'] || 0;
+                if (puntosTotales === 0) return;
+
+                const circuitosTipo = nuevosCircuitos.filter(c => 
+                    c.ambientesIds.includes(ambiente.id) && 
+                    (tipo === 'IUG' ? c.tipo === 'iluminacion_usos_generales' : c.tipo === 'tomacorrientes_usos_generales')
+                );
+
+                let puntosRestantes = puntosTotales;
                 
-                if (valorMinimo > 0) {
-                    if (!nuevasTomas[ambiente.id]) nuevasTomas[ambiente.id] = {};
-                    if (!nuevasTomas[ambiente.id][circuito.id]) nuevasTomas[ambiente.id][circuito.id] = { IUG: 0, TUG: 0, TUE: 0 };
-                    nuevasTomas[ambiente.id][circuito.id] = { 
-                        ...nuevasTomas[ambiente.id][circuito.id], 
-                        [tipoTomas]: valorMinimo 
-                    };
-                }
+                circuitosTipo.forEach(circuito => {
+                    if (puntosRestantes <= 0) return;
+
+                    const totalActualCircuito = Object.values(nuevasTomas).reduce((acc, amb) => 
+                        acc + (amb[circuito.id]?.[tipo] || 0), 0
+                    );
+
+                    const capacidadDisponible = Math.max(0, 12 - totalActualCircuito); 
+                    const aAsignar = Math.min(puntosRestantes, capacidadDisponible);
+
+                    if (aAsignar > 0) {
+                        if (!nuevasTomas[ambiente.id]) nuevasTomas[ambiente.id] = {};
+                        if (!nuevasTomas[ambiente.id][circuito.id]) nuevasTomas[ambiente.id][circuito.id] = { IUG: 0, TUG: 0, TUE: 0 };
+                        
+                        nuevasTomas[ambiente.id][circuito.id][tipo] = (nuevasTomas[ambiente.id][circuito.id][tipo] || 0) + aAsignar;
+                        puntosRestantes -= aAsignar;
+                    }
+                });
             });
         });
 
@@ -88,8 +104,6 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
 
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-8">
-      
-      {/* 1. Resumen Superior */}
       <div className="bg-slate-900 p-5 rounded-lg border border-slate-700">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Carga de Circuitos (Máx 15 por circuito)</h3>
@@ -122,7 +136,6 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
         </div>
       </div>
 
-      {/* 2. Asignación por Ambiente */}
       <div className="space-y-4">
         <div className="flex justify-between items-end border-b border-slate-800 pb-2">
             <h2 className="text-xl font-bold text-white">Ambientes</h2>
@@ -133,11 +146,17 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
             const asignadoIUG = Object.values(tomasAmbiente).reduce((acc: number, c: TomasCircuito) => acc + (c.IUG || 0), 0);
             const asignadoTUG = Object.values(tomasAmbiente).reduce((acc: number, c: TomasCircuito) => acc + (c.TUG || 0), 0);
             const asignadoTUE = Object.values(tomasAmbiente).reduce((acc: number, c: TomasCircuito) => acc + (c.TUE || 0), 0);
+            const isExpandido = expandidos[ambiente.id];
 
           return (
             <div key={ambiente.id} className="bg-slate-950/50 p-4 rounded-lg border border-slate-800 space-y-4">
                 <div className="flex justify-between items-center">
-                    <h3 className="text-md font-semibold text-white">{ambiente.nombre}</h3>
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => toggleExpandido(ambiente.id)} className="text-slate-400 hover:text-white">
+                            {isExpandido ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                        </button>
+                        <h3 className="text-md font-semibold text-white">{ambiente.nombre}</h3>
+                    </div>
                     <div className="flex gap-4 text-[10px] font-bold bg-slate-900 p-2 rounded border border-slate-800">
                         <span className={asignadoIUG >= ambiente.puntosIUG ? 'text-emerald-400' : 'text-amber-400'}>IUG: {asignadoIUG}/{ambiente.puntosIUG}</span>
                         <span className={asignadoTUG >= ambiente.puntosTUG ? 'text-emerald-400' : 'text-amber-400'}>TUG: {asignadoTUG}/{ambiente.puntosTUG}</span>
@@ -145,6 +164,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                     </div>
                 </div>
                 
+                {isExpandido && (
                 <div className="col-span-2 space-y-3">
                     <div className="flex flex-wrap gap-2">
                         {datos.circuitosCalculados.map(circuito => {
@@ -164,7 +184,6 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                             )
                         })}
                     </div>
-                    {/* Campos de entrada */}
                     {datos.circuitosCalculados.filter(c => c.ambientesIds.includes(ambiente.id)).map(circuito => (
                         <div key={`input-${circuito.id}`} className="flex items-center gap-3 bg-black/20 p-2 rounded text-[10px]">
                             <span className="font-bold text-white w-20">{circuito.nombre}</span>
@@ -193,6 +212,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                         </div>
                     ))}
                 </div>
+                )}
             </div>
         )})}
       </div>
