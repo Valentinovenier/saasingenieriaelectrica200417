@@ -15,8 +15,27 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
       datos.tomasPorAmbiente = {};
   }
 
-  // Estado para el modo automático
-  const [modoAutomatico, setModoAutomatico] = useState<Record<string, boolean>>({});
+  // Estado para el modo automático global
+  const [modoAutomatico, setModoAutomatico] = useState(false);
+
+  // Lógica de autocompletado global
+  useEffect(() => {
+    if (modoAutomatico) {
+        datos.ambientes.forEach(ambiente => {
+            const circuitosEnAmbiente = datos.circuitosCalculados.filter(c => c.ambientesIds.includes(ambiente.id));
+            
+            circuitosEnAmbiente.forEach(circuito => {
+                const tipoTomas = circuito.tipo === 'iluminacion_usos_generales' ? 'IUG' : 'TUG';
+                const valorMinimo = ambiente[tipoTomas === 'IUG' ? 'puntosIUG' : 'puntosTUG'] || 0;
+                
+                if ((datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.[tipoTomas] ?? 0) !== valorMinimo) {
+                    updateTomas(ambiente.id, circuito.id, tipoTomas, valorMinimo);
+                }
+            });
+        });
+        setModoAutomatico(false);
+    }
+  }, [modoAutomatico]);
 
   const toggleAmbienteEnCircuito = (ambiente: Ambiente, circuitoId: string) => {
     const nuevosCircuitos = datos.circuitosCalculados.map(c => {
@@ -42,30 +61,20 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
       onChange({ ...project, datosVivienda: { ...datos, tomasPorAmbiente: nuevasTomas } });
   };
 
-  // Lógica de autocompletado
-  useEffect(() => {
-    datos.ambientes.forEach(ambiente => {
-        if (modoAutomatico[ambiente.id]) {
-            const circuitosEnAmbiente = datos.circuitosCalculados.filter(c => c.ambientesIds.includes(ambiente.id));
-            
-            circuitosEnAmbiente.forEach(circuito => {
-                const tipoTomas = circuito.tipo === 'iluminacion_usos_generales' ? 'IUG' : 'TUG';
-                const valorMinimo = ambiente[tipoTomas === 'IUG' ? 'puntosIUG' : 'puntosTUG'] || 0;
-                
-                if ((datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.[tipoTomas] ?? 0) !== valorMinimo) {
-                    updateTomas(ambiente.id, circuito.id, tipoTomas, valorMinimo);
-                }
-            });
-        }
-    });
-  }, [modoAutomatico, datos.ambientes, datos.circuitosCalculados]);
-
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-8">
       
       {/* 1. Resumen Superior */}
       <div className="bg-slate-900 p-5 rounded-lg border border-slate-700">
-        <h3 className="text-sm font-bold text-slate-400 mb-4 uppercase tracking-wider">Carga de Circuitos (Máx 15 por circuito)</h3>
+        <div className="flex justify-between items-center mb-4">
+            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Carga de Circuitos (Máx 15 por circuito)</h3>
+            <button 
+                onClick={() => setModoAutomatico(true)}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-full"
+            >
+                Auto-completar Tomas (Norma)
+            </button>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {datos.circuitosCalculados.map(c => {
                 const tomasPorAmbiente = datos.tomasPorAmbiente || {};
@@ -104,16 +113,10 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
             <div key={ambiente.id} className="bg-slate-950/50 p-4 rounded-lg border border-slate-800 space-y-4">
                 <div className="flex justify-between items-center">
                     <h3 className="text-md font-semibold text-white">{ambiente.nombre}</h3>
-                    <div className="flex items-center gap-4">
-                        <label className="flex items-center gap-2 text-[10px] text-slate-400 cursor-pointer">
-                            <input type="checkbox" checked={modoAutomatico[ambiente.id] || false} onChange={() => setModoAutomatico(prev => ({ ...prev, [ambiente.id]: !prev[ambiente.id] }))} />
-                            Modo Automático
-                        </label>
-                        <div className="flex gap-4 text-[10px] font-bold bg-slate-900 p-2 rounded border border-slate-800">
-                            <span className={asignadoIUG >= ambiente.puntosIUG ? 'text-emerald-400' : 'text-amber-400'}>IUG: {asignadoIUG}/{ambiente.puntosIUG}</span>
-                            <span className={asignadoTUG >= ambiente.puntosTUG ? 'text-emerald-400' : 'text-amber-400'}>TUG: {asignadoTUG}/{ambiente.puntosTUG}</span>
-                            <span className={asignadoTUE >= ambiente.puntosTUE ? 'text-emerald-400' : 'text-amber-400'}>TUE: {asignadoTUE}/{ambiente.puntosTUE}</span>
-                        </div>
+                    <div className="flex gap-4 text-[10px] font-bold bg-slate-900 p-2 rounded border border-slate-800">
+                        <span className={asignadoIUG >= ambiente.puntosIUG ? 'text-emerald-400' : 'text-amber-400'}>IUG: {asignadoIUG}/{ambiente.puntosIUG}</span>
+                        <span className={asignadoTUG >= ambiente.puntosTUG ? 'text-emerald-400' : 'text-amber-400'}>TUG: {asignadoTUG}/{ambiente.puntosTUG}</span>
+                        <span className={asignadoTUE >= ambiente.puntosTUE ? 'text-emerald-400' : 'text-amber-400'}>TUE: {asignadoTUE}/{ambiente.puntosTUE}</span>
                     </div>
                 </div>
                 
@@ -143,7 +146,6 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                             {circuito.tipo === 'iluminacion_usos_generales' && (
                                 <div className="flex items-center">
                                     <input type="number" placeholder="IUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
-                                        disabled={modoAutomatico[ambiente.id]}
                                         value={datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.IUG ?? 0}
                                         onChange={(e) => updateTomas(ambiente.id, circuito.id, 'IUG', Math.max(parseInt(e.target.value) || 0, ambiente.puntosIUG))} />
                                     <button 
@@ -155,7 +157,6 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                             {(circuito.tipo === 'tomacorrientes_usos_generales') && (
                                 <div className="flex items-center">
                                     <input type="number" placeholder="TUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
-                                        disabled={modoAutomatico[ambiente.id]}
                                         value={datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.TUG ?? 0}
                                         onChange={(e) => updateTomas(ambiente.id, circuito.id, 'TUG', Math.max(parseInt(e.target.value) || 0, ambiente.puntosTUG))} />
                                     <button 
