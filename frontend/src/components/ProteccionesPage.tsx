@@ -119,9 +119,6 @@ export const ProteccionesPage = () => {
                   <h4 className="text-white font-medium flex items-center gap-2">
                     <Layout size={16} /> {tablero.nombre}
                   </h4>
-                  <span className="text-xs text-[var(--accent)] bg-slate-800 px-2 py-1 rounded">
-                    In Estimada: {corrienteTotal.toFixed(2)} A
-                  </span>
                 </div>
                 
                 <div className="grid grid-cols-1 gap-4 mb-4">
@@ -184,7 +181,7 @@ export const ProteccionesPage = () => {
              </button>
           </div>
           
-          {protecciones.map((p: any) => (
+          {(protecciones || []).map((p: any) => (
             <div key={p.id} className="bg-[var(--bg-secondary)] p-3 rounded-lg border border-slate-800 flex justify-between items-center">
               <div>
                 <p className="text-white text-sm">{p.modelo}</p>
