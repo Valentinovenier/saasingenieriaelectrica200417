@@ -55,6 +55,15 @@ export const ProteccionesPage = () => {
     });
   };
 
+  const handleUpdateTablero = async (tableroId: string, updates: any) => {
+    if (datosVivienda) {
+        const nuevosTableros = tablerosVivienda.map((t: any) => t.id === tableroId ? { ...t, ...updates } : t);
+        const newProject = { ...project, datosVivienda: { ...datosVivienda, tableros: nuevosTableros } };
+        setProject(newProject);
+        await saveProject(newProject);
+    }
+  };
+
   const handleUpdateCircuito = async (circuitoId: string, updates: any) => {
     if (datosVivienda) {
         const nuevosCircuitos = circuitosVivienda.map((c: any) => c.id === circuitoId ? { ...c, ...updates } : c);
@@ -97,16 +106,27 @@ export const ProteccionesPage = () => {
                 <h4 className="text-white font-medium mb-4 flex items-center gap-2">
                     <Layout size={16} /> {tablero.nombre}
                 </h4>
+                
+                <div className="grid grid-cols-1 gap-4 mb-4">
+                  <AsignacionProteccion 
+                    label="Protección General (Cabecera)"
+                    proteccion={tablero.proteccionCabecera}
+                    disponibles={protecciones}
+                    onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
+                  />
+                  <AsignacionProteccion 
+                    label="Protección Diferencial"
+                    proteccion={tablero.proteccionDiferencial}
+                    disponibles={protecciones}
+                    onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
+                  />
+                </div>
+
                 <div className="space-y-3">
                   {circuitosAsignados.map((circuito: any) => {
                     const iNominal = calcularCorrienteCircuito(circuito);
                     return (
                       <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                        <ProteccionesRecomendadas
-                            label={`Circuito ${circuito.nombre}`}
-                            corrienteNominal={iNominal}
-                            ikKa={project.tableroPrincipal?.corrienteCortocircuitoIk}
-                        />
                         <p className="text-sm text-white mb-2">{circuito.nombre} ({iNominal.toFixed(2)} A)</p>
                         <AsignacionProteccion 
                           label="Asignar Protección"
@@ -114,6 +134,11 @@ export const ProteccionesPage = () => {
                           disponibles={protecciones}
                           onChange={(p) => handleUpdateCircuito(circuito.id, { proteccion: p })}
                         />
+                        {circuito.proteccion && (
+                            <div className="mt-2 p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
+                                Asignado: {circuito.proteccion.modelo} - {circuito.proteccion.in_amp}A
+                            </div>
+                        )}
                       </div>
                     );
                   })}
