@@ -124,12 +124,31 @@ export const ProteccionesPage = () => {
         <Zap className="text-[var(--accent)]" />
         Gestión de Protecciones por Tablero
       </h2>
+      
+      {/* Resumen de corrientes nominales */}
+      <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[project.tableroPrincipal, ...(project.tableroPrincipal.subTableros || [])].map((tablero) => (
+            <div key={tablero.id} className="text-xs">
+                <p className="text-slate-400 font-bold mb-1">{tablero.nombre}</p>
+                <p className="text-emerald-500 font-bold">{getTableroNominalCurrent(tablero, project).toFixed(2)} A</p>
+                <div className="mt-2 space-y-1">
+                    {tablero.circuitosTerminales?.map(c => (
+                        <div key={c.id} className="flex justify-between text-slate-500">
+                            <span>{c.nombre}</span>
+                            <span>{getCircuitoNominalCurrent(c, project).toFixed(2)} A</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        ))}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Lista de Tableros */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white">Tableros</h3>
-          {[project.tableroPrincipal, ...(project.tableros || [])].map((tablero) => {
+          {[project.tableroPrincipal, ...(project.tableroPrincipal.subTableros || [])].map((tablero) => {
+            console.log('Depurando tablero:', tablero.nombre, 'Circuitos:', tablero.circuitosTerminales);
             const potenciaTotal = calcularPotenciaTotal(tablero);
             const corrienteEstimada = calcularCorriente(potenciaTotal);
             
