@@ -66,7 +66,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                         if (!nuevasTomas[ambiente.id]) nuevasTomas[ambiente.id] = {};
                         if (!nuevasTomas[ambiente.id][circuito.id]) nuevasTomas[ambiente.id][circuito.id] = { IUG: 0, TUG: 0, TUE: 0 };
                         
-                        nuevasTomas[ambiente.id][circuito.id][tipo] = (nuevasTomas[ambiente.id][circuito.id][tipo] || 0) + aAsignar;
+                        nuevasTomas[ambiente.id][circuito.id][tipo] = aAsignar;
                         puntosRestantes -= aAsignar;
                     }
                 });
