@@ -111,11 +111,18 @@ export const ProteccionesPage = () => {
           <h3 className="text-lg font-semibold text-white">Tableros</h3>
           {tablerosVivienda.map((tablero: any) => {
             const circuitosAsignados = circuitosVivienda.filter((c: any) => tablero.circuitosIds.includes(c.id));
+            const corrienteTotal = circuitosAsignados.reduce((sum: number, c: any) => sum + calcularCorrienteCircuito(c), 0);
+            
             return (
               <div key={tablero.id} className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700">
-                <h4 className="text-white font-medium mb-4 flex items-center gap-2">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-white font-medium flex items-center gap-2">
                     <Layout size={16} /> {tablero.nombre}
-                </h4>
+                  </h4>
+                  <span className="text-xs text-[var(--accent)] bg-slate-800 px-2 py-1 rounded">
+                    In Estimada: {corrienteTotal.toFixed(2)} A
+                  </span>
+                </div>
                 
                 <div className="grid grid-cols-1 gap-4 mb-4">
                   <AsignacionProteccion 
