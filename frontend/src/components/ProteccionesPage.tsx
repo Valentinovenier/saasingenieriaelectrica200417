@@ -124,12 +124,22 @@ export const ProteccionesPage = () => {
                     disponibles={protecciones}
                     onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
                   />
+                  {tablero.proteccionCabecera && (
+                      <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
+                          Asignado: {tablero.proteccionCabecera.modelo}
+                      </div>
+                  )}
                   <AsignacionProteccion 
                     label="Protección Diferencial"
                     proteccion={tablero.proteccionDiferencial}
                     disponibles={protecciones}
                     onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
                   />
+                  {tablero.proteccionDiferencial && (
+                      <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
+                          Asignado: {tablero.proteccionDiferencial.modelo}
+                      </div>
+                  )}
                 </div>
 
                 <div className="space-y-3">
