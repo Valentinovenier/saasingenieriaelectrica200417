@@ -144,13 +144,6 @@ export const ProteccionesPage = () => {
                   </span>
                 </div>
                 
-                <ProteccionesRecomendadas 
-                    label={`Tablero ${tablero.nombre}`}
-                    corrienteNominal={getTableroNominalCurrent(tablero, project)}
-                    ikKa={isTablero(tablero) ? tablero.corrienteCortocircuitoIk : project.tableroPrincipal?.corrienteCortocircuitoIk}
-                    energiaPasanteAdmisible={calcularEnergiaPasanteAdmisible(getConductorFromNode(tablero, project))}
-                />
-
                 <div className="mt-4 space-y-4">
                   <div className="grid grid-cols-1 gap-4">
                       <AsignacionProteccion 

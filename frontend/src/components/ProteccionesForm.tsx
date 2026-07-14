@@ -43,8 +43,10 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
     }));
   };
 
+  const isCompacto = formData.in_amp <= 32;
+
   const computeEnergiaPasante = () => {
-    if (formData.tipo_interruptor === 'compacto' && formData.in_amp <= 32) {
+    if (isCompacto) {
       const energia = obtenerEnergiaPasanteInterruptor(formData.in_amp, 2, formData.curva_disparo as any);
       return energia ?? null;
     }
@@ -55,7 +57,11 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
     setSaving(true);
     try {
       const energia = computeEnergiaPasante();
-      const payload = { ...formData, energia_pasante: energia };
+      const payload = { 
+        ...formData, 
+        energia_pasante: energia,
+        tipo_interruptor: isCompacto ? 'compacto' : 'abierto'
+      };
       await onSave(payload);
     } catch (error) {
       console.error('Error al guardar:', error);
@@ -107,17 +113,10 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
               <option value="D">Curva D</option>
             </select>
           </div>
-          <div className="space-y-2 col-span-2">
-            <label className="text-sm font-medium text-[var(--text-secondary)]">Tipo de Interruptor</label>
-            <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.tipo_interruptor} onChange={e => setFormData({ ...formData, tipo_interruptor: e.target.value })}>
-              <option value="compacto">Compacto (hasta 32 A) - calcula energia pasante automaticamente</option>
-              <option value="abierto">Abierto (mayor a 32 A) - ingresar energia pasante manualmente</option>
-            </select>
-          </div>
-          {formData.tipo_interruptor === 'abierto' && (
+          {!isCompacto && (
             <div className="space-y-2 col-span-2 bg-amber-900/20 border border-amber-600/40 rounded-xl p-4">
-              <label className="text-sm font-medium text-amber-300">Energia Pasante del Interruptor (MA2s)</label>
-              <p className="text-xs text-slate-400 mb-2">El interruptor es mayor a 32 A. Ingrese la energia pasante segun la hoja de datos del fabricante.</p>
+              <label className="text-sm font-medium text-amber-300">Energia Pasante (MA2s) - Entrada Manual</label>
+              <p className="text-xs text-slate-400 mb-2">La corriente nominal es mayor a 32 A. Ingrese la energia pasante segun la hoja de datos del fabricante.</p>
               <input type="number" step="0.01" min="0" className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-amber-600/40 focus:border-amber-400 outline-none" value={formData.energia_pasante ?? ''} placeholder="Ej: 12.34" onChange={e => setFormData({ ...formData, energia_pasante: e.target.value ? Number(e.target.value) : null })} />
             </div>
           )}
