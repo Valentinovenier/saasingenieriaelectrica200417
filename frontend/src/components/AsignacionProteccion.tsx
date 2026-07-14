@@ -27,7 +27,10 @@ export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange,
         className="w-full bg-[var(--bg-primary)] p-2 rounded-lg text-white border border-slate-700"
         value={proteccion?.id || ''}
         onChange={(e) => {
+          console.log('ID seleccionado:', e.target.value);
+          console.log('Lista disponibles:', disponibles);
           const selected = disponibles.find(p => p.id === e.target.value);
+          console.log('Proteccion encontrada:', selected);
           onChange(selected);
         }}
       >
