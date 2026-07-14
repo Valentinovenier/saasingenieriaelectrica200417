@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { obtenerEnergiaPasanteInterruptor } from '../engine/strategies/protecciones/helpers';
 
@@ -24,7 +24,7 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
   const [saving, setSaving] = useState(false);
 
   const addCapacidad = () => {
-    setFormData(prev => ({
+    setFormData((prev: any) => ({
       ...prev,
       capacidades: [...prev.capacidades, { tension_v: 400, icn_ka: 3, clase_limitacion: 1 }]
     }));
@@ -33,13 +33,13 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
   const updateCapacidad = (index: number, field: string, value: number) => {
     const caps = [...formData.capacidades];
     caps[index] = { ...caps[index], [field]: value };
-    setFormData(prev => ({ ...prev, capacidades: caps }));
+    setFormData((prev: any) => ({ ...prev, capacidades: caps }));
   };
 
   const removeCapacidad = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev: any) => ({
       ...prev,
-      capacidades: prev.capacidades.filter((_, i) => i !== index)
+      capacidades: prev.capacidades.filter((_: any, i: number) => i !== index)
     }));
   };
 
@@ -130,7 +130,7 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
           <div className="w-8"></div>
         </div>
         <div className="space-y-3">
-          {formData.capacidades.map((cap, i) => (
+          {formData.capacidades.map((cap: any, i: number) => (
             <div key={i} className="grid grid-cols-[1fr,1fr,1fr,auto] gap-3 items-center bg-[var(--bg-primary)] p-3 rounded-lg border border-slate-700">
               <select className="bg-[var(--bg-secondary)] text-white p-2 rounded text-sm border border-slate-700" value={cap.tension_v} onChange={e => updateCapacidad(i, 'tension_v', Number(e.target.value))}>
                 <option value={230}>230 V</option>
