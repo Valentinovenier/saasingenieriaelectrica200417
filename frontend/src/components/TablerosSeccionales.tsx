@@ -77,6 +77,28 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
           <Server size={22} className="text-[var(--accent)]" />
           <h2 className="text-2xl font-bold text-white">Tableros</h2>
         </div>
+        
+        {/* Input Ik TGBT */}
+        <div className="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700">
+            <span className="text-xs font-semibold text-slate-400">Ik TGBT (kA)</span>
+            <input 
+                type="number"
+                step="0.01"
+                className="w-20 bg-slate-950 text-white text-xs p-1 rounded text-center border border-slate-700"
+                value={(project.tableroPrincipal as any)?.corrienteCortocircuitoIk || ''}
+                onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    onChange({ 
+                        ...project, 
+                        tableroPrincipal: { 
+                            ...(project.tableroPrincipal || {}), 
+                            corrienteCortocircuitoIk: val 
+                        } as any
+                    });
+                }}
+            />
+        </div>
+
         <div className="flex gap-2">
             <button
                 onClick={agregar}

@@ -7,6 +7,7 @@ import { AsignacionProteccion } from './AsignacionProteccion';
 import { ProteccionesRecomendadas } from './ProteccionesRecomendadas';
 import { getTableroNominalCurrent, getCircuitoNominalCurrent } from '../engine/strategies/vivienda/corriente';
 import { isTablero } from '../types/project';
+import { getConductorFromNode, calcularEnergiaPasanteAdmisible } from '../engine/strategies/protecciones/helpers';
 
 export const ProteccionesPage = () => {
   const { isAuthenticated } = useAuth();
@@ -146,7 +147,8 @@ export const ProteccionesPage = () => {
                 <ProteccionesRecomendadas 
                     label={`Tablero ${tablero.nombre}`}
                     corrienteNominal={getTableroNominalCurrent(tablero, project)}
-                    ikKa={isTablero(tablero) ? tablero.corrienteCortocircuitoIk : project.tableroPrincipal.corrienteCortocircuitoIk}
+                    ikKa={isTablero(tablero) ? tablero.corrienteCortocircuitoIk : project.tableroPrincipal?.corrienteCortocircuitoIk}
+                    energiaPasanteAdmisible={calcularEnergiaPasanteAdmisible(getConductorFromNode(tablero, project))}
                 />
 
                 <div className="mt-4 space-y-4">
@@ -176,7 +178,8 @@ export const ProteccionesPage = () => {
                             <ProteccionesRecomendadas
                                 label={`Circuito ${circuito.nombre}`}
                                 corrienteNominal={getCircuitoNominalCurrent(circuito, project)}
-                                ikKa={project.tableroPrincipal.corrienteCortocircuitoIk}
+                                ikKa={project.tableroPrincipal?.corrienteCortocircuitoIk}
+                                energiaPasanteAdmisible={calcularEnergiaPasanteAdmisible(getConductorFromNode(circuito, project))}
                             />
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-sm text-white font-medium">{circuito.nombre}</span>
