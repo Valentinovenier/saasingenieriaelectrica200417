@@ -17,6 +17,18 @@ export const ProteccionesPage = () => {
   const tablerosVivienda = datosVivienda?.tableros || [];
   const circuitosVivienda = datosVivienda?.circuitosCalculados || [];
 
+  const obtenerPotenciaCircuito = (c: any) => {
+    switch (c.tipo) {
+        case 'iluminacion_usos_generales': return c.tieneTomacorrientesDerivados ? 2200 : (2 / 3) * (c.puntosIUG || 0) * 60;
+        case 'tomacorrientes_usos_generales': return 2200;
+        case 'usos_especiales': return 3300;
+        case 'usos_especificos': return c.potenciaManual || 0;
+        default: return 2200;
+    }
+  };
+
+  const calcularCorrienteCircuito = (c: any) => obtenerPotenciaCircuito(c) / 220;
+
   const fetchProtecciones = () => {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -25,55 +37,6 @@ export const ProteccionesPage = () => {
       .then((data) => setProtecciones(data))
       .catch((err) => console.error('Error fetching protecciones:', err));
   };
-
-  useEffect(() => {
-    fetchProtecciones();
-  }, []);
-
-  if (!project) return <div className="text-white p-6">Por favor, selecciona un proyecto.</div>;
-
-  const handleSave = async (data: any) => {
-    const token = localStorage.getItem('token');
-    const method = editingProteccion ? 'PUT' : 'POST';
-    const payload = editingProteccion ? { ...data, id: editingProteccion.id } : data;
-    await fetch('/api/guardar-proteccion', {
-      method: method,
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify(payload)
-    });
-    setShowForm(false);
-    setEditingProteccion(null);
-    fetchProtecciones();
-  };
-
-  const saveProject = async (updatedProject: any) => {
-    const token = localStorage.getItem('token');
-    await fetch(`/api/projects`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ id: updatedProject.id, name: updatedProject.name, data: updatedProject })
-    });
-  };
-
-  const handleUpdateTablero = async (tableroId: string, updates: any) => {
-    if (datosVivienda) {
-        const nuevosTableros = tablerosVivienda.map((t: any) => t.id === tableroId ? { ...t, ...updates } : t);
-        const newProject = { ...project, datosVivienda: { ...datosVivienda, tableros: nuevosTableros } };
-        setProject(newProject);
-        await saveProject(newProject);
-    }
-  };
-
-  const handleUpdateCircuito = async (circuitoId: string, updates: any) => {
-    if (datosVivienda) {
-        const nuevosCircuitos = circuitosVivienda.map((c: any) => c.id === circuitoId ? { ...c, ...updates } : c);
-        const newProject = { ...project, datosVivienda: { ...datosVivienda, circuitosCalculados: nuevosCircuitos } };
-        setProject(newProject);
-        await saveProject(newProject);
-    }
-  };
-
-  const calcularCorrienteCircuito = (c: any) => (c.potencia || 2200) / 220;
 
   return (
     <div className="p-6">
