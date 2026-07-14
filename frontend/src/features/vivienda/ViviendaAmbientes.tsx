@@ -53,9 +53,26 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
     onChange({ ...project, datosVivienda: { ...datos, ambientes: datos.ambientes.filter(amb => amb.id !== id) } });
   };
 
+  const autocompletarMinimos = () => {
+      const nuevosAmbientes = datos.ambientes.map(a => {
+        if (a.nombre.toLowerCase().includes('otro')) return a;
+        const pmu = calcularPuntosMinimosAmbiente(a.nombre, a.superficie, a.longitud);
+        return { ...a, puntosIUG: pmu.iug, puntosTUG: pmu.tug };
+      });
+      onChange({ ...project, datosVivienda: { ...datos, ambientes: nuevosAmbientes } });
+  };
+
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-4">
-      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Ambientes (Requerimientos AEA 770)</h2>
+      <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+        <h2 className="text-xl font-bold text-white">Ambientes (Requerimientos AEA 770)</h2>
+        <button 
+            onClick={autocompletarMinimos}
+            className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-full"
+        >
+            Autocompletar mínimos
+        </button>
+      </div>
       
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
         {TIPOS_AMBIENTES.map(tipo => (

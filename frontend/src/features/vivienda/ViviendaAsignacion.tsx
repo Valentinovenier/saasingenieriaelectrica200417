@@ -107,12 +107,6 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
       <div className="bg-slate-900 p-5 rounded-lg border border-slate-700">
         <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Carga de Circuitos (Máx 15 por circuito)</h3>
-            <button 
-                onClick={() => setModoAutomatico(true)}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-full"
-            >
-                Auto-completar Circuitos y Tomas (Norma)
-            </button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {datos.circuitosCalculados.map(c => {
