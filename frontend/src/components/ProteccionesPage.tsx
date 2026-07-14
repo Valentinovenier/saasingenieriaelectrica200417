@@ -38,6 +38,53 @@ export const ProteccionesPage = () => {
       .catch((err) => console.error('Error fetching protecciones:', err));
   };
 
+  useEffect(() => {
+    fetchProtecciones();
+  }, []);
+
+  if (!project) return <div className="text-white p-6">Por favor, selecciona un proyecto.</div>;
+
+  const handleSave = async (data: any) => {
+    const token = localStorage.getItem('token');
+    const method = editingProteccion ? 'PUT' : 'POST';
+    const payload = editingProteccion ? { ...data, id: editingProteccion.id } : data;
+    await fetch('/api/guardar-proteccion', {
+      method: method,
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    });
+    setShowForm(false);
+    setEditingProteccion(null);
+    fetchProtecciones();
+  };
+
+  const saveProject = async (updatedProject: any) => {
+    const token = localStorage.getItem('token');
+    await fetch(`/api/projects`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ id: updatedProject.id, name: updatedProject.name, data: updatedProject })
+    });
+  };
+
+  const handleUpdateTablero = async (tableroId: string, updates: any) => {
+    if (datosVivienda) {
+        const nuevosTableros = tablerosVivienda.map((t: any) => t.id === tableroId ? { ...t, ...updates } : t);
+        const newProject = { ...project, datosVivienda: { ...datosVivienda, tableros: nuevosTableros } };
+        setProject(newProject);
+        await saveProject(newProject);
+    }
+  };
+
+  const handleUpdateCircuito = async (circuitoId: string, updates: any) => {
+    if (datosVivienda) {
+        const nuevosCircuitos = circuitosVivienda.map((c: any) => c.id === circuitoId ? { ...c, ...updates } : c);
+        const newProject = { ...project, datosVivienda: { ...datosVivienda, circuitosCalculados: nuevosCircuitos } };
+        setProject(newProject);
+        await saveProject(newProject);
+    }
+  };
+
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
