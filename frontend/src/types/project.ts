@@ -104,12 +104,12 @@ export interface BaseTablero {
   proteccionCabecera?: Proteccion; // Opcional para todos
   proteccionDiferencial?: Proteccion; // Nueva: Opcional
   proteccionesSalida: Proteccion[]; // Lista uniforme para todos
-  corrienteCortocircuitoIk?: number;
 }
 
 export interface Tablero extends BaseTablero {
   conductorAlimentacion: Conductor;
   // proteccionCabecera es obligatoria aquí (heredada de BaseTablero)
+  corrienteCortocircuitoIk?: number;
 }
 
 export interface TableroSeccional extends BaseTablero {

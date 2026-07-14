@@ -141,23 +141,11 @@ export const ProteccionesPage = () => {
                     In Estimada: {corrienteEstimada.toFixed(2)} A
                   </span>
                 </div>
-                {tablero.id === project.tableroPrincipal.id && (
-                  <div className="mb-4 bg-slate-800 p-3 rounded-lg border border-slate-700">
-                      <label className="text-xs text-slate-400 block mb-1">Ik Bornes Principal (kA):</label>
-                      <input
-                          type="number"
-                          placeholder="0"
-                          value={tablero.corrienteCortocircuitoIk || ''}
-                          onChange={(e) => handleUpdateTablero(tablero.id, { corrienteCortocircuitoIk: parseFloat(e.target.value) || 0 })}
-                          className="w-full bg-slate-950 p-2 rounded border border-slate-700 text-white text-sm"
-                      />
-                  </div>
-                )}
                 
                 <ProteccionesRecomendadas 
                     label={`Tablero ${tablero.nombre}`}
                     corrienteNominal={getTableroNominalCurrent(tablero, project)}
-                    ikKa={project.tableroPrincipal.corrienteCortocircuitoIk}
+                    ikKa={tablero.id === project.tableroPrincipal.id ? tablero.corrienteCortocircuitoIk : project.tableroPrincipal.corrienteCortocircuitoIk}
                 />
 
                 <div className="mt-4 space-y-4">

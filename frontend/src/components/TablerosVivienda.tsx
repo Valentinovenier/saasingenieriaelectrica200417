@@ -115,6 +115,22 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
                 </button>
             )}
             
+            {/* Input Ik para Principal */}
+            {tablero.tipo === 'Principal' && (
+                <div className="w-32">
+                    <input 
+                      type="number"
+                      placeholder="Ik (kA)"
+                      className="w-full bg-slate-950 p-1 rounded border border-slate-700 text-white text-xs text-center"
+                      value={(project.tableroPrincipal as any).corrienteCortocircuitoIk || ''}
+                      onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          onChange({ ...project, tableroPrincipal: { ...project.tableroPrincipal, corrienteCortocircuitoIk: val } });
+                      }}
+                    />
+                </div>
+            )}
+            
             {/* Botón de eliminar (solo seccionales/sub-seccionales) */}
             {tablero.tipo !== 'Principal' && (
                 <button 
