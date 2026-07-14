@@ -1,5 +1,6 @@
 import { Project } from '../../types/project';
 import { Ambiente, CircuitoCalculado, TipoCircuito, TomasCircuito } from '../../types/vivienda';
+import { calcularPuntosMinimosAmbiente } from '../../engine/strategies/vivienda/normas770';
 import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
