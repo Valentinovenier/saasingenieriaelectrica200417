@@ -17,4 +17,5 @@ export interface InterruptorAutomáticoCompacto {
   In: number;          // Corriente nominal (A)
   Icu: number;         // Poder de corte último (kA)
   Icm?: number;        // Poder de cierre nominal (kA)
+  claseLimitacionEnergia?: number; // 1, 2 o 3
 }

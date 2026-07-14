@@ -145,7 +145,7 @@ export const ProteccionesPage = () => {
                 <ProteccionesRecomendadas 
                     label={`Tablero ${tablero.nombre}`}
                     corrienteNominal={getTableroNominalCurrent(tablero, project)}
-                    ikKa={tablero.id === project.tableroPrincipal.id ? tablero.corrienteCortocircuitoIk : project.tableroPrincipal.corrienteCortocircuitoIk}
+                    ikKa={isTablero(tablero) ? tablero.corrienteCortocircuitoIk : project.tableroPrincipal.corrienteCortocircuitoIk}
                 />
 
                 <div className="mt-4 space-y-4">
