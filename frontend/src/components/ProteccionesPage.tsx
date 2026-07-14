@@ -1,61 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Zap, Trash2, Pencil, Layout } from 'lucide-react';
+import { Plus, Zap, Pencil, Layout } from 'lucide-react';
 import { ProteccionesForm } from './ProteccionesForm';
 import { useAuth } from '../context/AuthContext';
 import { useProject } from '../context/ProjectDataContext';
 import { AsignacionProteccion } from './AsignacionProteccion';
 import { ProteccionesRecomendadas } from './ProteccionesRecomendadas';
-import { getTableroNominalCurrent, getCircuitoNominalCurrent } from '../engine/strategies/vivienda/corriente';
-import { isTablero } from '../types/project';
-import { getConductorFromNode, calcularEnergiaPasanteAdmisible } from '../engine/strategies/protecciones/helpers';
 
 export const ProteccionesPage = () => {
   const { isAuthenticated } = useAuth();
   const { state: project, setState: setProject } = useProject();
   const [protecciones, setProtecciones] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProteccion, setEditingProteccion] = useState<any>(null);
+
+  const datosVivienda = project?.datosVivienda;
+  const tablerosVivienda = datosVivienda?.tableros || [];
+  const circuitosVivienda = datosVivienda?.circuitosCalculados || [];
 
   const fetchProtecciones = () => {
     const token = localStorage.getItem('token');
     if (!token) return;
-
-    setLoading(true);
-    fetch('/api/guardar-proteccion', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
+    fetch('/api/guardar-proteccion', { headers: { 'Authorization': `Bearer ${token}` } })
       .then((res) => res.json())
-      .then((data) => {
-        setProtecciones(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Error fetching protecciones:', err);
-        setLoading(false);
-      });
+      .then((data) => setProtecciones(data))
+      .catch((err) => console.error('Error fetching protecciones:', err));
   };
 
   useEffect(() => {
     fetchProtecciones();
   }, []);
 
-  if (!project) return <div className="text-white p-6">Por favor, selecciona un proyecto para gestionar protecciones.</div>;
+  if (!project) return <div className="text-white p-6">Por favor, selecciona un proyecto.</div>;
 
   const handleSave = async (data: any) => {
     const token = localStorage.getItem('token');
     const method = editingProteccion ? 'PUT' : 'POST';
     const payload = editingProteccion ? { ...data, id: editingProteccion.id } : data;
-
     await fetch('/api/guardar-proteccion', {
       method: method,
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` 
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(payload)
     });
-    
     setShowForm(false);
     setEditingProteccion(null);
     fetchProtecciones();
@@ -63,60 +48,23 @@ export const ProteccionesPage = () => {
 
   const saveProject = async (updatedProject: any) => {
     const token = localStorage.getItem('token');
-    try {
-      const response = await fetch(`/api/projects`, {
-        method: 'PUT', // Cambiado a PUT para actualizar en lugar de crear un nuevo registro
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          id: updatedProject.id,
-          name: updatedProject.name,
-          data: updatedProject
-        })
-      });
+    await fetch(`/api/projects`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ id: updatedProject.id, name: updatedProject.name, data: updatedProject })
+    });
+  };
 
-      if (!response.ok) {
-        if (response.status === 401) {
-            localStorage.removeItem('token');
-            window.location.reload();
-        }
-        throw new Error('Error al guardar el proyecto');
-      }
-    } catch (error) {
-      console.error('Error al persistir:', error);
-      alert('No se pudieron guardar los cambios.');
+  const handleUpdateCircuito = async (circuitoId: string, updates: any) => {
+    if (datosVivienda) {
+        const nuevosCircuitos = circuitosVivienda.map((c: any) => c.id === circuitoId ? { ...c, ...updates } : c);
+        const newProject = { ...project, datosVivienda: { ...datosVivienda, circuitosCalculados: nuevosCircuitos } };
+        setProject(newProject);
+        await saveProject(newProject);
     }
   };
 
-  const handleUpdateTablero = async (tableroId: string, updates: any) => {
-    // Lógica para actualizar el tablero específico en el proyecto
-    // Asumiendo que project tiene 'tableroPrincipal' y 'tableros'
-    const newProject = { ...project };
-    if (newProject.tableroPrincipal.id === tableroId) {
-      newProject.tableroPrincipal = { ...newProject.tableroPrincipal, ...updates };
-    } else {
-      newProject.tableros = newProject.tableros?.map(t => t.id === tableroId ? { ...t, ...updates } : t);
-    }
-    
-    // Actualizamos estado local
-    setProject(newProject);
-    
-    // Persistimos en el servidor
-    await saveProject(newProject);
-  };
-
-  const calcularCorriente = (potencia: number) => {
-    const isTrifasica = project.tipoInstalacion === 'Trifásica';
-    const tension = isTrifasica ? 400 * Math.sqrt(3) : 230;
-    return potencia / tension;
-  };
-
-  const calcularPotenciaTotal = (tablero: any) => {
-    return (tablero.circuitosTerminales || []).reduce((sum: number, c: any) => sum + (c.potencia || 0), 0) + 
-           (tablero.subTableros || []).reduce((sum: number, st: any) => sum + (st.potenciaTotal || 0), 0);
-  };
+  const calcularCorrienteCircuito = (c: any) => (c.potencia || 2200) / 220;
 
   return (
     <div className="p-6">
@@ -127,102 +75,54 @@ export const ProteccionesPage = () => {
       
       {/* Resumen de corrientes nominales */}
       <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[project.tableroPrincipal, ...(project.tableroPrincipal.subTableros || [])].map((tablero) => (
-            <div key={tablero.id} className="text-xs">
-                <p className="text-slate-400 font-bold mb-1">{tablero.nombre}</p>
-                <p className="text-emerald-500 font-bold">{getTableroNominalCurrent(tablero, project).toFixed(2)} A</p>
-                <div className="mt-2 space-y-1">
-                    {tablero.circuitosTerminales?.map(c => (
-                        <div key={c.id} className="flex justify-between text-slate-500">
-                            <span>{c.nombre}</span>
-                            <span>{getCircuitoNominalCurrent(c, project).toFixed(2)} A</span>
-                        </div>
-                    ))}
+        {tablerosVivienda.map((tablero: any) => {
+            const circuitosAsignados = circuitosVivienda.filter((c: any) => tablero.circuitosIds.includes(c.id));
+            const corrienteTotal = circuitosAsignados.reduce((sum: number, c: any) => sum + calcularCorrienteCircuito(c), 0);
+            return (
+                <div key={tablero.id} className="text-xs">
+                    <p className="text-slate-400 font-bold mb-1">{tablero.nombre}</p>
+                    <p className="text-emerald-500 font-bold">{corrienteTotal.toFixed(2)} A</p>
                 </div>
-            </div>
-        ))}
+            )
+        })}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Lista de Tableros */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white">Tableros</h3>
-          {[project.tableroPrincipal, ...(project.tableroPrincipal.subTableros || [])].map((tablero) => {
-            console.log('Depurando tablero:', tablero.nombre, 'Circuitos:', tablero.circuitosTerminales);
-            const potenciaTotal = calcularPotenciaTotal(tablero);
-            const corrienteEstimada = calcularCorriente(potenciaTotal);
-            
+          {tablerosVivienda.map((tablero: any) => {
+            const circuitosAsignados = circuitosVivienda.filter((c: any) => tablero.circuitosIds.includes(c.id));
             return (
               <div key={tablero.id} className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-white font-medium flex items-center gap-2">
+                <h4 className="text-white font-medium mb-4 flex items-center gap-2">
                     <Layout size={16} /> {tablero.nombre}
-                  </h4>
-                  <span className="text-xs text-[var(--accent)] bg-slate-800 px-2 py-1 rounded">
-                    In Estimada: {corrienteEstimada.toFixed(2)} A
-                  </span>
-                </div>
-                
-                <div className="mt-4 space-y-4">
-                  <div className="grid grid-cols-1 gap-4">
-                      <AsignacionProteccion 
-                        label="Protección General (Cabecera)"
-                        proteccion={tablero.proteccionCabecera}
-                        disponibles={protecciones}
-                        onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
-                      />
-                      <AsignacionProteccion 
-                        label="Protección Diferencial"
-                        proteccion={tablero.proteccionDiferencial}
-                        disponibles={protecciones}
-                        onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
-                      />
-                  </div>
-                  
-                  <div className="border-t border-slate-700 pt-4">
-                    <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Protecciones por Circuito</label>
-                    <div className="space-y-3">
-                      {tablero.circuitosTerminales?.map((circuito) => {
-                        const corrienteNominal = calcularCorriente(circuito.potencia);
-
-                        return (
-                          <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                            <ProteccionesRecomendadas
-                                label={`Circuito ${circuito.nombre}`}
-                                corrienteNominal={getCircuitoNominalCurrent(circuito, project)}
-                                ikKa={project.tableroPrincipal?.corrienteCortocircuitoIk}
-                                energiaPasanteAdmisible={calcularEnergiaPasanteAdmisible(getConductorFromNode(circuito, project))}
-                            />
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm text-white font-medium">{circuito.nombre}</span>
-                                <span className="text-xs text-[var(--accent)] font-bold">
-                                  {corrienteNominal.toFixed(2)} A
-                                </span>
-                            </div>
-                            <AsignacionProteccion 
-                              label={`Asignar Protección (Req: ${corrienteNominal.toFixed(2)} A)`}
-                              proteccion={circuito.proteccion}
-                              disponibles={protecciones}
-                              opcional={true}
-                              onChange={(p) => {
-                                // Actualizar la protección del circuito específico
-                                const nuevosCircuitos = tablero.circuitosTerminales.map(c => 
-                                  c.id === circuito.id ? { ...c, proteccion: p! } : c
-                                );
-                                handleUpdateTablero(tablero.id, { circuitosTerminales: nuevosCircuitos });
-                              }}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                </h4>
+                <div className="space-y-3">
+                  {circuitosAsignados.map((circuito: any) => {
+                    const iNominal = calcularCorrienteCircuito(circuito);
+                    return (
+                      <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                        <ProteccionesRecomendadas
+                            label={`Circuito ${circuito.nombre}`}
+                            corrienteNominal={iNominal}
+                            ikKa={project.tableroPrincipal?.corrienteCortocircuitoIk}
+                        />
+                        <p className="text-sm text-white mb-2">{circuito.nombre} ({iNominal.toFixed(2)} A)</p>
+                        <AsignacionProteccion 
+                          label="Asignar Protección"
+                          proteccion={circuito.proteccion}
+                          disponibles={protecciones}
+                          onChange={(p) => handleUpdateCircuito(circuito.id, { proteccion: p })}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
           })}
         </div>
-
+        
         {/* Catálogo */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
