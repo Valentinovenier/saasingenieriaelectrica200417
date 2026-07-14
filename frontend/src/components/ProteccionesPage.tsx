@@ -6,6 +6,7 @@ import { useProject } from '../context/ProjectDataContext';
 import { AsignacionProteccion } from './AsignacionProteccion';
 import { ProteccionesRecomendadas } from './ProteccionesRecomendadas';
 import { getTableroNominalCurrent, getCircuitoNominalCurrent } from '../engine/strategies/vivienda/corriente';
+import { isTablero } from '../types/project';
 
 export const ProteccionesPage = () => {
   const { isAuthenticated } = useAuth();
