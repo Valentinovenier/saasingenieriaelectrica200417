@@ -1,21 +1,28 @@
-import { Project, Tablero, TableroSeccional, CircuitoTerminal } from '../../../types/project';
+import { Project, BaseTablero, CircuitoTerminal } from '../../../types/project';
 
-export const getAggregateCurrent = (node: any, currentProject: Project): number => {
-  let total = 0;
-  if (node.circuitosTerminales && Array.isArray(node.circuitosTerminales)) {
-    total += node.circuitosTerminales.reduce((acc: number, c: any) => {
-      // Usamos la potencia para la estimación en la fase de configuración
-      return acc + (c.potencia || 0) / 220; 
-    }, 0);
-  }
-  if (node.subTableros && Array.isArray(node.subTableros)) {
-    total += node.subTableros.reduce((acc: number, sub: any) => {
-      return acc + getAggregateCurrent(sub, currentProject);
-    }, 0);
-  }
-  return total;
+const getTension = (project: Project): number => {
+  const isTrifasica = project.tipoInstalacion === 'Trifásica';
+  return isTrifasica ? 400 * Math.sqrt(3) : 230;
 };
 
-export const getEffectiveCurrent = (circuito: CircuitoTerminal, currentProject: Project): number => {
-  return (circuito.potencia || 0) / 220;
+export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project): number => {
+    // Si tiene potenciaTotal definida (caso TableroSeccional), usarla
+    if ('potenciaTotal' in tablero && (tablero as any).potenciaTotal) {
+        return (tablero as any).potenciaTotal / getTension(project);
+    }
+    
+    // Caso contrario, sumar las corrientes de sus circuitos y subtableros
+    let totalPotencia = 0;
+    if (tablero.circuitosTerminales) {
+        totalPotencia += tablero.circuitosTerminales.reduce((acc, c) => acc + (c.potencia || 0), 0);
+    }
+    if (tablero.subTableros) {
+        totalPotencia += tablero.subTableros.reduce((acc, sub) => acc + ( (sub as any).potenciaTotal || 0), 0);
+    }
+    
+    return totalPotencia / getTension(project);
+};
+
+export const getCircuitoNominalCurrent = (circuito: CircuitoTerminal, project: Project): number => {
+  return (circuito.potencia || 0) / getTension(project);
 };

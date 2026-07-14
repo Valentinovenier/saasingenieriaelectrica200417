@@ -4,6 +4,8 @@ import { ProteccionesForm } from './ProteccionesForm';
 import { useAuth } from '../context/AuthContext';
 import { useProject } from '../context/ProjectDataContext';
 import { AsignacionProteccion } from './AsignacionProteccion';
+import { ProteccionesRecomendadas } from './ProteccionesRecomendadas';
+import { getTableroNominalCurrent, getCircuitoNominalCurrent } from '../engine/strategies/vivienda/corriente';
 
 export const ProteccionesPage = () => {
   const { isAuthenticated } = useAuth();
@@ -139,7 +141,27 @@ export const ProteccionesPage = () => {
                     In Estimada: {corrienteEstimada.toFixed(2)} A
                   </span>
                 </div>
+                {tablero.id === project.tableroPrincipal.id && (
+                  <div className="mb-4 bg-slate-800 p-3 rounded-lg border border-slate-700">
+                      <label className="text-xs text-slate-400 block mb-1">Ik Bornes Principal (kA):</label>
+                      <input
+                          type="number"
+                          placeholder="0"
+                          value={tablero.corrienteCortocircuitoIk || ''}
+                          onChange={(e) => handleUpdateTablero(tablero.id, { corrienteCortocircuitoIk: parseFloat(e.target.value) || 0 })}
+                          className="w-full bg-slate-950 p-2 rounded border border-slate-700 text-white text-sm"
+                      />
+                  </div>
+                )}
+                
+                <ProteccionesRecomendadas 
+                    label={`Tablero ${tablero.nombre}`}
+                    corrienteNominal={getTableroNominalCurrent(tablero, project)}
+                    ikKa={project.tableroPrincipal.corrienteCortocircuitoIk}
+                />
+
                 <div className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
                   <div className="grid grid-cols-1 gap-4">
                       <AsignacionProteccion 
                         label="Protección General (Cabecera)"
@@ -163,6 +185,11 @@ export const ProteccionesPage = () => {
 
                         return (
                           <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                            <ProteccionesRecomendadas
+                                label={`Circuito ${circuito.nombre}`}
+                                corrienteNominal={getCircuitoNominalCurrent(circuito, project)}
+                                ikKa={project.tableroPrincipal.corrienteCortocircuitoIk}
+                            />
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-sm text-white font-medium">{circuito.nombre}</span>
                                 <span className="text-xs text-[var(--accent)] font-bold">
