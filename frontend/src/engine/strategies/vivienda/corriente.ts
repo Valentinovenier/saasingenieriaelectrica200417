@@ -1,4 +1,4 @@
-import { Project, BaseTablero, CircuitoTerminal } from '../../../types/project';
+import { Project, BaseTablero, CircuitoTerminal, isTablero } from '../../../types/project';
 
 const getTension = (project: Project): number => {
   const isTrifasica = project.tipoInstalacion === 'Trifásica';
@@ -6,12 +6,17 @@ const getTension = (project: Project): number => {
 };
 
 export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project): number => {
-    // Si tiene potenciaTotal definida (caso TableroSeccional), usarla
+    // 1. Si es el tablero principal, usamos la DPMS calculada para la vivienda
+    if (isTablero(tablero) && tablero.nombre.toLowerCase().includes('principal') && project.datosVivienda?.potenciaMaximaSimultanea) {
+        return project.datosVivienda.potenciaMaximaSimultanea / getTension(project);
+    }
+
+    // 2. Si tiene potenciaTotal definida (caso TableroSeccional), usarla
     if ('potenciaTotal' in tablero && (tablero as any).potenciaTotal) {
         return (tablero as any).potenciaTotal / getTension(project);
     }
     
-    // Caso contrario, sumar las corrientes de sus circuitos y subtableros
+    // 3. Caso contrario (Tableros Seccionales / Otros), sumar las potencias de sus circuitos y subtableros
     let totalPotencia = 0;
     if (tablero.circuitosTerminales) {
         totalPotencia += tablero.circuitosTerminales.reduce((acc, c) => acc + (c.potencia || 0), 0);
