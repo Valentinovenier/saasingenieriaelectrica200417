@@ -20,10 +20,43 @@ export async function onRequestOptions() {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
   });
+}
+
+export async function onRequestDelete(context) {
+  const { request, env } = context;
+  try {
+    await verifyAuth(request, env);
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id');
+
+    if (!id) {
+        return new Response(JSON.stringify({ error: 'Falta el ID de la protección' }), { 
+          status: 400, 
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+        });
+    }
+
+    // 1. Eliminar capacidades asociadas primero
+    await env.DB.prepare('DELETE FROM capacidades_corte WHERE proteccion_id = ?').bind(id).run();
+
+    // 2. Eliminar la protección
+    await env.DB.prepare('DELETE FROM protecciones WHERE id = ?').bind(id).run();
+
+    return new Response(JSON.stringify({ success: true }), { 
+      status: 200, 
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+    });
+
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: 'Error al eliminar la protección', details: e.message, stack: e.stack }), { 
+      status: 500, 
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+    });
+  }
 }
 
 export async function onRequestGet(context) {
@@ -138,4 +171,3 @@ export async function onRequestPut(context) {
     });
   }
 }
-

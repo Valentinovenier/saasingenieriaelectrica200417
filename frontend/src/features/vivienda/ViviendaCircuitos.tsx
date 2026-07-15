@@ -111,6 +111,22 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                 <p className="font-bold text-white">{c.nombre} {c.id.startsWith('auto-') && <span className="text-[10px] text-emerald-500">(Normativo)</span>}</p>
                 <p className="text-[10px] text-slate-500 uppercase">{c.tipo.replace(/_/g, ' ')}</p>
               </div>
+              {c.tipo === 'iluminacion_usos_generales' && (
+                  <label className="flex items-center gap-2 text-xs text-slate-300">
+                    <input 
+                      type="checkbox" 
+                      checked={!!c.tieneTomacorrientesDerivados}
+                      onChange={(e) => {
+                          const nuevosCircuitos = datos.circuitosCalculados.map(circ => 
+                              circ.id === c.id ? { ...circ, tieneTomacorrientesDerivados: e.target.checked } : circ
+                          );
+                          onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
+                      }}
+                      className="bg-slate-800 border-slate-700 rounded"
+                    />
+                    Tiene tomacorrientes derivados
+                  </label>
+              )}
             </div>
             {!c.id.startsWith('auto-') && (
                 <button onClick={() => removeCircuito(c.id)} className="text-red-400 p-1">

@@ -103,7 +103,7 @@ export const calcularPuntosMinimosAmbiente = (
 /**
  * AEA 770: Calcula la Potencia Instalada (PI) y la Demanda de Potencia Máxima Simultánea (DPMS)
  * 
- * Basado en Tabla 770.8.1:
+ * Basado en reglas:
  * - IUG (sin tomas derivados): (2/3) * puntos * 60 VA
  * - IUG (con tomas derivados): 2200 VA
  * - TUG (Tomacorrientes): 2200 VA
@@ -135,12 +135,12 @@ export const calcularPotencias = (circuitos: any[], grado: GradoElectrificacion)
             default:
                 potenciaCircuito = 0;
         }
-        console.log('DEBUG [circuito]:', { id: circ.id, tipo: circ.tipo, potenciaCircuito });
         potenciaTotal += potenciaCircuito;
     });
 
+    // La potencia máxima simultánea se calcula aplicando factores de simultaneidad
+    // a la potencia instalada de los circuitos terminales.
     const minimos = obtenerCircuitosMinimos(grado);
-    // Obtener factor según la tabla AEA 770.7.IV (cantidad de circuitos MÍNIMOS del grado)
     const factorSimultaneidad = (FACTORES_SIMULTANEIDAD_VIVIENDA.cantidadCircuitos as any)[minimos] || 0.6;
     
     return {
