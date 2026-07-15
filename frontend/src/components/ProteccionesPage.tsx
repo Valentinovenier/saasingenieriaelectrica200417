@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useProject } from '../context/ProjectDataContext';
 import { AsignacionProteccion } from './AsignacionProteccion';
 import { ProteccionesRecomendadas } from './ProteccionesRecomendadas';
+import { getTableroNominalCurrent, getCircuitoNominalCurrent } from '../engine/strategies/vivienda/corriente';
 
 export const ProteccionesPage = () => {
   const { isAuthenticated } = useAuth();
@@ -16,18 +17,6 @@ export const ProteccionesPage = () => {
   const datosVivienda = project?.datosVivienda;
   const tablerosVivienda = datosVivienda?.tableros || [];
   const circuitosVivienda = datosVivienda?.circuitosCalculados || [];
-
-  const obtenerPotenciaCircuito = (c: any) => {
-    switch (c.tipo) {
-        case 'iluminacion_usos_generales': return c.tieneTomacorrientesDerivados ? 2200 : (2 / 3) * (c.puntosIUG || 0) * 60;
-        case 'tomacorrientes_usos_generales': return 2200;
-        case 'usos_especiales': return 3300;
-        case 'usos_especificos': return c.potenciaManual || 0;
-        default: return 2200;
-    }
-  };
-
-  const calcularCorrienteCircuito = (c: any) => obtenerPotenciaCircuito(c) / 220;
 
   const fetchProtecciones = () => {
     const token = localStorage.getItem('token');
@@ -95,8 +84,12 @@ export const ProteccionesPage = () => {
       {/* Resumen de corrientes nominales */}
       <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         {tablerosVivienda.map((tablero: any) => {
-            const circuitosAsignados = circuitosVivienda.filter((c: any) => tablero.circuitosIds.includes(c.id));
-            const corrienteTotal = circuitosAsignados.reduce((sum: number, c: any) => sum + calcularCorrienteCircuito(c), 0);
+            const baseTablero = {
+                ...tablero,
+                circuitosTerminales: circuitosVivienda.filter((c: any) => tablero.circuitosIds.includes(c.id)),
+                proteccionesSalida: []
+            };
+            const corrienteTotal = getTableroNominalCurrent(baseTablero, project);
             return (
                 <div key={tablero.id} className="text-xs">
                     <p className="text-slate-400 font-bold mb-1">{tablero.nombre}</p>
@@ -110,14 +103,18 @@ export const ProteccionesPage = () => {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white">Tableros</h3>
           {tablerosVivienda.map((tablero: any) => {
-            const circuitosAsignados = circuitosVivienda.filter((c: any) => tablero.circuitosIds.includes(c.id));
-            const corrienteTotal = circuitosAsignados.reduce((sum: number, c: any) => sum + calcularCorrienteCircuito(c), 0);
+            const baseTablero = {
+                ...tablero,
+                circuitosTerminales: circuitosVivienda.filter((c: any) => tablero.circuitosIds.includes(c.id)),
+                proteccionesSalida: []
+            };
+            const corrienteTotal = getTableroNominalCurrent(baseTablero, project);
             
             return (
               <div key={tablero.id} className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700">
                 <div className="flex justify-between items-center mb-4">
                   <h4 className="text-white font-medium flex items-center gap-2">
-                    <Layout size={16} /> {tablero.nombre}
+                    <Layout size={16} /> {tablero.nombre} ({corrienteTotal.toFixed(2)} A)
                   </h4>
                 </div>
                 
@@ -147,8 +144,8 @@ export const ProteccionesPage = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {circuitosAsignados.map((circuito: any) => {
-                    const iNominal = calcularCorrienteCircuito(circuito);
+                  {baseTablero.circuitosTerminales.map((circuito: any) => {
+                    const iNominal = getCircuitoNominalCurrent(circuito, project);
                     return (
                       <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
                         <p className="text-sm text-white mb-2">{circuito.nombre} ({iNominal.toFixed(2)} A)</p>
