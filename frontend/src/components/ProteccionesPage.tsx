@@ -47,6 +47,15 @@ export const ProteccionesPage = () => {
     fetchProtecciones();
   };
 
+  const handleDeleteProteccion = async (id: string) => {
+    const token = localStorage.getItem('token');
+    await fetch(`/api/guardar-proteccion?id=${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    fetchProtecciones();
+  };
+
   const saveProject = async (updatedProject: any) => {
     const token = localStorage.getItem('token');
     await fetch(`/api/projects`, {
@@ -203,7 +212,8 @@ export const ProteccionesPage = () => {
       {showForm && (
         <ProteccionesForm 
           onClose={() => { setShowForm(false); setEditingProteccion(null); }} 
-          onSave={handleSave} 
+          onSave={handleSave}
+          onDelete={handleDeleteProteccion}
           initialData={editingProteccion} 
         />
       )}

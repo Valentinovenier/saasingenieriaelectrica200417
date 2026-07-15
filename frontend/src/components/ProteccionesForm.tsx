@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { obtenerEnergiaPasanteInterruptor } from '../engine/strategies/protecciones/helpers';
 
-export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: () => void, onSave: (data: any) => void, initialData?: any }) => {
+export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { onClose: () => void, onSave: (data: any) => void, onDelete?: (id: string) => void, initialData?: any }) => {
   const [formData, setFormData] = useState(initialData ? {
     ...initialData,
     capacidades: initialData.capacidades || [],
@@ -151,11 +151,19 @@ export const ProteccionesForm = ({ onClose, onSave, initialData }: { onClose: ()
           ))}
         </div>
         <button onClick={addCapacidad} className="text-[var(--accent)] text-sm font-medium mt-3 flex items-center gap-2 hover:text-white transition-colors"><Plus size={16} /> Anadir nivel de tension</button>
-        <div className="flex justify-end gap-3 mt-8">
-          <button onClick={onClose} className="px-6 py-2 text-white hover:bg-slate-700 rounded-lg transition-colors">Cancelar</button>
-          <button onClick={handleSave} disabled={saving} className="bg-[var(--accent)] hover:opacity-90 disabled:opacity-50 text-white px-6 py-2 rounded-lg font-medium transition-all">
-            {saving ? 'Guardando...' : (initialData ? 'Actualizar Proteccion' : 'Guardar Proteccion')}
-          </button>
+        <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-700">
+            {initialData && onDelete ? (
+                <button onClick={handleDelete} className="flex items-center gap-2 text-red-400 hover:text-red-300 transition-colors px-4 py-2 rounded-lg hover:bg-red-900/20">
+                    <Trash2 size={18} /> Eliminar Proteccion
+                </button>
+            ) : <div></div>}
+            
+            <div className="flex gap-3">
+              <button onClick={onClose} className="px-6 py-2 text-white hover:bg-slate-700 rounded-lg transition-colors">Cancelar</button>
+              <button onClick={handleSave} disabled={saving} className="bg-[var(--accent)] hover:opacity-90 disabled:opacity-50 text-white px-6 py-2 rounded-lg font-medium transition-all">
+                {saving ? 'Guardando...' : (initialData ? 'Actualizar Proteccion' : 'Guardar Proteccion')}
+              </button>
+            </div>
         </div>
       </div>
     </div>
