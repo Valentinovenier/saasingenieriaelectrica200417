@@ -90,12 +90,12 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
           <label className="text-sm font-bold text-white mb-3 block">Seleccione el tipo de protección:</label>
           <div className="grid grid-cols-2 gap-4">
               <button 
-                onClick={() => setFormData(p => ({ ...p, tipo_proteccion: 'Interruptor Automatico' }))}
+                onClick={() => setFormData((p: any) => ({ ...p, tipo_proteccion: 'Interruptor Automatico' }))}
                 className={`p-3 rounded-lg border ${formData.tipo_proteccion === 'Interruptor Automatico' ? 'border-[var(--accent)] bg-[var(--accent)] text-white' : 'border-slate-700 bg-slate-800 text-slate-400'}`}>
                 Interruptor Automático
               </button>
               <button 
-                onClick={() => setFormData(p => ({ ...p, tipo_proteccion: 'Interruptor Diferencial' }))}
+                onClick={() => setFormData((p: any) => ({ ...p, tipo_proteccion: 'Interruptor Diferencial' }))}
                 className={`p-3 rounded-lg border ${formData.tipo_proteccion === 'Interruptor Diferencial' ? 'border-[var(--accent)] bg-[var(--accent)] text-white' : 'border-slate-700 bg-slate-800 text-slate-400'}`}>
                 Interruptor Diferencial
               </button>
