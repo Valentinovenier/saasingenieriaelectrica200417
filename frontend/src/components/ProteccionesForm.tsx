@@ -53,6 +53,13 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
     return formData.energia_pasante;
   };
 
+  const handleDelete = () => {
+    if (initialData && onDelete) {
+        onDelete(initialData.id);
+        onClose();
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -99,9 +106,7 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
           <div className="space-y-2">
             <label className="text-sm font-medium text-[var(--text-secondary)]">Polos</label>
             <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.polos} onChange={e => setFormData({ ...formData, polos: Number(e.target.value) })}>
-              <option value={1}>1 Polo</option>
               <option value={2}>2 Polos</option>
-              <option value={3}>3 Polos</option>
               <option value={4}>4 Polos</option>
             </select>
           </div>
