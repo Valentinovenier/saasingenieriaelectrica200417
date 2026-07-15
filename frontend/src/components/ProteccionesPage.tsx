@@ -114,8 +114,11 @@ export const ProteccionesPage = () => {
               <div key={tablero.id} className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700">
                 <div className="flex justify-between items-center mb-4">
                   <h4 className="text-white font-medium flex items-center gap-2">
-                    <Layout size={16} /> {tablero.nombre} ({corrienteTotal.toFixed(2)} A)
+                    <Layout size={16} /> {tablero.nombre}
                   </h4>
+                  <span className="text-sm font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-900">
+                    {corrienteTotal.toFixed(2)} A
+                  </span>
                 </div>
                 
                 <div className="grid grid-cols-1 gap-4 mb-4">
@@ -148,7 +151,12 @@ export const ProteccionesPage = () => {
                     const iNominal = getCircuitoNominalCurrent(circuito, project);
                     return (
                       <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                        <p className="text-sm text-white mb-2">{circuito.nombre} ({iNominal.toFixed(2)} A)</p>
+                        <div className="flex justify-between items-center mb-2">
+                            <p className="text-sm text-white">{circuito.nombre}</p>
+                            <span className="text-xs font-mono text-emerald-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-700">
+                                {iNominal.toFixed(2)} A
+                            </span>
+                        </div>
                         <AsignacionProteccion 
                           label="Asignar Protección"
                           proteccion={circuito.proteccion}
