@@ -85,6 +85,23 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
           <h3 className="text-2xl font-bold text-white">{initialData ? 'Editar Proteccion' : 'Nueva Proteccion'}</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors"><X size={24} /></button>
         </div>
+
+        <div className="mb-6 bg-slate-900 p-4 rounded-xl border border-slate-700">
+          <label className="text-sm font-bold text-white mb-3 block">Seleccione el tipo de protección:</label>
+          <div className="grid grid-cols-2 gap-4">
+              <button 
+                onClick={() => setFormData(p => ({ ...p, tipo_proteccion: 'Interruptor Automatico' }))}
+                className={`p-3 rounded-lg border ${formData.tipo_proteccion === 'Interruptor Automatico' ? 'border-[var(--accent)] bg-[var(--accent)] text-white' : 'border-slate-700 bg-slate-800 text-slate-400'}`}>
+                Interruptor Automático
+              </button>
+              <button 
+                onClick={() => setFormData(p => ({ ...p, tipo_proteccion: 'Interruptor Diferencial' }))}
+                className={`p-3 rounded-lg border ${formData.tipo_proteccion === 'Interruptor Diferencial' ? 'border-[var(--accent)] bg-[var(--accent)] text-white' : 'border-slate-700 bg-slate-800 text-slate-400'}`}>
+                Interruptor Diferencial
+              </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-[var(--text-secondary)]">Modelo</label>
@@ -96,13 +113,7 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
               {[1,2,3,4,6,10,16,20,25,32,40,50,63].map(val => (<option key={val} value={val}>{val} A</option>))}
             </select>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[var(--text-secondary)]">Tipo</label>
-            <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.tipo_proteccion} onChange={e => setFormData({ ...formData, tipo_proteccion: e.target.value })}>
-              <option value="Interruptor Automatico">Interruptor Automatico</option>
-              <option value="Interruptor Diferencial">Interruptor Diferencial</option>
-            </select>
-          </div>
+          
           <div className="space-y-2">
             <label className="text-sm font-medium text-[var(--text-secondary)]">Polos</label>
             <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.polos} onChange={e => setFormData({ ...formData, polos: Number(e.target.value) })}>
@@ -110,19 +121,15 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
               <option value={4}>4 Polos</option>
             </select>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[var(--text-secondary)]">Curva</label>
-            <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.curva_disparo} onChange={e => setFormData({ ...formData, curva_disparo: e.target.value })}>
-              <option value="B">Curva B</option>
-              <option value="C">Curva C</option>
-              <option value="D">Curva D</option>
-            </select>
-          </div>
-          {!isCompacto && (
-            <div className="space-y-2 col-span-2 bg-amber-900/20 border border-amber-600/40 rounded-xl p-4">
-              <label className="text-sm font-medium text-amber-300">Energia Pasante (MA2s) - Entrada Manual</label>
-              <p className="text-xs text-slate-400 mb-2">La corriente nominal es mayor a 32 A. Ingrese la energia pasante segun la hoja de datos del fabricante.</p>
-              <input type="number" step="0.01" min="0" className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-amber-600/40 focus:border-amber-400 outline-none" value={formData.energia_pasante ?? ''} placeholder="Ej: 12.34" onChange={e => setFormData({ ...formData, energia_pasante: e.target.value ? Number(e.target.value) : null })} />
+          
+          {formData.tipo_proteccion === 'Interruptor Automatico' && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[var(--text-secondary)]">Curva</label>
+              <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.curva_disparo} onChange={e => setFormData({ ...formData, curva_disparo: e.target.value })}>
+                <option value="B">Curva B</option>
+                <option value="C">Curva C</option>
+                <option value="D">Curva D</option>
+              </select>
             </div>
           )}
         </div>
