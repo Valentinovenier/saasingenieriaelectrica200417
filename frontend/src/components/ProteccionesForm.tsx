@@ -46,9 +46,20 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
   const isCompacto = formData.in_amp <= 32;
 
   const computeEnergiaPasante = () => {
-    if (isCompacto) {
-      const energia = obtenerEnergiaPasanteInterruptor(formData.in_amp, 2, formData.curva_disparo as any);
-      return energia ?? null;
+    if (isCompacto && formData.capacidades.length > 0) {
+      const capacidad = formData.capacidades[0];
+      // Solo clase 2 y 3 están soportadas por la función de cálculo
+      if (capacidad.clase_limitacion === 2 || capacidad.clase_limitacion === 3) {
+        // Solo curvas B y C están soportadas
+        if (formData.curva_disparo === 'B' || formData.curva_disparo === 'C') {
+          const energia = obtenerEnergiaPasanteInterruptor(
+            formData.in_amp,
+            capacidad.clase_limitacion as 2 | 3,
+            formData.curva_disparo as 'B' | 'C'
+          );
+          return energia ?? null;
+        }
+      }
     }
     return formData.energia_pasante;
   };

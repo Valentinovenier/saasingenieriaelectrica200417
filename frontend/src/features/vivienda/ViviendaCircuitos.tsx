@@ -113,8 +113,13 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                     <select 
                         value={c.tipo}
                         onChange={(e) => {
+                            const nuevoTipo = e.target.value as CircuitoCalculado['tipo'];
+                            let nuevoNombre = 'Circuito Especial';
+                            if (nuevoTipo === 'iluminacion_usos_generales') nuevoNombre = 'Circuito IUG Especial';
+                            if (nuevoTipo === 'tomacorrientes_usos_generales') nuevoNombre = 'Circuito TUG Especial';
+                            
                             const nuevosCircuitos = datos.circuitosCalculados.map(circ => 
-                                circ.id === c.id ? { ...circ, tipo: e.target.value as CircuitoCalculado['tipo'] } : circ
+                                circ.id === c.id ? { ...circ, tipo: nuevoTipo, nombre: nuevoNombre } : circ
                             );
                             onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
                         }}
