@@ -37,7 +37,6 @@ export const calcularTramoResidencial = (
             break;
             case 'tomacorrientes_usos_generales':
             case 'usos_especiales':
-            case 'usos_especificos':
             seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesTomacorrientes;
             break;
             case 'usos_especificos_mbtf':
