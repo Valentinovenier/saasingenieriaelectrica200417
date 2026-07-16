@@ -15,6 +15,7 @@ import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
 import { UnifilarPage } from './components/UnifilarPage';
 import { ProteccionesPage } from './components/ProteccionesPage';
+import { CanalizacionesPage } from './components/CanalizacionesPage';
 
 export default function App() {
   const { isAuthenticated, loading, logout } = useAuth();
@@ -252,6 +253,16 @@ export default function App() {
         return <UnifilarPage />;
       case 'protecciones':
         return <ProteccionesPage />;
+      case 'canalizaciones':
+        return (
+          <CanalizacionesPage 
+            project={selectedProject}
+            onChange={(updated) => {
+              setProjects(projects.map(p => p.id === updated.id ? updated : p));
+              setSelectedProject(updated);
+            }}
+          />
+        );
       default:
         return <div className="text-white">Sección no implementada.</div>;
     }

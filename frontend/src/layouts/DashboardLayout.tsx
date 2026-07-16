@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Settings, Zap, FileText, Server } from 'lucide-react';
+import { LayoutDashboard, Settings, Zap, FileText, Server, Cable } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const DashboardLayout = ({ 
@@ -26,8 +26,9 @@ export const DashboardLayout = ({
     ? [
         { icon: Settings, label: 'Parámetros', id: 'parametros' },
         { icon: Server, label: 'Tableros', id: 'tableros-seccionales' },
-        { icon: FileText, label: 'Conductores', id: 'conductores' },
+        { icon: Cable, label: 'Canalizaciones', id: 'canalizaciones' },
         { icon: Zap, label: 'Protecciones', id: 'protecciones' },
+        { icon: FileText, label: 'Conductores', id: 'conductores' },
         { icon: FileText, label: 'Informe', id: 'informe' },
       ]
     : [];
