@@ -5,7 +5,6 @@ export type TipoCircuito =
   | 'iluminacion_usos_generales'
   | 'tomacorrientes_usos_generales'
   | 'usos_especiales'
-  | 'usos_especificos'
   | 'usos_especificos_mbtf';
 
 export interface Ambiente {

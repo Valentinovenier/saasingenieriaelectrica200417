@@ -109,7 +109,24 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
             <div className="flex flex-col gap-2">
               <div>
                 <p className="font-bold text-white">{c.nombre} {c.id.startsWith('auto-') && <span className="text-[10px] text-emerald-500">(Normativo)</span>}</p>
-                <p className="text-[10px] text-slate-500 uppercase">{c.tipo.replace(/_/g, ' ')}</p>
+                {c.id === 'auto-cle' ? (
+                    <select 
+                        value={c.tipo}
+                        onChange={(e) => {
+                            const nuevosCircuitos = datos.circuitosCalculados.map(circ => 
+                                circ.id === c.id ? { ...circ, tipo: e.target.value as CircuitoCalculado['tipo'] } : circ
+                            );
+                            onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
+                        }}
+                        className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700 mt-1"
+                    >
+                        <option value="iluminacion_usos_generales">Circuito IUG</option>
+                        <option value="tomacorrientes_usos_generales">Circuito TUG</option>
+                        <option value="usos_especiales">Circuito Especial</option>
+                    </select>
+                ) : (
+                    <p className="text-[10px] text-slate-500 uppercase">{c.tipo.replace(/_/g, ' ')}</p>
+                )}
               </div>
               {c.tipo === 'iluminacion_usos_generales' && (
                   <label className="flex items-center gap-2 text-xs text-slate-300">
@@ -156,7 +173,6 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                 <option value="iluminacion_usos_generales">Circuito IUG</option>
                 <option value="tomacorrientes_usos_generales">Circuito TUG</option>
                 <option value="usos_especiales">Circuito Especial</option>
-                <option value="usos_especificos">Específico</option>
             </select>
             <button onClick={addCircuito} className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-500">
                 <PlusCircle size={16} /> Agregar

@@ -142,6 +142,19 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
                     onChange={(e) => handleDataChange({ longitud: parseFloat(e.target.value) || 0 })}
                 />
             </div>
+            
+            {conductor?.tipoCircuito === 'iluminacion_usos_generales' && (
+              <div>
+                <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Cantidad de Tomas TUG (derivados)</label>
+                <input 
+                    type="number"
+                    min={0}
+                    className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
+                    value={conductor?.tomasTUGDerivados || 0}
+                    onChange={(e) => handleDataChange({ tomasTUGDerivados: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+            )}
         </div>
     </div>
   );

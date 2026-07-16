@@ -129,9 +129,6 @@ export const calcularPotencias = (circuitos: any[], grado: GradoElectrificacion)
             case 'usos_especiales':
                 potenciaCircuito = 3300;
                 break;
-            case 'usos_especificos':
-                potenciaCircuito = circ.potenciaManual || 0; 
-                break;
             default:
                 potenciaCircuito = 0;
         }
