@@ -134,6 +134,8 @@ export interface TableroSeccionalSimple {
 export interface Canalizacion {
   id: string;
   nombre: string;
+  conductorIds: string[];
+  normaCable?: 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178';
 }
 
 export interface Project {

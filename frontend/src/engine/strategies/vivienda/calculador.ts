@@ -47,9 +47,8 @@ export const calcularTramoResidencial = (
   }
 
   // Agrupamiento (N° de circuitos en la misma canalización)
-  const nCircuitos = condiciones.canalizacionId 
-    ? getCircuitosPorCanalizacion(project, condiciones.canalizacionId).length || 1 
-    : 1;
+  const canalizacion = project.canalizaciones?.find(c => c.id === condiciones.canalizacionId);
+  const nCircuitos = canalizacion ? canalizacion.conductorIds.length : 1;
 
   // Obtenemos secciones comerciales
   const seccionesComerciales = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70];
@@ -102,7 +101,7 @@ export const calcularTramoResidencial = (
 
     const esInstalacionAire = !(condiciones.metodoInstalacion || '').toUpperCase().startsWith('D');
     const factorTemp = getFactorTemperatura('PVC', condiciones.temperaturaAmbiente, esInstalacionAire, condiciones.tempSuelo);
-    const factorAgrup = getFactorAgrupamiento(nCircuitos, condiciones.metodoInstalacion, 'Multipolar', 'en_contacto', condiciones.separacionBordes);
+    const factorAgrup = calcularFactorAgrupamiento(nCircuitos, canalizacion);
     const factorResistividad = condiciones.resistividadTermica ? getFactorResistividad(condiciones.metodoInstalacion, condiciones.resistividadTermica) : 1.0;
     IzCorregida = IzBase * factorTemp * factorAgrup * factorResistividad;
 

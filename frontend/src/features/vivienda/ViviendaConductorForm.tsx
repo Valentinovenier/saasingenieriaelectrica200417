@@ -1,7 +1,7 @@
 import { Conductor } from '../../types/project';
 import { useProject } from '../../context/ProjectDataContext';
 import { calcularTramoResidencial } from '../../engine/strategies/vivienda/calculador';
-import { METODOS_INSTALACION_VIVIENDA, TIPOS_CIRCUITO_VIVIENDA } from './uiMappers';
+import { METODOS_INSTALACION_VIVIENDA } from './uiMappers';
 
 interface Props {
   label: string;
@@ -17,19 +17,23 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
     const newConductor = { ...conductor, ...updates } as Conductor;
     
     // Recálculo automático para Viviendas
+    // Buscamos la norma asociada desde la canalización si existe
+    const canalizacion = project?.canalizaciones?.find(c => c.id === newConductor.canalizacionId);
+    const normaCable = canalizacion?.normaCable || newConductor.normaCable;
+
     if (newConductor.longitud && newConductor.metodoInstalacion && newConductor.tipoTramo) {
         const resultado = calcularTramoResidencial({
             tipoTramo: newConductor.tipoTramo as 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal',
             tipoCircuito: (newConductor.tipoCircuito || 'iluminacion_usos_generales') as any,
             metodoInstalacion: newConductor.metodoInstalacion as any,
             longitudMetros: newConductor.longitud || 0,
-            corrienteDiseñoAmperes: 16, // placeholder - debería venir del proyecto
+            corrienteDiseñoAmperes: 16, // placeholder
             temperaturaAmbiente: project?.tempAmbiente || 30,
             canalizacionId: newConductor.canalizacionId,
             tempSuelo: newConductor.tempSuelo,
             resistividadTermica: newConductor.resistividadTermica,
             separacionBordes: newConductor.separacionBordes,
-            normaCable: newConductor.normaCable
+            normaCable: normaCable
         }, project as any);
         newConductor.resultadoCalculo = resultado;
         newConductor.seccion = resultado.seccionRecomendada;
@@ -44,21 +48,23 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
         </label>
         
         <div className="grid grid-cols-1 gap-4">
+            {/* Selección de Canalización - Ahora es mandatoria para obtener la norma */}
             <div>
-                <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Norma del Cable</label>
+                <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Canalización</label>
                 <select 
                     className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                    value={conductor?.normaCable || ''}
-                    onChange={(e) => handleDataChange({ normaCable: e.target.value as any, metodoInstalacion: '' })}
+                    value={conductor?.canalizacionId || ''}
+                    onChange={(e) => handleDataChange({ canalizacionId: e.target.value })}
                 >
-                    <option value="">Seleccionar norma</option>
-                    <option value="IRAM-NM 247-3">IRAM-NM 247-3</option>
-                    <option value="IRAM 62267">IRAM 62267</option>
-                    <option value="IRAM 2178">IRAM 2178</option>
+                    <option value="">Seleccionar Canalización</option>
+                    {project?.canalizaciones?.map(c => (
+                        <option key={c.id} value={c.id}>{c.nombre}</option>
+                    ))}
                 </select>
             </div>
 
-            {conductor?.normaCable && (
+            {/* Método de Instalación - Ahora depende de la norma de la canalización seleccionada */}
+            {(conductor?.canalizacionId || conductor?.normaCable) && (
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
                     <select 
@@ -69,10 +75,11 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
                         <option value="">Selecciona Método</option>
                         {METODOS_INSTALACION_VIVIENDA
                             .filter(m => {
-                                if (conductor.normaCable === 'IRAM 2178') {
+                                const canalizacion = project?.canalizaciones?.find(c => c.id === conductor?.canalizacionId);
+                                const norma = canalizacion?.normaCable || conductor?.normaCable;
+                                if (norma === 'IRAM 2178') {
                                     return ['B1', 'B2', 'D1', 'D2'].includes(m.value);
                                 } else {
-                                    // IRAM-NM 247-3 y IRAM 62267 solo permiten B1
                                     return m.value === 'B1';
                                 }
                             })
