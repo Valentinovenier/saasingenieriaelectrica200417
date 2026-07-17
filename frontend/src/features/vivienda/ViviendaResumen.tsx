@@ -9,10 +9,10 @@ interface Props {
 
 export const ViviendaResumen = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
+  const grado = datos.gradoElectrificacion || 'Minimo';
   
   // Usar la función centralizada de normas770.ts
-  const grado = datos.gradoElectrificacion || 'Minimo';
-  const { potenciaInstalada, potenciaMaximaSimultanea } = calcularPotencias(datos.circuitosCalculados, grado);
+  const { potenciaInstalada, potenciaMaximaSimultanea } = calcularPotencias(datos);
   
   // Actualizamos el proyecto con los valores calculados
   // Esto asegura que al hacer click en guardar, el proyecto ya contenga estos valores

@@ -109,8 +109,9 @@ export const calcularPuntosMinimosAmbiente = (
  * - TUG (Tomacorrientes): 2200 VA
  * - TUE (Usos Especiales): 3300 VA
  */
-export const calcularPotencias = (circuitos: any[], grado: GradoElectrificacion): { potenciaInstalada: number; potenciaMaximaSimultanea: number } => {
+export const calcularPotencias = (datos: DatosVivienda): { potenciaInstalada: number; potenciaMaximaSimultanea: number } => {
     let potenciaTotal = 0;
+    const circuitos = datos.circuitosCalculados || [];
 
     circuitos.forEach(circ => {
         let potenciaCircuito = 0;
@@ -120,7 +121,12 @@ export const calcularPotencias = (circuitos: any[], grado: GradoElectrificacion)
                 if (circ.tieneTomacorrientesDerivados) {
                     potenciaCircuito = 2200;
                 } else {
-                    potenciaCircuito = (2 / 3) * (circ.puntosIUG || 0) * 60;
+                    // Sumar puntos IUG asignados en todos los ambientes
+                    let puntosIUG = 0;
+                    Object.values(datos.tomasPorAmbiente || {}).forEach((amb: any) => {
+                        puntosIUG += (amb[circ.id]?.IUG || 0);
+                    });
+                    potenciaCircuito = (2 / 3) * puntosIUG * 60;
                 }
                 break;
             case 'tomacorrientes_usos_generales':
@@ -135,9 +141,8 @@ export const calcularPotencias = (circuitos: any[], grado: GradoElectrificacion)
         potenciaTotal += potenciaCircuito;
     });
 
-    // La potencia máxima simultánea se calcula aplicando factores de simultaneidad
-    // a la potencia instalada de los circuitos terminales.
-    const minimos = obtenerCircuitosMinimos(grado);
+    // Aplicar coeficiente de simultaneidad sobre el total de la PI
+    const minimos = obtenerCircuitosMinimos(datos.gradoElectrificacion || 'Minimo');
     const factorSimultaneidad = (FACTORES_SIMULTANEIDAD_VIVIENDA.cantidadCircuitos as any)[minimos] || 0.6;
     
     return {

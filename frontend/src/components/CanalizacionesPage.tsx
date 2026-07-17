@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Project, Canalizacion } from '../types/project';
-import { Plus, Trash2, Cable } from 'lucide-react';
+import { Plus, Trash2, Cable, AlertTriangle } from 'lucide-react';
 import { validarAgrupamiento } from '../engine/strategies/vivienda/validacionesAgrupamiento';
 
 interface Props {
@@ -58,13 +58,12 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold text-white mb-6">Gestión de Canalizaciones</h2>
-      
-      <div className="bg-[var(--bg-secondary)] p-6 rounded-xl border border-slate-700 mb-8">
-        <div className="flex gap-4">
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-bold text-white">Gestión de Canalizaciones</h2>
+        <div className="flex gap-2">
           <input 
-            className="flex-1 bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" 
-            placeholder="Nombre de la nueva canalización" 
+            className="bg-[var(--bg-secondary)] p-3 rounded-lg text-white border border-slate-700" 
+            placeholder="Nueva canalización..." 
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
           />
@@ -74,40 +73,55 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
         </div>
       </div>
 
-      <div className="space-y-4">
-        {canalizaciones.map(c => (
-          <div key={c.id} className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-white font-bold text-lg">{c.nombre}</span>
-              <select
-                className="bg-slate-950 text-white text-sm rounded-lg p-2 border border-slate-700"
-                value={c.normaCable || 'IRAM 2178'}
-                onChange={(e) => updateCanalizacion(c.id, { normaCable: e.target.value as any })}
-              >
-                <option value="IRAM-NM 247-3">IRAM-NM 247-3</option>
-                <option value="IRAM 62267">IRAM 62267</option>
-                <option value="IRAM 2178">IRAM 2178</option>
-              </select>
-              <button onClick={() => deleteCanalizacion(c.id)} className="text-red-400 hover:text-red-300">
-                <Trash2 size={20} />
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {conductores.map((cond: any, i: number) => (
-                <label key={i} className="flex items-center gap-2 text-slate-300 text-sm cursor-pointer hover:bg-slate-800 p-2 rounded">
-                  <input 
-                    type="checkbox" 
-                    checked={c.conductorIds.includes(cond.id || i.toString())}
-                    onChange={() => toggleConductor(c.id, cond.id || i.toString())}
-                    className="accent-[var(--accent)]"
-                  />
-                  <Cable size={14} /> {cond.destinoNombre || `Conductor ${i + 1}`}
-                </label>
-              ))}
-            </div>
-          </div>
-        ))}
+      <div className="grid grid-cols-1 gap-6">
+        {canalizaciones.map(c => {
+            const val = validarAgrupamiento(project, c);
+            return (
+              <div key={c.id} className="bg-[var(--bg-secondary)] p-6 rounded-xl border border-slate-700 shadow-lg">
+                <div className="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
+                  <div className='flex items-center gap-4'>
+                    <span className="text-white font-bold text-xl">{c.nombre}</span>
+                    <select
+                        className="bg-slate-950 text-white text-sm rounded-lg p-2 border border-slate-700"
+                        value={c.normaCable || 'IRAM 2178'}
+                        onChange={(e) => updateCanalizacion(c.id, { normaCable: e.target.value as any })}
+                    >
+                        <option value="IRAM-NM 247-3">IRAM-NM 247-3</option>
+                        <option value="IRAM 62267">IRAM 62267</option>
+                        <option value="IRAM 2178">IRAM 2178</option>
+                    </select>
+                  </div>
+                  <button onClick={() => deleteCanalizacion(c.id)} className="text-red-400 hover:text-red-300">
+                    <Trash2 size={20} />
+                  </button>
+                </div>
+                
+                {!val.esValido && (
+                    <div className="mb-4 p-3 bg-red-900/20 border border-red-800 rounded text-red-300 text-sm flex items-center gap-2">
+                        <AlertTriangle size={16}/> {val.errores[0]}
+                    </div>
+                )}
+
+                <h4 className="text-slate-400 text-sm font-semibold uppercase mb-3">Circuitos Asignados</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {conductores.map((cond: any) => (
+                    <label key={cond.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${c.conductorIds.includes(cond.id) ? 'bg-slate-800 border-[var(--accent)]' : 'bg-slate-950 border-slate-700 hover:border-slate-500'}`}>
+                      <input 
+                        type="checkbox" 
+                        checked={c.conductorIds.includes(cond.id)}
+                        onChange={() => toggleConductor(c.id, cond.id)}
+                        className="accent-[var(--accent)] w-4 h-4"
+                      />
+                      <div className='flex flex-col'>
+                        <span className="text-white text-sm font-medium flex items-center gap-1.5"><Cable size={14} className="text-slate-500"/> {cond.destinoNombre}</span>
+                        <span className="text-slate-500 text-[10px]">{cond.tipoCircuito}</span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            );
+        })}
       </div>
     </div>
   );
