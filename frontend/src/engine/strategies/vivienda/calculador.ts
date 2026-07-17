@@ -50,6 +50,12 @@ export const calcularTramoResidencial = (
   const canalizacion = project.canalizaciones?.find(c => c.id === condiciones.canalizacionId);
   const nCircuitos = canalizacion ? canalizacion.conductorIds.length : 1;
 
+  // Obtenemos la norma del conductor (ahora viene en el objeto, ya que el usuario la definió en Parámetros)
+  // Nota: `project.informeConductores` contiene los conductores calculados.
+  // Buscamos el conductor actual en el informe para obtener su norma.
+  const conductorActual = project.informeConductores?.find(c => c.canalizacionId === condiciones.canalizacionId && c.tipoTramo === condiciones.tipoTramo);
+  const normaCable = conductorActual?.normaCable || 'IRAM 2178';
+
   // Obtenemos secciones comerciales
   const seccionesComerciales = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70];
   let seccionElegida = seccionesComerciales.find(s => s >= seccionMinima) || seccionMinima;

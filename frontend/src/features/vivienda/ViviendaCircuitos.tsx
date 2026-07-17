@@ -133,8 +133,24 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                     <p className="text-[10px] text-slate-500 uppercase">{c.tipo.replace(/_/g, ' ')}</p>
                 )}
               </div>
-              {c.tipo === 'iluminacion_usos_generales' && (
-                  <label className="flex items-center gap-2 text-xs text-slate-300">
+              
+              <div className="flex items-center gap-2 mt-2">
+                <select 
+                    className="bg-slate-800 text-white text-[10px] rounded p-1 border border-slate-700"
+                    value={c.normaCable || 'IRAM 2178'}
+                    onChange={(e) => {
+                        const nuevosCircuitos = datos.circuitosCalculados.map(circ => 
+                            circ.id === c.id ? { ...circ, normaCable: e.target.value } : circ
+                        );
+                        onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
+                    }}
+                >
+                    <option value="IRAM-NM 247-3">IRAM-NM 247-3</option>
+                    <option value="IRAM 62267">IRAM 62267</option>
+                    <option value="IRAM 2178">IRAM 2178</option>
+                </select>
+                {c.tipo === 'iluminacion_usos_generales' && (
+                  <label className="flex items-center gap-2 text-[10px] text-slate-300">
                     <input 
                       type="checkbox" 
                       checked={!!c.tieneTomacorrientesDerivados}
@@ -146,9 +162,10 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                       }}
                       className="bg-slate-800 border-slate-700 rounded"
                     />
-                    Tiene tomacorrientes derivados
+                    TUG Derivados
                   </label>
-              )}
+                )}
+              </div>
             </div>
             {!c.id.startsWith('auto-') && (
                 <button onClick={() => removeCircuito(c.id)} className="text-red-400 p-1">

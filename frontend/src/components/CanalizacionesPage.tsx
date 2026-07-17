@@ -81,15 +81,6 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                 <div className="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
                   <div className='flex items-center gap-4'>
                     <span className="text-white font-bold text-xl">{c.nombre}</span>
-                    <select
-                        className="bg-slate-950 text-white text-sm rounded-lg p-2 border border-slate-700"
-                        value={c.normaCable || 'IRAM 2178'}
-                        onChange={(e) => updateCanalizacion(c.id, { normaCable: e.target.value as any })}
-                    >
-                        <option value="IRAM-NM 247-3">IRAM-NM 247-3</option>
-                        <option value="IRAM 62267">IRAM 62267</option>
-                        <option value="IRAM 2178">IRAM 2178</option>
-                    </select>
                   </div>
                   <button onClick={() => deleteCanalizacion(c.id)} className="text-red-400 hover:text-red-300">
                     <Trash2 size={20} />
