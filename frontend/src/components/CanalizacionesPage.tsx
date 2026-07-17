@@ -103,22 +103,29 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                 )}
 
                 <h4 className="text-slate-400 text-sm font-semibold uppercase mb-3">Circuitos Asignados</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {conductores.map((cond: any) => (
-                    <label key={cond.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${c.conductorIds.includes(cond.id) ? 'bg-slate-800 border-[var(--accent)]' : 'bg-slate-950 border-slate-700 hover:border-slate-500'}`}>
-                      <input 
-                        type="checkbox" 
-                        checked={c.conductorIds.includes(cond.id)}
-                        onChange={() => toggleConductor(c.id, cond.id)}
-                        className="accent-[var(--accent)] w-4 h-4"
-                      />
-                      <div className='flex flex-col'>
-                        <span className="text-white text-sm font-medium flex items-center gap-1.5"><Cable size={14} className="text-slate-500"/> {cond.destinoNombre}</span>
-                        <span className="text-slate-500 text-[10px]">{cond.tipoCircuito}</span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
+                {conductores.length === 0 ? (
+                  <p className="text-slate-500 text-sm italic">No hay circuitos disponibles para asignar.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {conductores.map((cond: any, index: number) => {
+                      const condId = cond.id || `cond-${index}`;
+                      return (
+                        <label key={condId} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${c.conductorIds.includes(condId) ? 'bg-slate-800 border-[var(--accent)]' : 'bg-slate-950 border-slate-700 hover:border-slate-500'}`}>
+                          <input 
+                            type="checkbox" 
+                            checked={c.conductorIds.includes(condId)}
+                            onChange={() => toggleConductor(c.id, condId)}
+                            className="accent-[var(--accent)] w-4 h-4"
+                          />
+                          <div className='flex flex-col'>
+                            <span className="text-white text-sm font-medium flex items-center gap-1.5"><Cable size={14} className="text-slate-500"/> {cond.destinoNombre || `Circuito ${index + 1}`}</span>
+                            <span className="text-slate-500 text-[10px]">{cond.tipoCircuito || 'Sin tipo'}</span>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
         })}
