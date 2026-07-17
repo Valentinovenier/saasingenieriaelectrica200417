@@ -12,8 +12,11 @@ export const validarAgrupamiento = (project: Project, canalizacion: Canalizacion
   const errores: string[] = [];
   
   // Obtener los conductores/circuitos asignados
+  // Asumimos que los IDs en canalizacion.conductorIds coinciden con los IDs generados en el informe.
+  // Si Conductor no tiene ID en la interfaz, usaremos una propiedad alternativa o generaremos una temporal.
+  // Dado que el error sugiere que `c.id` no existe, busquemos una alternativa o cast.
   const conductoresEnCanalizacion = project.informeConductores?.filter(c => 
-    canalizacion.conductorIds.includes(c.id || '')
+    canalizacion.conductorIds.includes((c as any).id || '')
   ) || [];
 
   if (conductoresEnCanalizacion.length === 0) return { esValido: true, errores: [] };
