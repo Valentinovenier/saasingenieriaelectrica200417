@@ -26,9 +26,10 @@ const getPotenciaCircuito = (c: any): number => {
 
 export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project): number => {
     // 1. Si es el tablero principal, usamos la DPMS calculada para la vivienda
-    if (isTablero(tablero) && tablero.nombre.toLowerCase().includes('principal')) {
-        console.log('DEBUG: Tablero Principal', tablero);
-        console.log('DEBUG: Project Data', project.datosVivienda);
+    // Hacemos la comprobación más robusta
+    const esPrincipal = tablero.nombre.toLowerCase().includes('principal') || (tablero as any).tipo === 'Principal';
+    
+    if (esPrincipal) {
         return project.datosVivienda?.potenciaMaximaSimultanea 
             ? project.datosVivienda.potenciaMaximaSimultanea / getTension(project) 
             : 0;
@@ -44,13 +45,13 @@ export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project)
     if (tablero.circuitosTerminales) {
         totalPotencia += tablero.circuitosTerminales.reduce((acc, c) => acc + getPotenciaCircuito(c), 0);
     }
-    if (tablero.subTableros) {
-        totalPotencia += tablero.subTableros.reduce((acc, sub) => acc + ( (sub as any).potenciaTotal || 0), 0);
-    }
     
     return totalPotencia / getTension(project);
 };
 
 export const getCircuitoNominalCurrent = (circuito: CircuitoTerminal, project: Project): number => {
-  return getPotenciaCircuito(circuito) / getTension(project);
+  const potencia = getPotenciaCircuito(circuito);
+  const corriente = potencia / getTension(project);
+  console.log(`DEBUG: Circuito ${circuito.nombre} - Potencia: ${potencia} VA - I: ${corriente} A`);
+  return corriente;
 };
