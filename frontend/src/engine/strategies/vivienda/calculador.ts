@@ -48,7 +48,7 @@ export const calcularTramoResidencial = (
 
   // Agrupamiento (N° de circuitos en la misma canalización)
   const canalizacion = project.canalizaciones?.find(c => c.id === condiciones.canalizacionId);
-  const nCircuitos = canalizacion ? canalizacion.conductorIds.length : 1;
+  const nCircuitos = canalizacion ? canalizacion.circuitosIds.length : 1;
 
   // Obtenemos la norma del conductor (ahora viene en el objeto, ya que el usuario la definió en Parámetros)
   // Nota: `project.informeConductores` contiene los conductores calculados.
