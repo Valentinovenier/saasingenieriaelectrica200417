@@ -94,10 +94,10 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
                         </button>
                     </div>
                 ))}
-                <button 
+                <button
                     onClick={() => onChange({
-                        ...project, 
-                        canalizaciones: [...(project.canalizaciones || []), { id: Date.now().toString(), nombre: 'Nueva Canalización', conductorIds: [] }]
+                        ...project,
+                        canalizaciones: [...(project.canalizaciones || []), { id: Date.now().toString(), nombre: 'Nueva Canalización', circuitosIds: [] }]
                     })}
                     className="text-[var(--accent)] flex items-center gap-2 text-sm"
                 >
