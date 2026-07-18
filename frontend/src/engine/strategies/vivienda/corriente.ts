@@ -10,10 +10,11 @@ const getPotenciaCircuito = (c: any): number => {
     // AEA 770: Demanda de potencia máxima simultánea
     switch (c.tipo) {
         case 'iluminacion_usos_generales': 
-            // Si tiene TUG derivados: 2200 VA. Si no: 2/3 de la suma de puntos a razón de 60 VA c/u
+            // AEA 770: Minimo 1 punto por circuito IUG. Si puntos es 0, usamos 1 punto de 60 VA por defecto.
+            const puntos = c.puntosIUG && c.puntosIUG > 0 ? c.puntosIUG : 1;
             return c.tieneTomacorrientesDerivados 
                 ? 2200 
-                : (2 / 3) * (c.puntosIUG || 0) * 60;
+                : (2 / 3) * puntos * 60;
         case 'tomacorrientes_usos_generales': 
             return 2200;
         case 'usos_especiales': 
