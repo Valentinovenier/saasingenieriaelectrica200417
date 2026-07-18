@@ -39,15 +39,27 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
   };
 
   const toggleCircuito = (canalizacionId: string, circuitoId: string) => {
-    const canalizacion = canalizaciones.find(c => c.id === canalizacionId);
-    if (!canalizacion) return;
+    // 1. Eliminar el circuito de todas las otras canalizaciones
+    const canalizacionesActualizadas = canalizaciones.map(c => {
+        if (c.id === canalizacionId) return c; // Saltamos la actual para procesarla luego
+        if (c.circuitosIds.includes(circuitoId)) {
+            return { ...c, circuitosIds: c.circuitosIds.filter(id => id !== circuitoId) };
+        }
+        return c;
+    });
 
-    const newIds = canalizacion.circuitosIds.includes(circuitoId)
-      ? canalizacion.circuitosIds.filter(id => id !== circuitoId)
-      : [...canalizacion.circuitosIds, circuitoId];
+    // 2. Procesar la canalización actual
+    const canalizacionActual = canalizacionesActualizadas.find(c => c.id === canalizacionId);
+    if (!canalizacionActual) return;
+
+    const estaAsignado = canalizacionActual.circuitosIds.includes(circuitoId);
+    
+    const newIds = estaAsignado
+      ? canalizacionActual.circuitosIds.filter(id => id !== circuitoId)
+      : [...canalizacionActual.circuitosIds, circuitoId];
 
     // Validar antes de aplicar cambios
-    const hypotheticalCanalizacion = { ...canalizacion, circuitosIds: newIds };
+    const hypotheticalCanalizacion = { ...canalizacionActual, circuitosIds: newIds };
     const resultado = validarAgrupamiento(project, hypotheticalCanalizacion);
 
     if (!resultado.esValido) {
@@ -55,8 +67,19 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       return;
     }
 
-    updateCanalizacion(canalizacionId, { circuitosIds: newIds });
-    addToast('Asignación actualizada', 'success');
+    // 3. Aplicar cambios a todas las canalizaciones
+    onChange({
+        ...project,
+        canalizaciones: canalizacionesActualizadas.map(c => 
+            c.id === canalizacionId ? { ...c, circuitosIds: newIds } : c
+        )
+    });
+    
+    if (!estaAsignado) {
+        addToast('Circuito asignado (y eliminado de otras canalizaciones)', 'success');
+    } else {
+        addToast('Circuito desasignado', 'info');
+    }
   };
 
   return (
