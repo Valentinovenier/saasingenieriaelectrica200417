@@ -18,18 +18,13 @@ export const ProteccionesPage = () => {
   const tablerosVivienda = datosVivienda?.tableros || [];
   const circuitosVivienda = datosVivienda?.circuitosCalculados || [];
 
-  const fetchProtecciones = () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    fetch('/api/guardar-proteccion', { headers: { 'Authorization': `Bearer ${token}` } })
-      .then((res) => res.json())
-      .then((data) => setProtecciones(data))
-      .catch((err) => console.error('Error fetching protecciones:', err));
-  };
-
   useEffect(() => {
+    console.log('DEBUG: Full Project State:', project);
+    console.log('DEBUG: Datos Vivienda:', datosVivienda);
+    console.log('DEBUG: Tableros:', tablerosVivienda);
+    console.log('DEBUG: Circuitos:', circuitosVivienda);
     fetchProtecciones();
-  }, []);
+  }, [project]);
 
   if (!project) return <div className="text-white p-6">Por favor, selecciona un proyecto.</div>;
 
