@@ -99,7 +99,6 @@ export const ProteccionesPage = () => {
                 proteccionesSalida: []
             };
             const corrienteTotal = getTableroNominalCurrent(baseTablero, project);
-            console.log(`Tablero ${tablero.nombre} corriente:`, corrienteTotal);
             return (
                 <div key={tablero.id} className="text-xs">
                     <p className="text-slate-400 font-bold mb-1">{tablero.nombre}</p>

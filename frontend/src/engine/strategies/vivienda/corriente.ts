@@ -7,9 +7,6 @@ const getTension = (project: Project): number => {
 
 // Función auxiliar para calcular potencia según normas (AEA 770)
 const getPotenciaCircuito = (c: any): number => {
-    // Si ya tiene una potencia calculada manualmente o de cálculo, usarla
-    if (c.potencia !== undefined && c.potencia !== null && c.potencia !== 0) return c.potencia;
-    
     // AEA 770: Demanda de potencia máxima simultánea
     switch (c.tipo) {
         case 'iluminacion_usos_generales': 
@@ -29,8 +26,10 @@ const getPotenciaCircuito = (c: any): number => {
 
 export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project): number => {
     // 1. Si es el tablero principal, usamos la DPMS calculada para la vivienda
-    if (isTablero(tablero) && tablero.nombre.toLowerCase().includes('principal') && project.datosVivienda?.potenciaMaximaSimultanea) {
-        return project.datosVivienda.potenciaMaximaSimultanea / getTension(project);
+    if (isTablero(tablero) && tablero.nombre.toLowerCase().includes('principal')) {
+        return project.datosVivienda?.potenciaMaximaSimultanea 
+            ? project.datosVivienda.potenciaMaximaSimultanea / getTension(project) 
+            : 0;
     }
 
     // 2. Si tiene potenciaTotal definida (caso TableroSeccional), usarla
