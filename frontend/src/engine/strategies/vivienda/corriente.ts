@@ -5,43 +5,24 @@ const getTension = (project: Project): number => {
   return isTrifasica ? 400 * Math.sqrt(3) : 230;
 };
 
-// Función auxiliar para calcular potencia según normas si no existe
-const getPotenciaCircuito = (c: any, project?: Project): number => {
+// Función auxiliar para calcular potencia según normas (AEA 770)
+const getPotenciaCircuito = (c: any): number => {
+    // Si ya tiene una potencia calculada manualmente o de cálculo, usarla
     if (c.potencia !== undefined && c.potencia !== null && c.potencia !== 0) return c.potencia;
     
-    // Si tenemos acceso al proyecto, intentamos sumar las cargas reales asignadas
-    if (project && project.datosVivienda && project.datosVivienda.tomasPorAmbiente) {
-        let potenciaCalculada = 0;
-        Object.values(project.datosVivienda.tomasPorAmbiente).forEach(ambiente => {
-            if (ambiente[c.id]) {
-                const tomas = ambiente[c.id];
-                potenciaCalculada += (tomas.IUG || 0) * 60; // 60VA por punto IUG
-                potenciaCalculada += (tomas.TUG || 0) * 200; // 200VA por punto TUG
-                potenciaCalculada += (tomas.TUE || 0) * 3300; // 3300VA por punto TUE
-            }
-        });
-        if (potenciaCalculada > 0) return potenciaCalculada;
-    }
-
-    // Si no hay cargas asignadas, usamos el cálculo por defecto basado en tipo
-    if (c.tipo) {
-        switch (c.tipo) {
-            case 'iluminacion_usos_generales': 
-                return c.tieneTomacorrientesDerivados ? 2200 : (2 / 3) * (c.puntosIUG || 0) * 60;
-            case 'tomacorrientes_usos_generales': return 2200;
-            case 'usos_especiales': return 3300;
-            case 'usos_especificos_mbtf': return c.potenciaManual || 0;
-            default: return 0;
-        }
-    }
-    
-    // Caso de uso industrial/comercial (CircuitoTerminal)
+    // AEA 770: Demanda de potencia máxima simultánea
     switch (c.tipo) {
         case 'iluminacion_usos_generales': 
-            return c.tieneTomacorrientesDerivados ? 2200 : (2 / 3) * (c.puntosIUG || 0) * 60;
-        case 'tomacorrientes_usos_generales': return 2200;
-        case 'usos_especiales': return 3300;
-        case 'usos_especificos': return c.potenciaManual || 0;
+            // Si tiene TUG derivados: 2200 VA. Si no: 2/3 de la suma de puntos a razón de 60 VA c/u
+            return c.tieneTomacorrientesDerivados 
+                ? 2200 
+                : (2 / 3) * (c.puntosIUG || 0) * 60;
+        case 'tomacorrientes_usos_generales': 
+            return 2200;
+        case 'usos_especiales': 
+            return 3300;
+        case 'usos_especificos_mbtf': 
+            return c.potenciaManual || 0;
         default: return 0;
     }
 };
@@ -57,10 +38,10 @@ export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project)
         return (tablero as any).potenciaTotal / getTension(project);
     }
     
-    // 3. Caso contrario (Tableros Seccionales / Otros), sumar las potencias de sus circuitos y subtableros
+    // 3. Caso contrario, sumar las potencias de sus circuitos y subtableros
     let totalPotencia = 0;
     if (tablero.circuitosTerminales) {
-        totalPotencia += tablero.circuitosTerminales.reduce((acc, c) => acc + getPotenciaCircuito(c, project), 0);
+        totalPotencia += tablero.circuitosTerminales.reduce((acc, c) => acc + getPotenciaCircuito(c), 0);
     }
     if (tablero.subTableros) {
         totalPotencia += tablero.subTableros.reduce((acc, sub) => acc + ( (sub as any).potenciaTotal || 0), 0);
@@ -70,5 +51,5 @@ export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project)
 };
 
 export const getCircuitoNominalCurrent = (circuito: CircuitoTerminal, project: Project): number => {
-  return getPotenciaCircuito(circuito, project) / getTension(project);
+  return getPotenciaCircuito(circuito) / getTension(project);
 };
