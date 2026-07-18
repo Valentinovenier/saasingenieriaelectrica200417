@@ -1,4 +1,4 @@
-import { Project, Canalizacion, Conductor } from '../../../types/project';
+import { Project, Canalizacion } from '../../../types/project';
 
 export interface ValidacionResultado {
   esValido: boolean;
@@ -11,42 +11,21 @@ export interface ValidacionResultado {
 export const validarAgrupamiento = (project: Project, canalizacion: Canalizacion): ValidacionResultado => {
   const errores: string[] = [];
   
-  // Obtener los conductores/circuitos asignados
-  // Asumimos que los IDs en canalizacion.conductorIds coinciden con los IDs generados en el informe.
-  // Si Conductor no tiene ID en la interfaz, usaremos una propiedad alternativa o generaremos una temporal.
-  // Dado que el error sugiere que `c.id` no existe, busquemos una alternativa o cast.
-  const conductoresEnCanalizacion = project.informeConductores?.filter(c => 
-    canalizacion.conductorIds.includes((c as any).id || '')
+  // Obtener los circuitos asignados
+  const circuitosEnCanalizacion = project.datosVivienda?.circuitosCalculados?.filter(c => 
+    canalizacion.circuitosIds.includes(c.id)
   ) || [];
 
-  if (conductoresEnCanalizacion.length === 0) return { esValido: true, errores: [] };
+  if (circuitosEnCanalizacion.length === 0) return { esValido: true, errores: [] };
 
-  // a) Regla de circuitos del mismo circuito (implícito, gestionado por usuario)
+  // Nota: Las validaciones de agrupamiento físico real requieren conocer el tipo de conductor y su sección.
+  // Como estamos en una etapa de diseño PREVIA al cálculo, las reglas normativas que dependen de la sección o el agrupamiento térmico 
+  // deben evaluarse después o mediante límites de diseño.
 
-  // b) Líneas principales (independientes)
-  const tieneLineaPrincipal = conductoresEnCanalizacion.some(c => c.tipoTramo === 'LineaPrincipal');
-  if (tieneLineaPrincipal && conductoresEnCanalizacion.length > 1) {
-    errores.push("Las líneas principales deben alojarse en cañerías independientes.");
-  }
-
-  // c) Circuitos seccionales
-  const norma = canalizacion.normaCable;
-  const circuitosSeccionales = conductoresEnCanalizacion.filter(c => c.tipoTramo === 'LineaSeccional');
+  // Ejemplo de reglas de diseño preventivas (según AEA 770):
   
-  if (circuitosSeccionales.length > 0) {
-    if (norma === 'IRAM-NM 247-3' || norma === 'IRAM 62267') {
-      if (conductoresEnCanalizacion.length > 1) {
-        errores.push("Cables IRAM-NM 247-3 o IRAM 62267 deben ir en caños independientes.");
-      }
-    } else if (norma === 'IRAM 2178') {
-      if (circuitosSeccionales.length > 3) {
-        errores.push("Máximo tres circuitos seccionales en la misma cañería.");
-      }
-    }
-  }
-
   // d) Circuitos de uso general
-  const tugs = conductoresEnCanalizacion.filter(c => c.tipoCircuito === 'tomacorrientes_usos_generales');
+  const tugs = circuitosEnCanalizacion.filter(c => c.tipo === 'tomacorrientes_usos_generales');
   if (tugs.length > 3) {
     errores.push("Máximo tres circuitos para usos generales por cañería.");
   }

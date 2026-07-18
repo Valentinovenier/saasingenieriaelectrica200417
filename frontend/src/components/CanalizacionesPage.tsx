@@ -18,34 +18,23 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
     const nueva: Canalizacion = {
       id: Date.now().toString(),
       nombre,
-      conductorIds: [],
+      circuitosIds: [],
       normaCable: 'IRAM 2178'
     };
     onChange({ ...project, canalizaciones: [...canalizaciones, nueva] });
     setNombre('');
   };
 
-  const updateCanalizacion = (id: string, updates: Partial<Canalizacion>) => {
-    onChange({
-      ...project,
-      canalizaciones: canalizaciones.map(c => c.id === id ? { ...c, ...updates } : c)
-    });
-  };
-
-  const deleteCanalizacion = (id: string) => {
-    onChange({ ...project, canalizaciones: canalizaciones.filter(c => c.id !== id) });
-  };
-
-  const toggleConductor = (canalizacionId: string, conductorId: string) => {
+  const toggleCircuito = (canalizacionId: string, circuitoId: string) => {
     const canalizacion = canalizaciones.find(c => c.id === canalizacionId);
     if (!canalizacion) return;
 
-    const newIds = canalizacion.conductorIds.includes(conductorId)
-      ? canalizacion.conductorIds.filter(id => id !== conductorId)
-      : [...canalizacion.conductorIds, conductorId];
+    const newIds = canalizacion.circuitosIds.includes(circuitoId)
+      ? canalizacion.circuitosIds.filter(id => id !== circuitoId)
+      : [...canalizacion.circuitosIds, circuitoId];
 
     // Validar antes de aplicar cambios
-    const hypotheticalCanalizacion = { ...canalizacion, conductorIds: newIds };
+    const hypotheticalCanalizacion = { ...canalizacion, circuitosIds: newIds };
     const resultado = validarAgrupamiento(project, hypotheticalCanalizacion);
 
     if (!resultado.esValido) {
@@ -53,7 +42,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       return;
     }
 
-    updateCanalizacion(canalizacionId, { conductorIds: newIds });
+    updateCanalizacion(canalizacionId, { circuitosIds: newIds });
   };
 
   return (
@@ -76,6 +65,8 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       <div className="grid grid-cols-1 gap-6">
         {canalizaciones.map(c => {
             const val = validarAgrupamiento(project, c);
+            const circuitosDisponibles = project.datosVivienda?.circuitosCalculados || [];
+            
             return (
               <div key={c.id} className="bg-[var(--bg-secondary)] p-6 rounded-xl border border-slate-700 shadow-lg">
                 <div className="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
@@ -94,23 +85,22 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                 )}
 
                 <h4 className="text-slate-400 text-sm font-semibold uppercase mb-3">Circuitos Asignados</h4>
-                {conductores.length === 0 ? (
-                  <p className="text-slate-500 text-sm italic">No hay circuitos disponibles para asignar.</p>
+                {circuitosDisponibles.length === 0 ? (
+                  <p className="text-slate-500 text-sm italic">No hay circuitos definidos en la vivienda.</p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {conductores.map((cond: any, index: number) => {
-                      const condId = cond.id || `cond-${index}`;
+                    {circuitosDisponibles.map((circ: any) => {
                       return (
-                        <label key={condId} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${c.conductorIds.includes(condId) ? 'bg-slate-800 border-[var(--accent)]' : 'bg-slate-950 border-slate-700 hover:border-slate-500'}`}>
+                        <label key={circ.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${c.circuitosIds.includes(circ.id) ? 'bg-slate-800 border-[var(--accent)]' : 'bg-slate-950 border-slate-700 hover:border-slate-500'}`}>
                           <input 
                             type="checkbox" 
-                            checked={c.conductorIds.includes(condId)}
-                            onChange={() => toggleConductor(c.id, condId)}
+                            checked={c.circuitosIds.includes(circ.id)}
+                            onChange={() => toggleCircuito(c.id, circ.id)}
                             className="accent-[var(--accent)] w-4 h-4"
                           />
                           <div className='flex flex-col'>
-                            <span className="text-white text-sm font-medium flex items-center gap-1.5"><Cable size={14} className="text-slate-500"/> {cond.destinoNombre || `Circuito ${index + 1}`}</span>
-                            <span className="text-slate-500 text-[10px]">{cond.tipoCircuito || 'Sin tipo'}</span>
+                            <span className="text-white text-sm font-medium flex items-center gap-1.5"><Cable size={14} className="text-slate-500"/> {circ.nombre}</span>
+                            <span className="text-slate-500 text-[10px]">{circ.tipo || 'Sin tipo'}</span>
                           </div>
                         </label>
                       );
