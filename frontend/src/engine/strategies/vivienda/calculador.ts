@@ -1,5 +1,5 @@
 import { CondicionesTramoResidencial, ResultadoCalculoResidencial } from '../../../types/vivienda';
-import { Project } from '../../../types/project';
+import { Project, Conductor } from '../../../types/project';
 import { getAdmisible } from '../industrial/corrienteProvider';
 import { IMPEDANCIAS_CABLES_VIVIENDA } from '../../../data/vivienda/impedancias';
 import { SECCIONES_MINIMAS_VIVIENDA } from '../../../data/vivienda/seccionesMinimas';
@@ -8,6 +8,24 @@ import { calcularFactorAgrupamiento } from '../industrial/canalizacionService';
 import { calcularImpedanciaTransformador } from '../industrial/transformador';
 import { PARAMETROS_CALCULO_VIVIENDA } from '../../../data/vivienda/parametrosCalculo';
 import { getFactorResistividad } from '../../../data/factoresResistividad';
+import { adaptarConductorACondiciones } from './conductorAdapter';
+
+export const calcularConductorResidencial = (
+  conductor: Conductor,
+  project: Project
+): Conductor => {
+  const condiciones = adaptarConductorACondiciones(conductor, project);
+  
+  if (condiciones.longitudMetros && condiciones.metodoInstalacion && condiciones.tipoTramo) {
+      const resultado = calcularTramoResidencial(condiciones, project);
+      return {
+          ...conductor,
+          resultadoCalculo: resultado,
+          seccion: resultado.seccionRecomendada
+      };
+  }
+  return conductor;
+};
 
 export const calcularTramoResidencial = (
   condiciones: CondicionesTramoResidencial,

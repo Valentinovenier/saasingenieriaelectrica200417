@@ -1,6 +1,6 @@
 import { Conductor } from '../../types/project';
 import { useProject } from '../../context/ProjectDataContext';
-import { calcularTramoResidencial } from '../../engine/strategies/vivienda/calculador';
+import { calcularConductorResidencial } from '../../engine/strategies/vivienda/calculador';
 import { METODOS_INSTALACION_VIVIENDA } from './uiMappers';
 
 interface Props {
@@ -12,32 +12,21 @@ interface Props {
 
 export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => {
   const { state: project } = useProject();
+  const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(conductor?.tipoTramo || '');
 
   const handleDataChange = (updates: Partial<Conductor>) => {
-    const newConductor = { ...conductor, ...updates } as Conductor;
+    let newConductor = { ...conductor, ...updates } as Conductor;
     
-    // Recálculo automático para Viviendas
-    // Buscamos la norma asociada desde la canalización si existe
-    const canalizacion = project?.canalizaciones?.find(c => c.id === newConductor.canalizacionId);
-    const normaCable = canalizacion?.normaCable || newConductor.normaCable;
-
-    if (newConductor.longitud && newConductor.metodoInstalacion && newConductor.tipoTramo) {
-        const resultado = calcularTramoResidencial({
-            tipoTramo: newConductor.tipoTramo as 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal',
-            tipoCircuito: (newConductor.tipoCircuito || 'iluminacion_usos_generales') as any,
-            metodoInstalacion: newConductor.metodoInstalacion as any,
-            longitudMetros: newConductor.longitud || 0,
-            corrienteDiseñoAmperes: 16, // placeholder
-            temperaturaAmbiente: project?.tempAmbiente || 30,
-            canalizacionId: newConductor.canalizacionId,
-            tempSuelo: newConductor.tempSuelo,
-            resistividadTermica: newConductor.resistividadTermica,
-            separacionBordes: newConductor.separacionBordes,
-            normaCable: normaCable
-        }, project as any);
-        newConductor.resultadoCalculo = resultado;
-        newConductor.seccion = resultado.seccionRecomendada;
+    // Si es un tramo dentro de un tablero, aseguramos que canalizacionId no esté definido
+    if (isPanelTramo) {
+        newConductor.canalizacionId = undefined;
     }
+    
+    // Recálculo automático delegado al motor centralizado
+    if (project) {
+        newConductor = calcularConductorResidencial(newConductor, project);
+    }
+    
     onChange(newConductor);
   };
 
@@ -48,7 +37,8 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
         </label>
         
         <div className="grid grid-cols-1 gap-4">
-            {/* Selección de Canalización - Ahora es mandatoria para obtener la norma */}
+            {/* Selección de Canalización - Ahora es mandatoria para obtener la norma, salvo en tableros */}
+            {!isPanelTramo && (
             <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Canalización</label>
                 <select 
@@ -62,9 +52,10 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
                     ))}
                 </select>
             </div>
+            )}
 
-            {/* Método de Instalación - Ahora depende de la norma de la canalización seleccionada */}
-            {(conductor?.canalizacionId || conductor?.normaCable) && (
+            {/* Método de Instalación - Ahora depende de la norma de la canalización seleccionada o si es tramo de tablero */}
+            {(conductor?.canalizacionId || conductor?.normaCable || isPanelTramo) && (
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
                     <select 
@@ -75,6 +66,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
                         <option value="">Selecciona Método</option>
                         {METODOS_INSTALACION_VIVIENDA
                             .filter(m => {
+                                if (isPanelTramo) return true;
                                 const canalizacion = project?.canalizaciones?.find(c => c.id === conductor?.canalizacionId);
                                 const norma = canalizacion?.normaCable || conductor?.normaCable;
                                 if (norma === 'IRAM 2178') {

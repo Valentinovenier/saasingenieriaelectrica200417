@@ -9,6 +9,19 @@ const getTension = (project: Project): number => {
 const getPotenciaCircuito = (c: any): number => {
     if (c.potencia !== undefined && c.potencia !== null) return c.potencia;
     
+    // Si es un CircuitoCalculado (Vivienda)
+    if (c.tipo) {
+        switch (c.tipo) {
+            case 'iluminacion_usos_generales': 
+                return c.tieneTomacorrientesDerivados ? 2200 : (2 / 3) * (c.puntosIUG || 0) * 60;
+            case 'tomacorrientes_usos_generales': return 2200;
+            case 'usos_especiales': return 3300;
+            case 'usos_especificos_mbtf': return c.potenciaManual || 0;
+            default: return 0;
+        }
+    }
+    
+    // Caso de uso industrial/comercial (CircuitoTerminal)
     switch (c.tipo) {
         case 'iluminacion_usos_generales': 
             return c.tieneTomacorrientesDerivados ? 2200 : (2 / 3) * (c.puntosIUG || 0) * 60;
