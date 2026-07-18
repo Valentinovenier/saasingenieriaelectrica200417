@@ -27,6 +27,8 @@ const getPotenciaCircuito = (c: any): number => {
 export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project): number => {
     // 1. Si es el tablero principal, usamos la DPMS calculada para la vivienda
     if (isTablero(tablero) && tablero.nombre.toLowerCase().includes('principal')) {
+        console.log('DEBUG: Tablero Principal', tablero);
+        console.log('DEBUG: Project Data', project.datosVivienda);
         return project.datosVivienda?.potenciaMaximaSimultanea 
             ? project.datosVivienda.potenciaMaximaSimultanea / getTension(project) 
             : 0;
