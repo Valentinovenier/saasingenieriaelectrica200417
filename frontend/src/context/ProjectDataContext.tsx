@@ -3,16 +3,21 @@ import { Project } from '../types/project';
 
 interface ProjectContextType {
   state: Project | null;
+  lastSavedProject: Project | null;
   setState: React.Dispatch<React.SetStateAction<Project | null>>;
+  setLastSaved: (p: Project) => void;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export const ProjectProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<Project | null>(null);
+  const [lastSavedProject, setLastSavedProject] = useState<Project | null>(null);
+
+  const setLastSaved = (p: Project) => setLastSavedProject(JSON.parse(JSON.stringify(p)));
 
   return (
-    <ProjectContext.Provider value={{ state, setState }}>
+    <ProjectContext.Provider value={{ state, lastSavedProject, setState, setLastSaved }}>
       {children}
     </ProjectContext.Provider>
   );

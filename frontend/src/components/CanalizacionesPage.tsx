@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Project, Canalizacion } from '../types/project';
 import { Plus, Trash2, Cable, AlertTriangle } from 'lucide-react';
 import { validarAgrupamiento } from '../engine/strategies/vivienda/validacionesAgrupamiento';
+import { useToast } from '../context/ToastContext';
 
 interface Props {
   project: Project;
@@ -10,8 +11,8 @@ interface Props {
 
 export const CanalizacionesPage = ({ project, onChange }: Props) => {
   const [nombre, setNombre] = useState('');
+  const { addToast } = useToast();
   const canalizaciones = project.canalizaciones || [];
-  const conductores = project.informeConductores || [];
 
   const addCanalizacion = () => {
     if (!nombre) return;
@@ -23,6 +24,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
     };
     onChange({ ...project, canalizaciones: [...canalizaciones, nueva] });
     setNombre('');
+    addToast('Canalización creada exitosamente', 'success');
   };
 
   const updateCanalizacion = (id: string, updates: Partial<Canalizacion>) => {
@@ -49,11 +51,12 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
     const resultado = validarAgrupamiento(project, hypotheticalCanalizacion);
 
     if (!resultado.esValido) {
-      alert("Agrupamiento no permitido por norma AEA 770:\n" + resultado.errores.join('\n'));
+      addToast("Agrupamiento no permitido: " + resultado.errores[0], 'error');
       return;
     }
 
     updateCanalizacion(canalizacionId, { circuitosIds: newIds });
+    addToast('Asignación actualizada', 'success');
   };
 
   return (
