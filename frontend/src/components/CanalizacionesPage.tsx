@@ -25,6 +25,17 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
     setNombre('');
   };
 
+  const updateCanalizacion = (id: string, updates: Partial<Canalizacion>) => {
+    onChange({
+      ...project,
+      canalizaciones: canalizaciones.map(c => c.id === id ? { ...c, ...updates } : c)
+    });
+  };
+
+  const deleteCanalizacion = (id: string) => {
+    onChange({ ...project, canalizaciones: canalizaciones.filter(c => c.id !== id) });
+  };
+
   const toggleCircuito = (canalizacionId: string, circuitoId: string) => {
     const canalizacion = canalizaciones.find(c => c.id === canalizacionId);
     if (!canalizacion) return;
