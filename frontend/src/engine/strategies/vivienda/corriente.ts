@@ -6,10 +6,24 @@ const getTension = (project: Project): number => {
 };
 
 // Función auxiliar para calcular potencia según normas si no existe
-const getPotenciaCircuito = (c: any): number => {
-    if (c.potencia !== undefined && c.potencia !== null) return c.potencia;
+const getPotenciaCircuito = (c: any, project?: Project): number => {
+    if (c.potencia !== undefined && c.potencia !== null && c.potencia !== 0) return c.potencia;
     
-    // Si es un CircuitoCalculado (Vivienda)
+    // Si tenemos acceso al proyecto, intentamos sumar las cargas reales asignadas
+    if (project && project.datosVivienda && project.datosVivienda.tomasPorAmbiente) {
+        let potenciaCalculada = 0;
+        Object.values(project.datosVivienda.tomasPorAmbiente).forEach(ambiente => {
+            if (ambiente[c.id]) {
+                const tomas = ambiente[c.id];
+                potenciaCalculada += (tomas.IUG || 0) * 60; // 60VA por punto IUG
+                potenciaCalculada += (tomas.TUG || 0) * 200; // 200VA por punto TUG
+                potenciaCalculada += (tomas.TUE || 0) * 3300; // 3300VA por punto TUE
+            }
+        });
+        if (potenciaCalculada > 0) return potenciaCalculada;
+    }
+
+    // Si no hay cargas asignadas, usamos el cálculo por defecto basado en tipo
     if (c.tipo) {
         switch (c.tipo) {
             case 'iluminacion_usos_generales': 
@@ -46,7 +60,7 @@ export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project)
     // 3. Caso contrario (Tableros Seccionales / Otros), sumar las potencias de sus circuitos y subtableros
     let totalPotencia = 0;
     if (tablero.circuitosTerminales) {
-        totalPotencia += tablero.circuitosTerminales.reduce((acc, c) => acc + getPotenciaCircuito(c), 0);
+        totalPotencia += tablero.circuitosTerminales.reduce((acc, c) => acc + getPotenciaCircuito(c, project), 0);
     }
     if (tablero.subTableros) {
         totalPotencia += tablero.subTableros.reduce((acc, sub) => acc + ( (sub as any).potenciaTotal || 0), 0);
@@ -56,5 +70,5 @@ export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project)
 };
 
 export const getCircuitoNominalCurrent = (circuito: CircuitoTerminal, project: Project): number => {
-  return getPotenciaCircuito(circuito) / getTension(project);
+  return getPotenciaCircuito(circuito, project) / getTension(project);
 };
