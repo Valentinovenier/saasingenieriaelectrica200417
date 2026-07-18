@@ -4,14 +4,14 @@ import { Project, Conductor, Canalizacion } from '../../../types/project';
  * Servicio para gestionar la lógica de canalizaciones y agrupamiento de circuitos.
  */
 
-export const getCircuitosPorCanalizacion = (project: Project, canalizacionId: string): Conductor[] => {
+export const getCircuitosPorCanalizacion = (project: Project, canalizacionId: string): any[] => {
   // Buscamos la canalización
   const canalizacion = project.canalizaciones?.find(c => c.id === canalizacionId);
   if (!canalizacion) return [];
-  
-  // Obtenemos los conductores que están en el informe y que figuran en el conductorIds de esta canalización
+
+  // Obtenemos los elementos que están en el informe y que figuran en el circuitosIds de esta canalización
   return (project.informeConductores || []).filter(
-    (c: any) => canalizacion.conductorIds.includes(c.id)
+    (c: any) => canalizacion.circuitosIds.includes(c.id)
   );
 };
 
