@@ -1,17 +1,23 @@
 import React from 'react';
 import { LayoutDashboard, Settings, Zap, FileText, Server, Cable } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { Project } from '../types/project';
+import { SaveIndicator } from '../components/SaveIndicator';
 
 export const DashboardLayout = ({ 
   children, 
   activePage, 
   onNavigate,
-  projectSelected
+  projectSelected,
+  project,
+  lastSaved
 }: { 
   children: React.ReactNode,
   activePage: string,
   onNavigate: (page: string) => void,
-  projectSelected: boolean
+  projectSelected: boolean,
+  project: Project | null,
+  lastSaved: Project | null
 }) => {
   const { user, logout } = useAuth();
 
@@ -80,6 +86,7 @@ export const DashboardLayout = ({
                 </button>
               ))}
             </nav>
+            <SaveIndicator project={project} lastSaved={lastSaved} />
           </header>
         )}
 

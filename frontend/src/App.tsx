@@ -19,7 +19,7 @@ import { CanalizacionesPage } from './components/CanalizacionesPage';
 
 export default function App() {
   const { isAuthenticated, loading, logout } = useAuth();
-  const { state: selectedProject, setState: setSelectedProject } = useProject();
+  const { state: selectedProject, setState: setSelectedProject, setLastSaved, lastSavedProject } = useProject();
   const [currentPage, setCurrentPage] = useState('inicio');
   const [projects, setProjects] = useState<Project[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -135,6 +135,7 @@ export default function App() {
         const projectToAdd = { ...newProject, data: newProject };
         setProjects([...projects, projectToAdd]);
         setSelectedProject(newProject);
+        setLastSaved(newProject);
         setIsModalOpen(false);
       } else if (response.status === 401) {
         localStorage.removeItem('token');
@@ -187,6 +188,7 @@ export default function App() {
                 const proj = projects.find(p => p.id === id);
                 if (proj) {
                   setSelectedProject(proj);
+                  setLastSaved(proj);
                   setCurrentPage('parametros'); // Navegar a parámetros al entrar a un proyecto
                 }
               }}
@@ -215,6 +217,7 @@ export default function App() {
             onSave={(updated) => {
               setProjects(projects.map(p => p.id === updated.id ? updated : p));
               setSelectedProject(updated);
+              setLastSaved(updated);
             }}
             onDelete={() => deleteProject(selectedProject.id)}
           />
@@ -276,6 +279,8 @@ export default function App() {
         setCurrentPage(page);
       }}
       projectSelected={!!selectedProject}
+      project={selectedProject}
+      lastSaved={lastSavedProject}
     >
       {renderContent()}
     </DashboardLayout>
