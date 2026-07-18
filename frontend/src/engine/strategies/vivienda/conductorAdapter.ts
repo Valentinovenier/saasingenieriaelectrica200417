@@ -1,5 +1,5 @@
 import { Conductor, Project } from '../../../types/project';
-import { CondicionesTramoResidencial } from '../../../types/vivienda';
+import { CondicionesTramoResidencial, TipoCircuito } from '../../../types/vivienda';
 
 export const adaptarConductorACondiciones = (
   conductor: Conductor,
@@ -10,7 +10,7 @@ export const adaptarConductorACondiciones = (
 
   return {
     tipoTramo: conductor.tipoTramo as 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal',
-    tipoCircuito: conductor.tipoCircuito || 'iluminacion_usos_generales',
+    tipoCircuito: (conductor.tipoCircuito as TipoCircuito) || 'iluminacion_usos_generales',
     metodoInstalacion: conductor.metodoInstalacion || 'B1',
     longitudMetros: conductor.longitud || 0,
     corrienteDiseñoAmperes: 16, // Deberíamos obtener este valor del proyecto o conductor
