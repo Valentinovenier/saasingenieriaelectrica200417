@@ -140,7 +140,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                     value={c.normaCable || 'IRAM 2178'}
                     onChange={(e) => {
                         const nuevosCircuitos = datos.circuitosCalculados.map(circ => 
-                            circ.id === c.id ? { ...circ, normaCable: e.target.value } : circ
+                            circ.id === c.id ? { ...circ, normaCable: e.target.value as 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178' } : circ
                         );
                         onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
                     }}
