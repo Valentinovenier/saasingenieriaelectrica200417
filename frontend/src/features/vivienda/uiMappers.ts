@@ -1,12 +1,10 @@
 // frontend/src/components/conductor-forms/uiMappers.ts
 
 export const METODOS_INSTALACION_VIVIENDA = [
-  { label: 'Embutido en pared', value: 'B1' },
-  { label: 'Cañería a la vista', value: 'B2' },
-  { label: 'Bajo contrapiso', value: 'A1' },
-  { label: 'Cielorraso suspendido', value: 'A2' },
+  { label: 'Cañería / Envoltura (B2)', value: 'B2' },
   { label: 'Cañería enterrada (D1)', value: 'D1' },
   { label: 'Directamente enterrado (D2)', value: 'D2' },
+  { label: 'Sin envoltura (B1)', value: 'sinEnvoltura' },
 ];
 
 export const TIPOS_CIRCUITO_VIVIENDA = [
