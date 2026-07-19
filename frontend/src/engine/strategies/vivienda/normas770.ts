@@ -118,14 +118,17 @@ export const calcularPotencias = (datos: DatosVivienda): { potenciaInstalada: nu
         
         switch (circ.tipo) {
             case 'iluminacion_usos_generales':
+                // Sumar puntos IUG asignados en todos los ambientes para ESTE circuito
+                let puntosIUG = 0;
+                Object.values(datos.tomasPorAmbiente || {}).forEach((amb: any) => {
+                    puntosIUG += (amb[circ.id]?.IUG || 0);
+                });
+
                 if (circ.tieneTomacorrientesDerivados) {
+                    // AEA 770: Si tiene tomas derivados, se considera la potencia del circuito
                     potenciaCircuito = 2200;
                 } else {
-                    // Sumar puntos IUG asignados en todos los ambientes
-                    let puntosIUG = 0;
-                    Object.values(datos.tomasPorAmbiente || {}).forEach((amb: any) => {
-                        puntosIUG += (amb[circ.id]?.IUG || 0);
-                    });
+                    // AEA 770: (2/3) * puntosIUG * 60 VA
                     potenciaCircuito = (2 / 3) * puntosIUG * 60;
                 }
                 break;
