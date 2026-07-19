@@ -25,7 +25,7 @@ export const calcularImpedanciaTransformador = (trafo: {
   tipo?: 'Aceite' | 'Seco';
 }) => {
   const potenciaVal = trafo.potenciaKVA || trafo.potencia || 0;
-  const tensionSecVal = trafo.tensionSecundarioV || trafo.tensionSecundario || 400;
+  const tensionSecVal = trafo.tensionSecundarioV || trafo.tensionSecundario || 380;
   const tipoVal = trafo.tipo || 'Aceite';
 
   if (potenciaVal <= 0 || tensionSecVal <= 0) {

@@ -151,11 +151,9 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
                 <div className="text-[10px] font-bold text-slate-500 uppercase ml-2">Circuitos</div>
                 {datos.circuitosCalculados.map((c: CircuitoCalculado) => {
                     // Lógica actualizada: 
-                    // 1. Está asignado si:
-                    //    - Si es el principal y no está en ningún otro tablero.
-                    //    - Si es seccional/sub y está en su lista.
+                    // 1. Está asignado si el circuito está explícitamente en la lista de IDs del tablero.
+                    const esAsignado = tablero.circuitosIds.includes(c.id);
                     const estaEnOtro = tableros.some((t: TableroVivienda) => t.id !== tablero.id && t.circuitosIds.includes(c.id));
-                    const esAsignado = tablero.circuitosIds.includes(c.id) || (tablero.tipo === 'Principal' && !estaEnOtro);
                     
                     return (
                         <label key={c.id} className={`flex items-center gap-3 p-3 rounded-lg text-sm transition-all border ${esAsignado ? 'bg-emerald-900/10 border-emerald-800/50' : 'bg-slate-950 border-slate-800'} cursor-pointer hover:border-slate-600`}>
@@ -169,7 +167,7 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
                                 onChange={() => toggleCircuitoEnTablero(tablero.id, c.id)}
                             />
                             <span className={esAsignado ? 'text-white' : 'text-slate-400'}>{c.nombre}</span>
-                            {estaEnOtro && tablero.tipo !== 'Principal' && <span className="text-[10px] text-slate-500 italic ml-auto">(Asignado)</span>}
+                            {estaEnOtro && !esAsignado && <span className="text-[10px] text-slate-500 italic ml-auto">(Asignado a otro tablero)</span>}
                         </label>
                     );
                 })}

@@ -55,8 +55,8 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, hideCanaliza
             </div>
             )}
 
-            {/* Método de Instalación - Ahora depende de la norma de la canalización seleccionada o si es tramo de tablero */}
-            {(conductor?.canalizacionId || conductor?.normaCable || isPanelTramo) && (
+            {/* Método de Instalación - Ahora depende de la norma de la canalización seleccionada o si es tramo de tablero o si se oculta la canalización en la raíz */}
+            {(conductor?.canalizacionId || conductor?.normaCable || isPanelTramo || hideCanalizacion) && (
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
                     <select 
@@ -67,7 +67,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, hideCanaliza
                         <option value="">Selecciona Método</option>
                         {METODOS_INSTALACION_VIVIENDA
                             .filter(m => {
-                                if (isPanelTramo) return true;
+                                if (isPanelTramo || hideCanalizacion) return true;
                                 const canalizacion = project?.canalizaciones?.find(c => c.id === conductor?.canalizacionId);
                                 const norma = canalizacion?.normaCable || conductor?.normaCable;
                                 if (norma === 'IRAM 2178') {

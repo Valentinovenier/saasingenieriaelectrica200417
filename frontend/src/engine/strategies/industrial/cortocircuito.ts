@@ -34,7 +34,8 @@ export const calcularParametrosCortocircuito = (
   // 4. Ik:
   // En Trifásica: Ik = U / (|Z| * sqrt(3))
   // En Monofásica: Ik = U / (2 * |Z|)
-  const Un = trafo.tensionSecundarioV || trafo.tensionSecundario || 400;
+  const Un = trafo.tensionSecundarioV || trafo.tensionSecundario || 380;
+
   const esTri = tipoInstalacion !== 'Monofásica';
   const Ik = esTri ? Un / (Z * Math.sqrt(3)) : Un / (2 * Z);
 

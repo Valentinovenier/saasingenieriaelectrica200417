@@ -2,7 +2,7 @@ import { Project, BaseTablero, CircuitoTerminal, isTablero } from '../../../type
 
 const getTension = (project: Project): number => {
   const isTrifasica = project.tipoInstalacion === 'Trifásica';
-  return isTrifasica ? 400 * Math.sqrt(3) : 230;
+  return isTrifasica ? 380 : 220;
 };
 
 // Función auxiliar para calcular potencia según normas (AEA 770)
