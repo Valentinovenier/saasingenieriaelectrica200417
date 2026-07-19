@@ -44,7 +44,7 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
       <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Configuración Normativa AEA 770</h2>
       
       <div className="grid grid-cols-2 gap-4">
-        <div>
+        <div className="col-span-2">
           <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Superficie Cubierta (m²)</label>
           <input 
             type="number" 
@@ -60,18 +60,6 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
             className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
             value={datos.superficieSemicubierta}
             onChange={(e) => handleUpdate({ superficieSemicubierta: parseFloat(e.target.value) || 0 })}
-          />
-        </div>
-        <div className="col-span-2">
-          <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">
-            Corriente de cortocircuito máxima de distribuidora - I"k (kA)
-          </label>
-          <input 
-            type="number" 
-            step="0.1"
-            className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-            value={datos.ikDistribuidora ?? 3.0}
-            onChange={(e) => handleUpdate({ ikDistribuidora: parseFloat(e.target.value) || 3.0 })}
           />
         </div>
       </div>

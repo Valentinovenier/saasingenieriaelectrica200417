@@ -73,7 +73,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             )}
 
             {/* Método de Instalación - Ahora depende de la norma de la canalización seleccionada o si es tramo de tablero o si se oculta la canalización en la raíz */}
-            {(conductor?.canalizacionId || conductor?.normaCable || isPanelTramo || esTramoProtegido) && (
+            {(conductor?.canalizacionId || isPanelTramo || esTramoProtegido) && (
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
                     <select 
