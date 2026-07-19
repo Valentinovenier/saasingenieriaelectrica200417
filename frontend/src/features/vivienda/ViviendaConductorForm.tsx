@@ -8,9 +8,10 @@ interface Props {
   conductor?: Conductor;
   onChange: (c: Conductor) => void;
   tramoId?: string;
+  hideCanalizacion?: boolean;
 }
 
-export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => {
+export const ViviendaConductorForm = ({ label, conductor, onChange, hideCanalizacion }: Props) => {
   const { state: project } = useProject();
   const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(conductor?.tipoTramo || '');
 
@@ -18,7 +19,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
     let newConductor = { ...conductor, ...updates } as Conductor;
     
     // Si es un tramo dentro de un tablero, aseguramos que canalizacionId no esté definido
-    if (isPanelTramo) {
+    if (isPanelTramo || hideCanalizacion) {
         newConductor.canalizacionId = undefined;
     }
     
@@ -37,8 +38,8 @@ export const ViviendaConductorForm = ({ label, conductor, onChange }: Props) => 
         </label>
         
         <div className="grid grid-cols-1 gap-4">
-            {/* Selección de Canalización - Ahora es mandatoria para obtener la norma, salvo en tableros */}
-            {!isPanelTramo && (
+            {/* Selección de Canalización - Ahora es mandatoria para obtener la norma, salvo en tableros o si se oculta */}
+            {!isPanelTramo && !hideCanalizacion && (
             <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Canalización</label>
                 <select 

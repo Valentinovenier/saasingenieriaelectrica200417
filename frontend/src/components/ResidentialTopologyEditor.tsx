@@ -79,6 +79,7 @@ export const ResidentialTopologyEditor = ({ project, onChange }: { project: Proj
                   label={`Configuración: Tramo hacia ${currentNode.nombre}`}
                   conductor={currentNode.conductorAlimentacion}
                   onChange={(c) => updateNode(selectedPath, { conductorAlimentacion: c })}
+                  hideCanalizacion={selectedPath.length === 1}
                />
              )}
           </div>

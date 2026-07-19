@@ -6,12 +6,22 @@ const getTension = (project: Project): number => {
 };
 
 // Función auxiliar para calcular potencia según normas (AEA 770)
-const getPotenciaCircuito = (c: any): number => {
+const getPotenciaCircuito = (c: any, project?: Project): number => {
     // AEA 770: Demanda de potencia máxima simultánea
     switch (c.tipo) {
         case 'iluminacion_usos_generales': 
+            // AEA 770: Sumar puntos IUG asignados en todos los ambientes para ESTE circuito
+            let puntosIUG = 0;
+            if (project && project.datosVivienda && project.datosVivienda.tomasPorAmbiente) {
+                Object.values(project.datosVivienda.tomasPorAmbiente).forEach((amb: any) => {
+                    puntosIUG += (amb[c.id]?.IUG || 0);
+                });
+            } else {
+                puntosIUG = c.puntosIUG || 0;
+            }
+
             // AEA 770: Minimo 1 punto por circuito IUG. Si puntos es 0, usamos 1 punto de 60 VA por defecto.
-            const puntos = c.puntosIUG && c.puntosIUG > 0 ? c.puntosIUG : 1;
+            const puntos = puntosIUG > 0 ? puntosIUG : 1;
             return c.tieneTomacorrientesDerivados 
                 ? 2200 
                 : (2 / 3) * puntos * 60;
@@ -44,14 +54,14 @@ export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project)
     // 3. Caso contrario, sumar las potencias de sus circuitos y subtableros
     let totalPotencia = 0;
     if (tablero.circuitosTerminales) {
-        totalPotencia += tablero.circuitosTerminales.reduce((acc, c) => acc + getPotenciaCircuito(c), 0);
+        totalPotencia += tablero.circuitosTerminales.reduce((acc, c) => acc + getPotenciaCircuito(c, project), 0);
     }
     
     return totalPotencia / getTension(project);
 };
 
 export const getCircuitoNominalCurrent = (circuito: CircuitoTerminal, project: Project): number => {
-  const potencia = getPotenciaCircuito(circuito);
+  const potencia = getPotenciaCircuito(circuito, project);
   const corriente = potencia / getTension(project);
   console.log(`DEBUG: Circuito ${circuito.nombre} - Potencia: ${potencia} VA - I: ${corriente} A`);
   return corriente;
