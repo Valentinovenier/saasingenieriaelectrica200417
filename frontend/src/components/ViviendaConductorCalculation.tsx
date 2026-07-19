@@ -203,11 +203,12 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
                 conductor={currentConductor}
                 onChange={c => {
                     // Update current conductor state, ensuring tipoCircuito is set for calculations
-                    let updateC = { ...c };
+                    let updateC: any = { ...c };
                     if (tipoTramo === 'salida_circuito') {
                         const tCirc = circuitosDelTablero.find(circ => circ.id === destinoId)?.tipo;
                         if (tCirc) updateC.tipoCircuito = tCirc;
                         updateC.tipoTramo = 'CircuitoTerminal';
+                        updateC.destinoId = destinoId;
                     } else if (tipoTramo === 'salida_tablero') {
                         updateC.tipoTramo = 'LineaSeccional';
                     } else {

@@ -1,7 +1,7 @@
 import { Conductor } from '../../types/project';
 import { useProject } from '../../context/ProjectDataContext';
 import { calcularConductorResidencial } from '../../engine/strategies/vivienda/calculador';
-import { METODOS_INSTALACION_VIVIENDA } from './uiMappers';
+import { METODOS_INSTALACION } from '../../data/metodosInstalacion';
 import { DetalleCalculoConductor } from './DetalleCalculoConductor';
 
 interface Props {
@@ -66,19 +66,10 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, hideCanaliza
                         onChange={(e) => handleDataChange({ metodoInstalacion: e.target.value })}
                     >
                         <option value="">Selecciona Método</option>
-                        {METODOS_INSTALACION_VIVIENDA
-                            .filter(m => {
-                                if (isPanelTramo || hideCanalizacion) return true;
-                                const canalizacion = project?.canalizaciones?.find(c => c.id === conductor?.canalizacionId);
-                                const norma = canalizacion?.normaCable || conductor?.normaCable;
-                                if (norma === 'IRAM 2178') {
-                                    return ['B1', 'B2', 'D1', 'D2'].includes(m.value);
-                                } else {
-                                    return m.value === 'B1';
-                                }
-                            })
-                            .map((m: {label: string, value: string}) => (
-                                <option key={m.value} value={m.value}>{m.label}</option>
+                        {Array.from(new Set([...METODOS_INSTALACION.Multipolar, ...METODOS_INSTALACION.Unipolar].map(m => m.value)))
+                            .sort()
+                            .map((mValue) => (
+                                <option key={mValue} value={mValue}>{mValue}</option>
                             ))
                         }
                     </select>
@@ -143,19 +134,6 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, hideCanaliza
                     onChange={(e) => handleDataChange({ longitud: parseFloat(e.target.value) || 0 })}
                 />
             </div>
-            
-            {conductor?.tipoCircuito === 'iluminacion_usos_generales' && (
-              <div>
-                <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Cantidad de Tomas TUG (derivados)</label>
-                <input 
-                    type="number"
-                    min={0}
-                    className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                    value={conductor?.tomasTUGDerivados || 0}
-                    onChange={(e) => handleDataChange({ tomasTUGDerivados: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-            )}
         </div>
         
         {conductor?.resultadoCalculo && (
