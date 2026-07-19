@@ -12,21 +12,34 @@ interface Props {
   hideCanalizacion?: boolean;
 }
 
-export const ViviendaConductorForm = ({ label, conductor, onChange, hideCanalizacion }: Props) => {
+export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hideCanalizacion }: Props) => {
   const { state: project } = useProject();
+  
+  const esTramoProtegido = tramoId === 'int-general-salida' || hideCanalizacion;
   const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(conductor?.tipoTramo || '');
 
   const handleDataChange = (updates: Partial<Conductor>) => {
     let newConductor = { ...conductor, ...updates } as Conductor;
     
-    // Si es un tramo dentro de un tablero, aseguramos que canalizacionId no esté definido
-    if (isPanelTramo || hideCanalizacion) {
+    // Si es un tramo dentro de un tablero, o el tramo protegido, aseguramos que canalizacionId no esté definido
+    if (isPanelTramo || esTramoProtegido) {
         newConductor.canalizacionId = undefined;
     }
     
     // Recálculo automático delegado al motor centralizado
     if (project) {
-        newConductor = calcularConductorResidencial(newConductor, project);
+        // Necesitamos buscar la protección asociada a este conductor si es un CircuitoTerminal
+        // En Vivienda, la protección suele estar fuera del objeto conductor, pero veamos qué podemos hacer.
+        // Si el conductor es parte de un CircuitoTerminal, la protección está en el objeto padre.
+        // Como este componente solo recibe el conductor, vamos a tener que buscarla.
+        let proteccion = undefined;
+        if (project.datosVivienda?.circuitosCalculados) {
+             const circuito = project.datosVivienda.circuitosCalculados.find(c => c.id === tramoId);
+             // Esta lógica es compleja porque el conductor no tiene referencia al padre.
+             // Por ahora, pasamos undefined, pero el motor lo usará si lo tuviera.
+        }
+        
+        newConductor = calcularConductorResidencial(newConductor, project, proteccion);
     }
     
     onChange(newConductor);
@@ -38,9 +51,17 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, hideCanaliza
             {label} <span className="text-[var(--accent)] ml-2">(Normativa Viviendas AEA-90364-7-770)</span>
         </label>
         
+        {/* Predefinir Tablero de Origen y Tramo si es necesario (visualmente) */}
+        {tramoId === 'int-general-salida' && (
+            <div className="mb-4 p-2 bg-slate-800 rounded text-xs text-slate-300">
+                <p><strong>Tablero Origen:</strong> {project?.tableroPrincipal?.nombre || 'Tablero Principal'}</p>
+                <p><strong>Tramo:</strong> Int General a Salida</p>
+            </div>
+        )}
+        
         <div className="grid grid-cols-1 gap-4">
             {/* Selección de Canalización - Ahora es mandatoria para obtener la norma, salvo en tableros o si se oculta */}
-            {!hideCanalizacion && !isPanelTramo && (
+            {!esTramoProtegido && !isPanelTramo && (
             <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Canalización</label>
                 <select 
@@ -57,7 +78,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, hideCanaliza
             )}
 
             {/* Método de Instalación - Ahora depende de la norma de la canalización seleccionada o si es tramo de tablero o si se oculta la canalización en la raíz */}
-            {(conductor?.canalizacionId || conductor?.normaCable || isPanelTramo || hideCanalizacion) && (
+            {(conductor?.canalizacionId || conductor?.normaCable || isPanelTramo || esTramoProtegido) && (
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
                     <select 

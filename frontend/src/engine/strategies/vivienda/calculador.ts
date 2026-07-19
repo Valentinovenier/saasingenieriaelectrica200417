@@ -29,7 +29,8 @@ export const calcularConductorResidencial = (
 
 export const calcularTramoResidencial = (
   condiciones: CondicionesTramoResidencial,
-  project: Project
+  project: Project,
+  proteccionSeleccionada?: Proteccion
 ): ResultadoCalculoResidencial => {
   let advertencias: string[] = [];
   const pasosVerificacion: any[] = [];
@@ -98,7 +99,7 @@ export const calcularTramoResidencial = (
     
     // PASO 1
     pasosActuales.push({
-        numero: 1, nombre: "Corriente de Proyecto (IB)",
+        numero: 1, nombre: "Corriente del tramo (IB)",
         valor: `${I_B.toFixed(2)} A`, condicion: "-", cumple: true
     });
 
@@ -118,27 +119,54 @@ export const calcularTramoResidencial = (
 
     pasosActuales.push({
         numero: 2, nombre: "Capacidad de Conducción (Iz)",
-        valor: `${IzCorregida.toFixed(2)} A (F.T: ${factorTemp}, F.A: ${factorAgrup})`,
+        valor: `${IzCorregida.toFixed(2)} A (Iz_base: ${IzBase.toFixed(2)}A * F.Temp: ${factorTemp.toFixed(2)} * F.Agrup: ${factorAgrup.toFixed(2)} * F.Resist: ${factorResistividad.toFixed(2)})`,
         condicion: `Iz >= IB`, cumple: IzCorregida >= I_B
     });
     
     if (IzCorregida < I_B) continue;
 
-    // PASO 3 y 4: Coordinación con Protección Termomagnética (I_B <= I_N <= I_Z)
-    const InPosibles = valoresTermomagneticas.filter(In => In >= I_B && In <= IzCorregida);
-    
-    if (InPosibles.length === 0) {
-        pasosActuales.push({ numero: 3, nombre: "Protección (In)", valor: "Ninguna In comercial ajusta", condicion: "IB <= In <= Iz", cumple: false });
-        continue;
+    // PASO 3: Coordinación con Protección (I_B <= I_N <= I_Z)
+    let InElegida = 0;
+    let cumpleProteccion = false;
+
+    if (proteccionSeleccionada) {
+        InElegida = proteccionSeleccionada.in_amp;
+        cumpleProteccion = InElegida >= I_B && InElegida <= IzCorregida;
+        pasosActuales.push({ 
+            numero: 3, nombre: "Protección (In)", 
+            valor: `${InElegida} A (Seleccionada: ${proteccionSeleccionada.modelo})`, 
+            condicion: "IB <= In <= Iz", cumple: cumpleProteccion 
+        });
+    } else {
+        const InPosibles = valoresTermomagneticas.filter(In => In >= I_B && In <= IzCorregida);
+        if (InPosibles.length === 0) {
+            pasosActuales.push({ numero: 3, nombre: "Protección (In)", valor: "Ninguna In comercial ajusta", condicion: "IB <= In <= Iz", cumple: false });
+        } else {
+            termomagneticaRecomendada = InPosibles[0];
+            InElegida = termomagneticaRecomendada;
+            cumpleProteccion = true;
+            pasosActuales.push({ 
+                numero: 3, nombre: "Protección (In)", 
+                valor: `${InElegida} A (Recomendada)`, 
+                condicion: "IB <= In <= Iz", cumple: true 
+            });
+        }
     }
     
-    termomagneticaRecomendada = InPosibles[0];
+    if (!cumpleProteccion) continue;
+
+    // Verificación de Sobrecarga (I2 <= 1.45 * Iz)
+    const I2 = 1.45 * InElegida;
+    const I2_limite = 1.45 * IzCorregida;
+    const cumplePaso4 = I2 <= I2_limite;
+    
     pasosActuales.push({
-        numero: 3, nombre: "Protección (In)", valor: `${termomagneticaRecomendada} A`, condicion: "IB <= In <= Iz", cumple: true
+        numero: 4, nombre: "Protección contra Sobrecarga (I2 <= 1.45 * Iz)", 
+        valor: `I2=${I2.toFixed(2)}A, 1.45*Iz=${I2_limite.toFixed(2)}A`, 
+        condicion: "I2 <= 1.45 * Iz", cumple: cumplePaso4
     });
-    pasosActuales.push({
-        numero: 4, nombre: "Protección contra Sobrecarga", valor: `Implícito In <= Iz`, condicion: "Verificado", cumple: true
-    });
+    
+    if (!cumplePaso4) continue;
 
     // PASO 5: Corriente de cortocircuito máxima (I"k)
     const Ik_max = 220 / Math.sqrt(Math.pow(Z_upstream.r, 2) + Math.pow(Z_upstream.x, 2));
@@ -158,13 +186,18 @@ export const calcularTramoResidencial = (
         
         // PASO 6: Verificación de Cortocircuito Térmico
         const K = 115;
-        const energiaFalla = Math.pow(Ik_max, 2) * 0.1; // t=0.1s
+        // Si hay una protección seleccionada con energía pasante definida, usarla.
+        // Si no, usar cálculo simplificado con t=0.1s
+        const energiaFalla = (proteccionSeleccionada && proteccionSeleccionada.energia_pasante) 
+            ? proteccionSeleccionada.energia_pasante 
+            : Math.pow(Ik_max, 2) * 0.1;
+            
         const capacidadCable = Math.pow(K * s, 2);
         
         const cumplePaso6 = capacidadCable >= energiaFalla;
         pasosActuales.push({
             numero: 6, nombre: "Exigencia Térmica", 
-            valor: `K²S²=${capacidadCable.toFixed(0)}, I²t=${energiaFalla.toFixed(0)}`,
+            valor: `K²S²=${capacidadCable.toFixed(0)}, I²t=${energiaFalla.toFixed(0)}${proteccionSeleccionada?.energia_pasante ? ' (de protección)' : ' (simplificado)'}`,
             condicion: "K²S² >= I²t", cumple: cumplePaso6
         });
         
@@ -175,7 +208,7 @@ export const calcularTramoResidencial = (
         const Icc_min = (220 / Z_total); // Icc al final del tramo
         
         // Asumiendo Curva C
-        const Im = 10 * termomagneticaRecomendada;
+        const Im = 10 * InElegida;
         const cumplePaso7 = Icc_min > Im;
         
         pasosActuales.push({
@@ -223,7 +256,7 @@ export const calcularTramoResidencial = (
           pasosVerificacion.push(...pasosActuales); // Guardamos los pasos del último intento (fallido) para mostrarlos
       }
   } else {
-      advertencias.push(`Protección recomendada: Interruptor termomagnético de ${termomagneticaRecomendada}A (Curva C).`);
+      advertencias.push(`Protección aceptada: Interruptor termomagnético de ${termomagneticaRecomendada || proteccionSeleccionada?.in_amp}A (Curva C).`);
   }
 
   return {
@@ -235,3 +268,4 @@ export const calcularTramoResidencial = (
     pasosVerificacion
   };
 };
+

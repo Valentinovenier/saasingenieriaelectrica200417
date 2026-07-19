@@ -41,7 +41,6 @@ export interface Conductor {
   tempSuelo?: number;
   resistividadTermica?: number;
   separacionBordes?: string;
-  tomasTUGDerivados?: number;
 }
 
 export interface Proteccion {
