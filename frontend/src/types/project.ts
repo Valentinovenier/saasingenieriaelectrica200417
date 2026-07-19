@@ -52,6 +52,7 @@ export interface Proteccion {
   polos: number;
   marca?: 'Schneider' | 'ABB';
   capacidades: { tension_v: number; icn_ka: number; clase_limitacion: number }[];
+  energia_pasante?: number;
 }
 
 export interface Transformador {
