@@ -138,7 +138,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                 {/* La norma se define en canalizaciones */}
               </div>
 
-                {c.tipo === 'iluminacion_usos_generales' && (
+              {c.tipo === 'iluminacion_usos_generales' && (
                   <label className="flex items-center gap-2 text-[10px] text-slate-300">
                     <input 
                       type="checkbox" 
@@ -153,8 +153,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                     />
                     TUG Derivados
                   </label>
-                )}
-              </div>
+              )}
             </div>
             {!c.id.startsWith('auto-') && (
                 <button onClick={() => removeCircuito(c.id)} className="text-red-400 p-1">
