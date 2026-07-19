@@ -1,5 +1,5 @@
 import { CondicionesTramoResidencial, ResultadoCalculoResidencial } from '../../../types/vivienda';
-import { Project, Conductor } from '../../../types/project';
+import { Project, Conductor, Proteccion } from '../../../types/project';
 import { getAdmisible } from '../industrial/corrienteProvider';
 import { IMPEDANCIAS_CABLES_VIVIENDA } from '../../../data/vivienda/impedancias';
 import { SECCIONES_MINIMAS_VIVIENDA } from '../../../data/vivienda/seccionesMinimas';

@@ -28,18 +28,13 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     
     // Recálculo automático delegado al motor centralizado
     if (project) {
-        // Necesitamos buscar la protección asociada a este conductor si es un CircuitoTerminal
-        // En Vivienda, la protección suele estar fuera del objeto conductor, pero veamos qué podemos hacer.
-        // Si el conductor es parte de un CircuitoTerminal, la protección está en el objeto padre.
-        // Como este componente solo recibe el conductor, vamos a tener que buscarla.
-        let proteccion = undefined;
-        if (project.datosVivienda?.circuitosCalculados) {
-             const circuito = project.datosVivienda.circuitosCalculados.find(c => c.id === tramoId);
-             // Esta lógica es compleja porque el conductor no tiene referencia al padre.
-             // Por ahora, pasamos undefined, pero el motor lo usará si lo tuviera.
-        }
+        // Buscamos si hay una protección asociada al circuito (si tramoId es el ID del circuito)
+        const circuito = project.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId);
         
-        newConductor = calcularConductorResidencial(newConductor, project, proteccion);
+        // Esta parte es delicada. Si tramoId no es el circuito, esta búsqueda fallará.
+        // Asumiremos por ahora que necesitamos una forma más robusta de pasar la protección.
+        // Para solucionar la build rápidamente, pasamos solo 2 argumentos.
+        newConductor = calcularConductorResidencial(newConductor, project);
     }
     
     onChange(newConductor);
