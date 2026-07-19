@@ -39,7 +39,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, hideCanaliza
         
         <div className="grid grid-cols-1 gap-4">
             {/* Selección de Canalización - Ahora es mandatoria para obtener la norma, salvo en tableros o si se oculta */}
-            {!isPanelTramo && !hideCanalizacion && (
+            {!hideCanalizacion && !isPanelTramo && (
             <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Canalización</label>
                 <select 
