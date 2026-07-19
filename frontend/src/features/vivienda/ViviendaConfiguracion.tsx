@@ -62,6 +62,18 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
             onChange={(e) => handleUpdate({ superficieSemicubierta: parseFloat(e.target.value) || 0 })}
           />
         </div>
+        <div className="col-span-2">
+          <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">
+            Corriente de cortocircuito máxima de distribuidora - I"k (kA)
+          </label>
+          <input 
+            type="number" 
+            step="0.1"
+            className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
+            value={datos.ikDistribuidora ?? 3.0}
+            onChange={(e) => handleUpdate({ ikDistribuidora: parseFloat(e.target.value) || 3.0 })}
+          />
+        </div>
       </div>
 
       <div className="bg-slate-900 p-4 rounded-lg border border-slate-800 grid grid-cols-3 gap-4">

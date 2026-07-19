@@ -62,6 +62,7 @@ export interface DatosVivienda {
   tomasPorAmbiente?: Record<string, Record<string, TomasCircuito>>;
   potenciaInstalada?: number;
   potenciaMaximaSimultanea?: number;
+  ikDistribuidora?: number; // kA
 }
 
 export interface CondicionesTramoResidencial {
@@ -79,10 +80,19 @@ export interface CondicionesTramoResidencial {
   separacionBordes?: string;
 }
 
+export interface PasoVerificacion {
+  numero: number;
+  nombre: string;
+  valor: string;
+  condicion: string;
+  cumple: boolean;
+}
+
 export interface ResultadoCalculoResidencial {
   seccionRecomendada: number;
   caidaTensionPorcentaje: number;
   cumpleCapacidadCorriente: boolean;
   cumpleCaidaTension: boolean;
   advertencias?: string[];
+  pasosVerificacion?: PasoVerificacion[];
 }

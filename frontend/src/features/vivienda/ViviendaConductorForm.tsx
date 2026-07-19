@@ -2,6 +2,7 @@ import { Conductor } from '../../types/project';
 import { useProject } from '../../context/ProjectDataContext';
 import { calcularConductorResidencial } from '../../engine/strategies/vivienda/calculador';
 import { METODOS_INSTALACION_VIVIENDA } from './uiMappers';
+import { DetalleCalculoConductor } from './DetalleCalculoConductor';
 
 interface Props {
   label: string;
@@ -156,6 +157,10 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, hideCanaliza
               </div>
             )}
         </div>
+        
+        {conductor?.resultadoCalculo && (
+            <DetalleCalculoConductor resultado={conductor.resultadoCalculo} />
+        )}
     </div>
   );
 };
