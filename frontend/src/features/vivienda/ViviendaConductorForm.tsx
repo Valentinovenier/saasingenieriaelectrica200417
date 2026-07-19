@@ -1,7 +1,7 @@
 import { Conductor } from '../../types/project';
 import { useProject } from '../../context/ProjectDataContext';
 import { calcularConductorResidencial } from '../../engine/strategies/vivienda/calculador';
-import { METODOS_INSTALACION } from '../../data/metodosInstalacion';
+import { METODOS_INSTALACION_VIVIENDA } from './uiMappers';
 import { DetalleCalculoConductor } from './DetalleCalculoConductor';
 
 interface Props {
@@ -82,10 +82,9 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                         onChange={(e) => handleDataChange({ metodoInstalacion: e.target.value })}
                     >
                         <option value="">Selecciona Método</option>
-                        {Array.from(new Set([...METODOS_INSTALACION.Multipolar, ...METODOS_INSTALACION.Unipolar].map(m => m.value)))
-                            .sort()
-                            .map((mValue) => (
-                                <option key={mValue} value={mValue}>{mValue}</option>
+                        {METODOS_INSTALACION_VIVIENDA
+                            .map((m: {label: string, value: string}) => (
+                                <option key={m.value} value={m.value}>{m.label}</option>
                             ))
                         }
                     </select>
