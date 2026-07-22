@@ -55,8 +55,8 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
         )}
         
         <div className="grid grid-cols-1 gap-4">
-            {/* Selección de Canalización - Ahora es mandatoria para obtener la norma, salvo en tableros o si se oculta */}
-            {!esTramoProtegido && !isPanelTramo && (
+            {/* Selección de Canalización - Oculta en tramo general-salida, visible en circuitos terminales */}
+            {tramoId !== 'int-general-salida' && conductor?.tipoTramo === 'CircuitoTerminal' && (
             <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Canalización</label>
                 <select 
