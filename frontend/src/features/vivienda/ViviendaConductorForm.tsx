@@ -58,7 +58,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             {/* Método de Instalación */}
             <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
-                {!conductor?.canalizacionId ? (
+                {!conductor?.canalizacionId && tramoId !== 'int-general-salida' ? (
                     <div className="p-3 bg-amber-900/20 border border-amber-700 rounded-lg text-amber-300 text-xs">
                         Debe asignar este circuito a una canalización en la sección "Canalizaciones" antes de configurar el método de instalación.
                     </div>

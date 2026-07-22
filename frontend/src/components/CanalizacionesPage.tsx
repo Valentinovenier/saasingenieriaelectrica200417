@@ -73,7 +73,6 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       : [...canalizacionActual.circuitosIds, circuitoId];
 
     // Validar antes de aplicar cambios
-    // NOTA: Aquí debería pasar el proyecto actualizado para que la validación vea las nuevas normas de los circuitos
     const hypotheticalCanalizacion = { ...canalizacionActual, circuitosIds: newIds };
     const resultado = validarAgrupamiento(project, hypotheticalCanalizacion);
 
@@ -82,9 +81,28 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       return;
     }
 
-    // 3. Aplicar cambios a todas las canalizaciones
+    // 3. Actualizar los conductores de los circuitos
+    const circuitos = project.datosVivienda?.circuitosCalculados || [];
+    const nuevosCircuitos = circuitos.map(c => {
+        if (c.id === circuitoId) {
+            return {
+                ...c,
+                conductor: {
+                    ...c.conductor,
+                    canalizacionId: estaAsignado ? undefined : canalizacionId
+                }
+            };
+        }
+        return c;
+    });
+
+    // 4. Aplicar cambios a todo el proyecto
     onChange({
         ...project,
+        datosVivienda: {
+            ...project.datosVivienda!,
+            circuitosCalculados: nuevosCircuitos
+        },
         canalizaciones: canalizacionesActualizadas.map(c => 
             c.id === canalizacionId ? { ...c, circuitosIds: newIds } : c
         )
