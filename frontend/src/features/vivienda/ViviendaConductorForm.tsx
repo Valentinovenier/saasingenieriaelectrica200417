@@ -55,35 +55,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
         )}
         
         <div className="grid grid-cols-1 gap-4">
-            {/* Normativa y Canalización - Solo en circuitos terminales */}
-            {tramoId !== 'int-general-salida' && conductor?.tipoTramo === 'CircuitoTerminal' && (
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Normativa del Cable (desde Canalización)</label>
-                    <div className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700">
-                        {(() => {
-                            const canalizacion = project?.canalizaciones?.find(c => c.id === conductor?.canalizacionId);
-                            return canalizacion?.normaCable || 'No definida';
-                        })()}
-                    </div>
-                </div>
-                <div>
-                    <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Canalización</label>
-                    <select 
-                        className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                        value={conductor?.canalizacionId || ''}
-                        onChange={(e) => handleDataChange({ canalizacionId: e.target.value })}
-                    >
-                        <option value="">Seleccionar Canalización</option>
-                        {project?.canalizaciones?.map(c => (
-                            <option key={c.id} value={c.id}>{c.nombre}</option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-            )}
-
-            {/* Método de Instalación - Filtrado dinámico según norma */}
+            {/* Método de Instalación */}
             <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
                 <select 
@@ -92,29 +64,11 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                     onChange={(e) => handleDataChange({ metodoInstalacion: e.target.value })}
                 >
                     <option value="">Selecciona Método</option>
-                    {(() => {
-                        const canalizacion = project?.canalizaciones?.find(c => c.id === conductor?.canalizacionId);
-                        const norma = canalizacion?.normaCable || 'IRAM 2178';
-                        
-                        // Lógica: 
-                        // IRAM-NM 247-3 / IRAM 62267 -> Solo admiten métodos B1 (sinEnvoltura)
-                        // IRAM 62266 / IRAM 2178 -> Admiten métodos B2, D1, D2
-                        
-                        const esCableFlexible = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
-                        
-                        return METODOS_INSTALACION_VIVIENDA.filter(m => {
-                            if (esCableFlexible) {
-                                return m.value === 'sinEnvoltura' || m.value === 'B1';
-                            } else {
-                                return m.value !== 'sinEnvoltura' && m.value !== 'B1';
-                            }
-                        }).map((m) => (
-                            <option key={m.value} value={m.value}>{m.label}</option>
-                        ));
-                    })()}
+                    {METODOS_INSTALACION_VIVIENDA.map((m) => (
+                        <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
                 </select>
             </div>
-
 
             {conductor?.metodoInstalacion?.startsWith('D') && (
                 <>
