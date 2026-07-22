@@ -20,11 +20,25 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       id: Date.now().toString(),
       nombre,
       circuitosIds: [],
-      normaCable: 'IRAM 2178'
     };
     onChange({ ...project, canalizaciones: [...canalizaciones, nueva] });
     setNombre('');
     addToast('Canalización creada exitosamente', 'success');
+  };
+
+  const updateCircuitoNorma = (circuitoId: string, norma: string) => {
+    // Necesito actualizar el circuito en project.datosVivienda.circuitosCalculados
+    const circuitos = project.datosVivienda?.circuitosCalculados || [];
+    const nuevosCircuitos = circuitos.map(c => 
+        c.id === circuitoId ? { ...c, normaCable: norma } : c
+    );
+    onChange({
+        ...project,
+        datosVivienda: {
+            ...project.datosVivienda!,
+            circuitosCalculados: nuevosCircuitos
+        }
+    });
   };
 
   const updateCanalizacion = (id: string, updates: Partial<Canalizacion>) => {
@@ -48,7 +62,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
         return c;
     });
 
-    // 2. Procesar la canalización actual
+    // 2. Procesar la canalizacion actual
     const canalizacionActual = canalizacionesActualizadas.find(c => c.id === canalizacionId);
     if (!canalizacionActual) return;
 
@@ -59,6 +73,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       : [...canalizacionActual.circuitosIds, circuitoId];
 
     // Validar antes de aplicar cambios
+    // NOTA: Aquí debería pasar el proyecto actualizado para que la validación vea las nuevas normas de los circuitos
     const hypotheticalCanalizacion = { ...canalizacionActual, circuitosIds: newIds };
     const resultado = validarAgrupamiento(project, hypotheticalCanalizacion);
 
@@ -98,6 +113,28 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
           </button>
         </div>
       </div>
+      
+      {/* SECCIÓN NUEVA: Configuración de normas por circuito */}
+      <div className="bg-[var(--bg-secondary)] p-6 rounded-xl border border-slate-700 mb-8 shadow-lg">
+          <h3 className="text-xl font-bold text-white mb-4">Configuración de Normas por Circuito</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {(project.datosVivienda?.circuitosCalculados || []).map((circ: any) => (
+                  <div key={circ.id} className="flex flex-col gap-1 p-3 bg-slate-950 rounded border border-slate-700">
+                      <span className="text-white text-sm font-medium">{circ.nombre}</span>
+                      <select 
+                        className="bg-slate-800 text-white text-xs rounded p-2 border border-slate-700"
+                        value={circ.normaCable || 'IRAM 2178'}
+                        onChange={(e) => updateCircuitoNorma(circ.id, e.target.value)}
+                      >
+                          <option value="IRAM-NM 247-3">IRAM-NM 247-3</option>
+                          <option value="IRAM 62266">IRAM 62266</option>
+                          <option value="IRAM 62267">IRAM 62267</option>
+                          <option value="IRAM 2178">IRAM 2178</option>
+                      </select>
+                  </div>
+              ))}
+          </div>
+      </div>
 
       <div className="grid grid-cols-1 gap-6">
         {canalizaciones.map(c => {
@@ -109,15 +146,6 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                 <div className="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
                   <div className='flex items-center gap-4'>
                     <span className="text-white font-bold text-xl">{c.nombre}</span>
-                    <select 
-                      className="bg-slate-800 text-white text-xs rounded p-2 border border-slate-700"
-                      value={c.normaCable || 'IRAM 2178'}
-                      onChange={(e) => updateCanalizacion(c.id, { normaCable: e.target.value as 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178' })}
-                    >
-                        <option value="IRAM-NM 247-3">IRAM-NM 247-3</option>
-                        <option value="IRAM 62267">IRAM 62267</option>
-                        <option value="IRAM 2178">IRAM 2178</option>
-                    </select>
                   </div>
                   <button onClick={() => deleteCanalizacion(c.id)} className="text-red-400 hover:text-red-300">
                     <Trash2 size={20} />
@@ -158,5 +186,3 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
         })}
       </div>
     </div>
-  );
-};

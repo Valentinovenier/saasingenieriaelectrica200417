@@ -95,6 +95,7 @@ export interface CircuitoTerminal {
   potencia: number;
   conductor: Conductor;
   proteccion: Proteccion;
+  normaCable?: 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178';
 }
 
 export interface BaseTablero {
