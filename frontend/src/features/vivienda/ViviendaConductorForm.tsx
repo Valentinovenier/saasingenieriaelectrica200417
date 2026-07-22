@@ -18,8 +18,15 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   
   // Buscar canalización vinculada si no está en el conductor
   const canalizacionVinculada = useMemo(() => {
+    const found = project?.canalizaciones?.find(c => c.circuitosIds.includes(tramoId || ''));
+    console.log('[DEBUG ViviendaConductorForm]', { 
+        tramoId, 
+        conductorCanalizacionId: conductor?.canalizacionId, 
+        canalizacionVinculada: found,
+        todasCanalizaciones: project?.canalizaciones 
+    });
     if (conductor?.canalizacionId) return project?.canalizaciones?.find(c => c.id === conductor.canalizacionId);
-    return project?.canalizaciones?.find(c => c.circuitosIds.includes(tramoId || ''));
+    return found;
   }, [project, conductor, tramoId]);
 
   const esTramoProtegido = tramoId === 'int-general-salida' || hideCanalizacion;
