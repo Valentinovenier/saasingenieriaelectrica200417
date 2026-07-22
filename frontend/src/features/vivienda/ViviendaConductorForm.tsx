@@ -1,5 +1,6 @@
 import { Conductor } from '../../types/project';
 import { useProject } from '../../context/ProjectDataContext';
+import { useMemo } from 'react';
 import { calcularConductorResidencial } from '../../engine/strategies/vivienda/calculador';
 import { METODOS_INSTALACION_VIVIENDA } from './uiMappers';
 import { DetalleCalculoConductor } from './DetalleCalculoConductor';
@@ -15,6 +16,12 @@ interface Props {
 export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hideCanalizacion }: Props) => {
   const { state: project } = useProject();
   
+  // Buscar canalización vinculada si no está en el conductor
+  const canalizacionVinculada = useMemo(() => {
+    if (conductor?.canalizacionId) return project?.canalizaciones?.find(c => c.id === conductor.canalizacionId);
+    return project?.canalizaciones?.find(c => c.circuitosIds.includes(tramoId || ''));
+  }, [project, conductor, tramoId]);
+
   const esTramoProtegido = tramoId === 'int-general-salida' || hideCanalizacion;
   const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(conductor?.tipoTramo || '');
 
@@ -58,7 +65,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             {/* Método de Instalación */}
             <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
-                {!conductor?.canalizacionId && tramoId !== 'int-general-salida' ? (
+                {!conductor?.canalizacionId && !canalizacionVinculada && tramoId !== 'int-general-salida' ? (
                     <div className="p-3 bg-amber-900/20 border border-amber-700 rounded-lg text-amber-300 text-xs">
                         Debe asignar este circuito a una canalización en la sección "Canalizaciones" antes de configurar el método de instalación.
                     </div>
@@ -70,8 +77,12 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                     >
                         <option value="">Selecciona Método</option>
                         {(() => {
-                            const canalizacion = project?.canalizaciones?.find(c => c.id === conductor?.canalizacionId);
-                            const norma = canalizacion?.normaCable || 'IRAM 2178';
+                            const circuito = project?.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId);
+                            // Usar la canalización encontrada dinámicamente
+                            const canalizacion = canalizacionVinculada;
+                            
+                            // Prioridad: 1. Norma del circuito, 2. Norma de canalización, 3. Por defecto
+                            const norma = circuito?.normaCable || canalizacion?.normaCable || 'IRAM 2178';
                             
                             const esCableFlexible = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
                             
