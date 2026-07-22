@@ -113,14 +113,13 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
         </button>
       </div>
 
-      <div className="bg-slate-900/50 p-6 rounded-xl border border-slate-700 space-y-4">
-        <h3 className="text-lg font-bold text-white border-b border-slate-800 pb-2">Selección del Tramo</h3>
+      {/* Flujo paso a paso */}
+      <div className="bg-slate-900/50 p-6 rounded-xl border border-slate-700 space-y-6">
+        <h3 className="text-lg font-bold text-white border-b border-slate-800 pb-2">1. Configuración del Tramo y Método</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">
-                    Tablero de Origen
-                </label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Tablero de Origen</label>
                 <select
                     className="mt-1 bg-slate-950 text-white text-sm rounded-lg p-3 border border-slate-700 w-full"
                     value={tableroOrigenId}
@@ -138,9 +137,7 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
 
             {tableroOrigenId && (
                 <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">
-                        Tramo a Calcular
-                    </label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Tramo a Calcular</label>
                     <select
                         className="mt-1 bg-slate-950 text-white text-sm rounded-lg p-3 border border-slate-700 w-full"
                         value={tipoTramo}
@@ -160,9 +157,7 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
 
             {tipoTramo === 'salida_circuito' && tableroOrigenId && (
                 <div className="md:col-span-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">
-                        Circuito Terminal
-                    </label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Circuito Terminal</label>
                     <select
                         className="mt-1 bg-slate-950 text-white text-sm rounded-lg p-3 border border-slate-700 w-full"
                         value={destinoId}
@@ -178,9 +173,7 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
 
             {tipoTramo === 'salida_tablero' && tableroOrigenId && (
                 <div className="md:col-span-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">
-                        Tablero Destino
-                    </label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Tablero Destino</label>
                     <select
                         className="mt-1 bg-slate-950 text-white text-sm rounded-lg p-3 border border-slate-700 w-full"
                         value={destinoId}
@@ -196,14 +189,15 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
         </div>
       </div>
 
-      {tableroOrigenId && (
+      {(tableroOrigenId && (tipoTramo === 'general_salida' || destinoId)) && (
         <div className="bg-[var(--bg-primary)] rounded-xl border border-slate-700 p-6 space-y-6">
+            <h3 className="text-lg font-bold text-white border-b border-slate-800 pb-2">2. Configuración Técnica y Cálculo</h3>
+            
             <ConductorForm
                 label={`Configuración de Cable`}
                 conductor={currentConductor}
                 tramoId={destinoId || 'int-general-salida'}
                 onChange={c => {
-                    // Update current conductor state, ensuring tipoCircuito is set for calculations
                     let updateC: any = { ...c };
                     if (tipoTramo === 'salida_circuito') {
                         const tCirc = circuitosDelTablero.find(circ => circ.id === destinoId)?.tipo;

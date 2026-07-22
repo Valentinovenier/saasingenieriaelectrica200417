@@ -17,17 +17,24 @@ export const getCircuitosPorCanalizacion = (project: Project, canalizacionId: st
 
 export const calcularFactorAgrupamiento = (
   nCircuitos: number,
-  canalizacion?: Canalizacion
+  tipoInstalacion: 'Monofásica' | 'Trifásica'
 ): number => {
-  // Según Tabla 770.12.II:
-  // 1 circuito: 1.0
-  // 2 circuitos: 0.8
-  // 3 circuitos: 0.7
-  // >3 circuitos: No permitido por norma (debería validarse antes)
+  // Factores de agrupamiento según tabla AEA:
+  // Monofásicos (2 circuitos -> 4 cables): 0.80
+  // Monofásicos (3 circuitos -> 6 cables): 0.70
+  // Trifásicos (2 circuitos -> 6 cables): 0.80
+  // Trifásicos (3 circuitos -> 9 cables): 0.70
 
   if (nCircuitos <= 1) return 1.0;
-  if (nCircuitos === 2) return 0.8;
-  if (nCircuitos === 3) return 0.7;
+
+  if (tipoInstalacion === 'Monofásica') {
+    if (nCircuitos === 2) return 0.80;
+    if (nCircuitos >= 3) return 0.70;
+  } else {
+    // Trifásica
+    if (nCircuitos === 2) return 0.80;
+    if (nCircuitos >= 3) return 0.70;
+  }
   
-  return 0.7; // Factor conservador si supera los permitidos, aunque la validación debería evitarlo
+  return 0.7; // Factor conservador
 };

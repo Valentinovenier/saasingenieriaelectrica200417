@@ -113,7 +113,7 @@ export const calcularTramoResidencial = (
 
     const esInstalacionAire = !(condiciones.metodoInstalacion || '').toUpperCase().startsWith('D');
     const factorTemp = getFactorTemperatura('PVC', condiciones.temperaturaAmbiente, esInstalacionAire, condiciones.tempSuelo);
-    const factorAgrup = calcularFactorAgrupamiento(nCircuitos, canalizacion);
+    const factorAgrup = calcularFactorAgrupamiento(nCircuitos, condiciones.tipoInstalacion || 'Monofásica');
     const factorResistividad = condiciones.resistividadTermica ? getFactorResistividad(condiciones.metodoInstalacion, condiciones.resistividadTermica) : 1.0;
     const IzCorregida = IzBase * factorTemp * factorAgrup * factorResistividad;
 
