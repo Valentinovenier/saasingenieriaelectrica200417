@@ -201,6 +201,7 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
             <ConductorForm
                 label={`Configuración de Cable`}
                 conductor={currentConductor}
+                tramoId={destinoId || 'int-general-salida'}
                 onChange={c => {
                     // Update current conductor state, ensuring tipoCircuito is set for calculations
                     let updateC: any = { ...c };
