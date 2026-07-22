@@ -72,8 +72,27 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             </div>
             )}
 
-            {/* Método de Instalación - Ahora depende de la norma de la canalización seleccionada o si es tramo de tablero o si se oculta la canalización en la raíz */}
-            {(conductor?.canalizacionId || isPanelTramo || esTramoProtegido) && (
+            {/* Método de Instalación - Visible en circuitos terminales */}
+            {conductor?.tipoTramo === 'CircuitoTerminal' && (
+                <div>
+                    <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
+                    <select 
+                        className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
+                        value={conductor?.metodoInstalacion || ''}
+                        onChange={(e) => handleDataChange({ metodoInstalacion: e.target.value })}
+                    >
+                        <option value="">Selecciona Método</option>
+                        {METODOS_INSTALACION_VIVIENDA
+                            .map((m: {label: string, value: string}) => (
+                                <option key={m.value} value={m.value}>{m.label}</option>
+                            ))
+                        }
+                    </select>
+                </div>
+            )}
+            
+            {/* Método de Instalación - Otros casos */}
+            {conductor?.tipoTramo !== 'CircuitoTerminal' && (conductor?.canalizacionId || isPanelTramo || esTramoProtegido) && (
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
                     <select 

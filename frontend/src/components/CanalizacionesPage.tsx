@@ -99,22 +99,8 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold text-white">Gestión de Canalizaciones</h2>
-        <div className="flex gap-2">
-          <input 
-            className="bg-[var(--bg-secondary)] p-3 rounded-lg text-white border border-slate-700" 
-            placeholder="Nueva canalización..." 
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-          />
-          <button onClick={addCanalizacion} className="bg-[var(--accent)] text-white px-6 py-2 rounded-lg font-medium flex items-center gap-2 hover:opacity-90">
-            <Plus size={20} /> Añadir
-          </button>
-        </div>
-      </div>
       
-      {/* SECCIÓN NUEVA: Configuración de normas por circuito */}
+      {/* SECCIÓN NUEVA: Configuración de normas por circuito (MOVIDA ARRIBA) */}
       <div className="bg-[var(--bg-secondary)] p-6 rounded-xl border border-slate-700 mb-8 shadow-lg">
           <h3 className="text-xl font-bold text-white mb-4">Configuración de Normas por Circuito</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -134,6 +120,21 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                   </div>
               ))}
           </div>
+      </div>
+
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-bold text-white">Gestión de Canalizaciones</h2>
+        <div className="flex gap-2">
+          <input 
+            className="bg-[var(--bg-secondary)] p-3 rounded-lg text-white border border-slate-700" 
+            placeholder="Nueva canalización..." 
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
+          <button onClick={addCanalizacion} className="bg-[var(--accent)] text-white px-6 py-2 rounded-lg font-medium flex items-center gap-2 hover:opacity-90">
+            <Plus size={20} /> Añadir
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6">

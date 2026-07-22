@@ -131,30 +131,34 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
           )}
         </div>
         
-        <div className="grid grid-cols-[1fr,1fr,1fr] gap-3 mb-2 px-2 mt-8">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">Ue (V)</label>
-          <label className="text-xs font-medium text-[var(--text-secondary)]">Icn (kA)</label>
-          <label className="text-xs font-medium text-[var(--text-secondary)]">Clase Lim.</label>
-        </div>
-        <div className="space-y-3">
+        <div className="grid grid-cols-3 gap-6 mt-8">
           {formData.capacidades.map((cap: any, i: number) => (
-            <div key={i} className="grid grid-cols-[1fr,1fr,1fr] gap-3 items-center bg-[var(--bg-primary)] p-3 rounded-lg border border-slate-700">
-              <select className="bg-[var(--bg-secondary)] text-white p-2 rounded text-sm border border-slate-700" value={cap.tension_v} onChange={e => updateCapacidad(i, 'tension_v', Number(e.target.value))}>
-                <option value={230}>230 V</option>
-                <option value={400}>400 V</option>
-              </select>
-              <select className="bg-[var(--bg-secondary)] text-white p-2 rounded text-sm border border-slate-700" value={cap.icn_ka} onChange={e => updateCapacidad(i, 'icn_ka', Number(e.target.value))}>
-                <option value={3}>3 kA</option>
-                <option value={4.5}>4.5 kA</option>
-                <option value={6}>6 kA</option>
-                <option value={10}>10 kA</option>
-              </select>
-              <select className="bg-[var(--bg-secondary)] text-white p-2 rounded text-sm border border-slate-700" value={cap.clase_limitacion} onChange={e => updateCapacidad(i, 'clase_limitacion', Number(e.target.value))}>
-                <option value={1}>Clase 1</option>
-                <option value={2}>Clase 2</option>
-                <option value={3}>Clase 3</option>
-              </select>
-            </div>
+            <React.Fragment key={i}>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-[var(--text-secondary)]">Ue (V)</label>
+                <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={cap.tension_v} onChange={e => updateCapacidad(i, 'tension_v', Number(e.target.value))}>
+                  <option value={230}>230 V</option>
+                  <option value={400}>400 V</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-[var(--text-secondary)]">Icn (kA)</label>
+                <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={cap.icn_ka} onChange={e => updateCapacidad(i, 'icn_ka', Number(e.target.value))}>
+                  <option value={3}>3 kA</option>
+                  <option value={4.5}>4.5 kA</option>
+                  <option value={6}>6 kA</option>
+                  <option value={10}>10 kA</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-[var(--text-secondary)]">Clase Lim.</label>
+                <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={cap.clase_limitacion} onChange={e => updateCapacidad(i, 'clase_limitacion', Number(e.target.value))}>
+                  <option value={1}>Clase 1</option>
+                  <option value={2}>Clase 2</option>
+                  <option value={3}>Clase 3</option>
+                </select>
+              </div>
+            </React.Fragment>
           ))}
         </div>
         <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-700">
