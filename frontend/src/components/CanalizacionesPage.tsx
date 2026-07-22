@@ -80,10 +80,30 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       addToast("Agrupamiento no permitido: " + resultado.errores[0], 'error');
       return;
     }
+
+    // 3. Función recursiva para actualizar el circuito dentro de la jerarquía de tableros
+    const actualizarTablerosRecursivo = (tablero: any): any => {
+        return {
+            ...tablero,
+            circuitosTerminales: tablero.circuitosTerminales.map((c: any) => 
+                c.id === circuitoId ? {
+                    ...c,
+                    conductor: {
+                        ...c.conductor,
+                        canalizacionId: estaAsignado ? undefined : canalizacionId
+                    }
+                } : c
+            ),
+            subTableros: tablero.subTableros ? tablero.subTableros.map(actualizarTablerosRecursivo) : []
+        };
+    };
+
+    const nuevoTableroPrincipal = actualizarTablerosRecursivo(project.tableroPrincipal);
     
-    // 3. Aplicar cambios a todas las canalizaciones
+    // 4. Aplicar cambios a todo el proyecto
     onChange({
         ...project,
+        tableroPrincipal: nuevoTableroPrincipal,
         canalizaciones: canalizacionesActualizadas.map(c => 
             c.id === canalizacionId ? { ...c, circuitosIds: newIds } : c
         )
