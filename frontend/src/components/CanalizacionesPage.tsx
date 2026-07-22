@@ -80,29 +80,10 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       addToast("Agrupamiento no permitido: " + resultado.errores[0], 'error');
       return;
     }
-
-    // 3. Actualizar los conductores de los circuitos
-    const circuitos = project.datosVivienda?.circuitosCalculados || [];
-    const nuevosCircuitos = circuitos.map(c => {
-        if (c.id === circuitoId) {
-            return {
-                ...c,
-                conductor: {
-                    ...c.conductor,
-                    canalizacionId: estaAsignado ? undefined : canalizacionId
-                }
-            };
-        }
-        return c;
-    });
-
-    // 4. Aplicar cambios a todo el proyecto
+    
+    // 3. Aplicar cambios a todas las canalizaciones
     onChange({
         ...project,
-        datosVivienda: {
-            ...project.datosVivienda!,
-            circuitosCalculados: nuevosCircuitos
-        },
         canalizaciones: canalizacionesActualizadas.map(c => 
             c.id === canalizacionId ? { ...c, circuitosIds: newIds } : c
         )
