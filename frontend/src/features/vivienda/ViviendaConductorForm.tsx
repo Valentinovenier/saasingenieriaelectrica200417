@@ -94,18 +94,21 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                     <option value="">Selecciona Método</option>
                     {(() => {
                         const canalizacion = project?.canalizaciones?.find(c => c.id === conductor?.canalizacionId);
-                        const norma = canalizacion?.normaCable || 'IRAM 2178'; // Fallback
+                        const norma = canalizacion?.normaCable || 'IRAM 2178';
                         
-                        // Reglas de filtrado
-                        const esB1 = (m: string) => m === 'sinEnvoltura' || m === 'B1';
+                        // Lógica: 
+                        // IRAM-NM 247-3 / IRAM 62267 -> Solo admiten métodos B1 (sinEnvoltura)
+                        // IRAM 62266 / IRAM 2178 -> Admiten métodos B2, D1, D2
+                        
+                        const esCableFlexible = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
                         
                         return METODOS_INSTALACION_VIVIENDA.filter(m => {
-                            if (['IRAM-NM 247-3', 'IRAM 62267'].includes(norma)) {
-                                return esB1(m.value);
+                            if (esCableFlexible) {
+                                return m.value === 'sinEnvoltura' || m.value === 'B1';
                             } else {
-                                return !esB1(m.value);
+                                return m.value !== 'sinEnvoltura' && m.value !== 'B1';
                             }
-                        }).map((m: {label: string, value: string}) => (
+                        }).map((m) => (
                             <option key={m.value} value={m.value}>{m.label}</option>
                         ));
                     })()}
