@@ -60,14 +60,6 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             {label} <span className="text-[var(--accent)] ml-2">(Normativa Viviendas AEA-90364-7-770)</span>
         </label>
         
-        {/* Predefinir Tablero de Origen y Tramo si es necesario (visualmente) */}
-        {tramoId === 'int-general-salida' && (
-            <div className="mb-4 p-2 bg-slate-800 rounded text-xs text-slate-300">
-                <p><strong>Tablero Origen:</strong> {project?.tableroPrincipal?.nombre || 'Tablero Principal'}</p>
-                <p><strong>Tramo:</strong> Int General a Salida</p>
-            </div>
-        )}
-        
         <div className="grid grid-cols-1 gap-4">
             {/* Método de Instalación */}
             <div>
@@ -91,9 +83,11 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                             // Prioridad: 1. Norma del circuito, 2. Norma de canalización, 3. Por defecto
                             const norma = circuito?.normaCable || canalizacion?.normaCable || 'IRAM 2178';
                             
-                            const esCableFlexible = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
+                            const esTramoGeneral = tramoId === 'int-general-salida';
+                            const esCableFlexible = !esTramoGeneral && ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
                             
                             return METODOS_INSTALACION_VIVIENDA.filter(m => {
+                                if (esTramoGeneral) return true;
                                 if (esCableFlexible) {
                                     return m.value === 'sinEnvoltura' || m.value === 'B1';
                                 } else {
