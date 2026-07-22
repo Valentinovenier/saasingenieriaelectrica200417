@@ -186,3 +186,5 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
         })}
       </div>
     </div>
+  );
+};

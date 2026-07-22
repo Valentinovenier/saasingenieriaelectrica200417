@@ -23,24 +23,10 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
 
   const [saving, setSaving] = useState(false);
 
-  const addCapacidad = () => {
-    setFormData((prev: any) => ({
-      ...prev,
-      capacidades: [...prev.capacidades, { tension_v: 400, icn_ka: 3, clase_limitacion: 1 }]
-    }));
-  };
-
   const updateCapacidad = (index: number, field: string, value: number) => {
     const caps = [...formData.capacidades];
     caps[index] = { ...caps[index], [field]: value };
     setFormData((prev: any) => ({ ...prev, capacidades: caps }));
-  };
-
-  const removeCapacidad = (index: number) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      capacidades: prev.capacidades.filter((_: any, i: number) => i !== index)
-    }));
   };
 
   const isCompacto = formData.in_amp <= 32;
@@ -144,16 +130,15 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
             </div>
           )}
         </div>
-        <h4 className="text-lg font-semibold text-white mt-8 mb-4 border-b border-slate-700 pb-2">Capacidades de Corte</h4>
-        <div className="grid grid-cols-[1fr,1fr,1fr,auto] gap-3 mb-2 px-2">
+        
+        <div className="grid grid-cols-[1fr,1fr,1fr] gap-3 mb-2 px-2 mt-8">
           <label className="text-xs font-medium text-[var(--text-secondary)]">Ue (V)</label>
           <label className="text-xs font-medium text-[var(--text-secondary)]">Icn (kA)</label>
           <label className="text-xs font-medium text-[var(--text-secondary)]">Clase Lim.</label>
-          <div className="w-8"></div>
         </div>
         <div className="space-y-3">
           {formData.capacidades.map((cap: any, i: number) => (
-            <div key={i} className="grid grid-cols-[1fr,1fr,1fr,auto] gap-3 items-center bg-[var(--bg-primary)] p-3 rounded-lg border border-slate-700">
+            <div key={i} className="grid grid-cols-[1fr,1fr,1fr] gap-3 items-center bg-[var(--bg-primary)] p-3 rounded-lg border border-slate-700">
               <select className="bg-[var(--bg-secondary)] text-white p-2 rounded text-sm border border-slate-700" value={cap.tension_v} onChange={e => updateCapacidad(i, 'tension_v', Number(e.target.value))}>
                 <option value={230}>230 V</option>
                 <option value={400}>400 V</option>
@@ -169,11 +154,9 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
                 <option value={2}>Clase 2</option>
                 <option value={3}>Clase 3</option>
               </select>
-              <button onClick={() => removeCapacidad(i)} className="text-red-400 hover:text-red-300 p-2"><Trash2 size={18} /></button>
             </div>
           ))}
         </div>
-        <button onClick={addCapacidad} className="text-[var(--accent)] text-sm font-medium mt-3 flex items-center gap-2 hover:text-white transition-colors"><Plus size={16} /> Anadir nivel de tension</button>
         <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-700">
             {initialData && onDelete ? (
                 <button onClick={handleDelete} className="flex items-center gap-2 text-red-400 hover:text-red-300 transition-colors px-4 py-2 rounded-lg hover:bg-red-900/20">
