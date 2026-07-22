@@ -30,7 +30,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
     // Necesito actualizar el circuito en project.datosVivienda.circuitosCalculados
     const circuitos = project.datosVivienda?.circuitosCalculados || [];
     const nuevosCircuitos = circuitos.map(c => 
-        c.id === circuitoId ? { ...c, normaCable: norma } : c
+        c.id === circuitoId ? { ...c, normaCable: norma as any } : c
     );
     onChange({
         ...project,
