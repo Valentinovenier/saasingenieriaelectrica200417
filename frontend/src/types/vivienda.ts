@@ -73,6 +73,7 @@ export interface CondicionesTramoResidencial {
   corrienteDiseñoAmperes: number;
   temperaturaAmbiente: number;
   canalizacionId?: string;
+  tipoInstalacion?: 'Monofásica' | 'Trifásica';
   cosPhi?: number;
   normaCable?: string;
   tempSuelo?: number;

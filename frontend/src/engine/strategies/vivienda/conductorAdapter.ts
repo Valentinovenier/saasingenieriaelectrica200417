@@ -48,6 +48,7 @@ export const adaptarConductorACondiciones = (
     corrienteDiseñoAmperes: corrienteDiseño,
     temperaturaAmbiente: project.tempAmbiente || 30,
     canalizacionId: conductor.canalizacionId,
+    tipoInstalacion: project.tipoInstalacion || 'Monofásica',
     tempSuelo: conductor.tempSuelo,
     resistividadTermica: conductor.resistividadTermica,
     separacionBordes: conductor.separacionBordes,
