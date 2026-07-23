@@ -139,17 +139,17 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
               </div>
 
               {c.tipo === 'iluminacion_usos_generales' && (
-                  <label className="flex items-center gap-2 text-[10px] text-slate-300">
-                    <input 
-                      type="checkbox" 
+                  <label className="flex items-center gap-3 text-sm text-slate-200 cursor-pointer">
+                    <input
+                      type="checkbox"
                       checked={!!c.tieneTomacorrientesDerivados}
                       onChange={(e) => {
-                          const nuevosCircuitos = datos.circuitosCalculados.map(circ => 
+                          const nuevosCircuitos = datos.circuitosCalculados.map(circ =>
                               circ.id === c.id ? { ...circ, tieneTomacorrientesDerivados: e.target.checked } : circ
                           );
                           onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: nuevosCircuitos } });
                       }}
-                      className="bg-slate-800 border-slate-700 rounded"
+                      className="bg-slate-800 border-slate-600 rounded h-5 w-5 cursor-pointer accent-indigo-500"
                     />
                     TUG Derivados
                   </label>

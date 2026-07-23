@@ -16,15 +16,30 @@ interface Props {
 export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hideCanalizacion }: Props) => {
   const { state: project } = useProject();
   
+  // Buscar circuito correspondiente
+  const circuito = useMemo(() => project?.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId), [project, tramoId]);
+  
+  // Verificar si tiene protección asignada buscando en tableros
+  const tieneProteccionAsignada = useMemo(() => {
+    if (!project || !tramoId) return false;
+    
+    // Buscar en tablero principal y tableros seccionales
+    const allTableros = [project.tableroPrincipal, ...(project.tableros || [])];
+    
+    for (const tablero of allTableros) {
+        // En un modelo real, necesitaríamos vincular circuitoId -> proteccionId
+        // Por ahora, chequeamos si la lista de proteccionesSalida del tablero tiene elementos
+        // Esto es una simplificación dado que el modelo actual parece no tener una vinculación explícita
+        if (tablero.proteccionesSalida && tablero.proteccionesSalida.length > 0) {
+            return true;
+        }
+    }
+    return false;
+  }, [project, tramoId]);
+  
   // Buscar canalización vinculada si no está en el conductor
   const canalizacionVinculada = useMemo(() => {
     const found = project?.canalizaciones?.find(c => c.circuitosIds.includes(tramoId || ''));
-    console.log('[DEBUG ViviendaConductorForm]', { 
-        tramoId, 
-        conductorCanalizacionId: conductor?.canalizacionId, 
-        canalizacionVinculada: found,
-        todasCanalizaciones: project?.canalizaciones 
-    });
     if (conductor?.canalizacionId) return project?.canalizaciones?.find(c => c.id === conductor.canalizacionId);
     return found;
   }, [project, conductor, tramoId]);
@@ -35,19 +50,11 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   const handleDataChange = (updates: Partial<Conductor>) => {
     let newConductor = { ...conductor, ...updates } as Conductor;
     
-    // Si es un tramo dentro de un tablero, o el tramo protegido, aseguramos que canalizacionId no esté definido
     if (isPanelTramo || esTramoProtegido) {
         newConductor.canalizacionId = undefined;
     }
     
-    // Recálculo automático delegado al motor centralizado
-    if (project) {
-        // Buscamos si hay una protección asociada al circuito (si tramoId es el ID del circuito)
-        const circuito = project.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId);
-        
-        // Esta parte es delicada. Si tramoId no es el circuito, esta búsqueda fallará.
-        // Asumiremos por ahora que necesitamos una forma más robusta de pasar la protección.
-        // Para solucionar la build rápidamente, pasamos solo 2 argumentos.
+    if (project && tieneProteccionAsignada) {
         newConductor = calcularConductorResidencial(newConductor, project);
     }
     
@@ -60,6 +67,11 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             {label} <span className="text-[var(--accent)] ml-2">(Normativa Viviendas AEA-90364-7-770)</span>
         </label>
         
+        {!tieneProteccionAsignada ? (
+            <div className="p-4 bg-red-900/20 border border-red-700 rounded-lg text-red-300 text-sm">
+                Debe asignar una protección al circuito en la sección "Protecciones" antes de poder calcular el conductor.
+            </div>
+        ) : (
         <div className="grid grid-cols-1 gap-4">
             {/* Método de Instalación */}
             <div>
@@ -76,13 +88,8 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                     >
                         <option value="">Selecciona Método</option>
                         {(() => {
-                            const circuito = project?.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId);
-                            // Usar la canalización encontrada dinámicamente
                             const canalizacion = canalizacionVinculada;
-                            
-                            // Prioridad: 1. Norma del circuito, 2. Norma de canalización, 3. Por defecto
                             const norma = circuito?.normaCable || canalizacion?.normaCable || 'IRAM 2178';
-                            
                             const esTramoGeneral = tramoId === 'int-general-salida';
                             const esCableFlexible = !esTramoGeneral && ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
                             
@@ -100,6 +107,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                     </select>
                 )}
             </div>
+
 
             {(conductor?.metodoInstalacion?.startsWith('D') || conductor?.metodoInstalacion === 'B1') && (
                 <>
