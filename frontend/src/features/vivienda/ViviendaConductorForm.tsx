@@ -22,6 +22,10 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
 
   // Buscar circuito correspondiente en datosVivienda
   const circuito = useMemo(() => project?.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId), [project, tramoId]);
+
+  // Solo los circuitos terminales requieren vinculación a canalización
+  const esCircuitoTerminal = Boolean(circuito) || conductor?.tipoTramo === 'CircuitoTerminal';
+  const necesitaCanalizacion = esCircuitoTerminal && !isPanelTramo && !esTramoProtegido && tramoId !== 'int-general-salida';
   
   // Verificar si tiene protección asignada buscando el circuito o tablero en los datos del proyecto
   const proteccionAsignada = useMemo(() => {
@@ -80,7 +84,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             {/* Método de Instalación */}
             <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
-                {(!conductor?.canalizacionId && !canalizacionVinculada && tramoId !== 'int-general-salida' && !isPanelTramo && conductor?.tipoTramo !== 'LineaPrincipal') ? (
+                {(necesitaCanalizacion && !conductor?.canalizacionId && !canalizacionVinculada) ? (
                     <div className="p-3 bg-amber-900/20 border border-amber-700 rounded-lg text-amber-300 text-xs">
                         Debe asignar este circuito a una canalización en la sección "Canalizaciones" antes de configurar el método de instalación.
                     </div>
