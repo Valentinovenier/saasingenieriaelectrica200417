@@ -19,22 +19,32 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   // Buscar circuito correspondiente en datosVivienda
   const circuito = useMemo(() => project?.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId), [project, tramoId]);
   
-  // Verificar si tiene protección asignada buscando el circuito en los tableros
+  // Verificar si tiene protección asignada buscando el circuito o tablero en los tableros
   const tieneProteccionAsignada = useMemo(() => {
     if (!project || !tramoId) return false;
     
     // Buscar en tablero principal y tableros seccionales
     const allTableros = [project.tableroPrincipal, ...(project.tableros || [])];
     
-    for (const tablero of allTableros) {
-        // Buscar el circuito en los circuitos terminales del tablero
-        const circuitoTerminal = tablero.circuitosTerminales?.find(ct => ct.id === tramoId);
-        if (circuitoTerminal && circuitoTerminal.proteccion) {
-            return true;
+    if (isPanelTramo) {
+        // Para tableros (LineaPrincipal, LineaSeccional), buscar si el tablero tiene proteccionCabecera
+        // Necesitamos identificar qué tablero estamos editando. 
+        // `tramoId` podría no ser el ID del tablero directamente.
+        // Asumiremos que el tablero actual se puede encontrar buscando por algún criterio o que el contexto lo sabe.
+        // Como simplificación robusta, buscamos cualquier tablero en el proyecto que tenga ese tramoId 
+        // o que coincida con el contexto del conductor.
+        return allTableros.some(t => t.proteccionCabecera !== undefined);
+    } else {
+        // Para circuitos, buscar el circuito en los circuitos terminales del tablero
+        for (const tablero of allTableros) {
+            const circuitoTerminal = tablero.circuitosTerminales?.find(ct => ct.id === tramoId);
+            if (circuitoTerminal && circuitoTerminal.proteccion) {
+                return true;
+            }
         }
     }
     return false;
-  }, [project, tramoId]);
+  }, [project, tramoId, isPanelTramo]);
   
   // Buscar canalización vinculada si no está en el conductor
   const canalizacionVinculada = useMemo(() => {
