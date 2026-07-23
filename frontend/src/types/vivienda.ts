@@ -1,6 +1,8 @@
 // Tipos de datos específicos para proyectos residenciales (Viviendas)
 // AEA-90364-7-770
 
+import { Proteccion } from './project';
+
 export type TipoCircuito = 
   | 'iluminacion_usos_generales'
   | 'tomacorrientes_usos_generales'
@@ -34,6 +36,7 @@ export interface CircuitoCalculado {
   tieneTomacorrientesDerivados?: boolean;
   ambientesIds: string[];
   normaCable?: 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178';
+  proteccion?: Proteccion;
 }
 
 export interface TableroVivienda {
@@ -42,6 +45,8 @@ export interface TableroVivienda {
   tipo: 'Principal' | 'Seccional' | 'SubSeccional';
   tableroPadreId?: string; // Para definir la jerarquía
   circuitosIds: string[];
+  proteccionCabecera?: Proteccion;
+  proteccionDiferencial?: Proteccion;
 }
 
 export interface TomasCircuito {

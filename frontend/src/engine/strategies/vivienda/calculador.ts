@@ -9,15 +9,17 @@ import { calcularImpedanciaTransformador } from '../industrial/transformador';
 import { PARAMETROS_CALCULO_VIVIENDA } from '../../../data/vivienda/parametrosCalculo';
 import { getFactorResistividad } from '../../../data/factoresResistividad';
 import { adaptarConductorACondiciones } from './conductorAdapter';
+import { obtenerProteccionAsignada } from './helpers';
 
 export const calcularConductorResidencial = (
   conductor: Conductor,
   project: Project
 ): Conductor => {
+  const proteccion = obtenerProteccionAsignada(project, conductor, (conductor as any).tramoId || (conductor as any).destinoId);
   const condiciones = adaptarConductorACondiciones(conductor, project);
   
   if (condiciones.longitudMetros && condiciones.metodoInstalacion && condiciones.tipoTramo) {
-      const resultado = calcularTramoResidencial(condiciones, project);
+      const resultado = calcularTramoResidencial(condiciones, project, proteccion);
       return {
           ...conductor,
           resultadoCalculo: resultado,

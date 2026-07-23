@@ -43,9 +43,8 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
     if (!tableroOrigen) return alert('Seleccione un tablero origen.');
     if (tipoTramo === 'salida_circuito' && !destinoId) return alert('Seleccione un circuito destino.');
     if (tipoTramo === 'salida_tablero' && !destinoId) return alert('Seleccione un tablero destino.');
-
-    const res = currentConductor.resultadoCalculo;
-    if (!res) return alert('Faltan datos para calcular.');
+    const res = currentConductor.resultadoCalculo;
+    if (!res) return alert('Debe asignar las protecciones correspondientes en la sección "Protecciones" y completar los datos del tramo antes de agregar el conductor al informe.');
 
     // Preparamos los nombres para el informe
     let origenNombre = tableroOrigen.nombre;
@@ -196,7 +195,7 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
             <ConductorForm
                 label={`Configuración de Cable`}
                 conductor={currentConductor}
-                tramoId={destinoId || 'int-general-salida'}
+                tramoId={destinoId || tableroOrigenId || 'int-general-salida'}
                 onChange={c => {
                     let updateC: any = { ...c };
                     if (tipoTramo === 'salida_circuito') {
@@ -206,8 +205,10 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
                         updateC.destinoId = destinoId;
                     } else if (tipoTramo === 'salida_tablero') {
                         updateC.tipoTramo = 'LineaSeccional';
+                        updateC.destinoId = destinoId;
                     } else {
                         updateC.tipoTramo = 'LineaPrincipal';
+                        updateC.destinoId = tableroOrigenId;
                     }
                     setCurrentConductor(updateC);
                 }}

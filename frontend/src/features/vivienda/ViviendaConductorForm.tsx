@@ -1,7 +1,8 @@
 import { Conductor } from '../../types/project';
 import { useProject } from '../../context/ProjectDataContext';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { calcularConductorResidencial } from '../../engine/strategies/vivienda/calculador';
+import { obtenerProteccionAsignada } from '../../engine/strategies/vivienda/helpers';
 import { METODOS_INSTALACION_VIVIENDA } from './uiMappers';
 import { DetalleCalculoConductor } from './DetalleCalculoConductor';
 
@@ -22,30 +23,22 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   // Buscar circuito correspondiente en datosVivienda
   const circuito = useMemo(() => project?.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId), [project, tramoId]);
   
-  // Verificar si tiene protección asignada buscando el circuito o tablero en los tableros
-  const tieneProteccionAsignada = useMemo(() => {
-    if (!project || !tramoId) return false;
-    
-    // Buscar en tablero principal y tableros seccionales
-    const allTableros = [project.tableroPrincipal, ...(project.tableros || [])];
-    
-    if (isPanelTramo) {
-        // Para tableros (LineaPrincipal, LineaSeccional), buscar si el tablero tiene proteccionCabecera
-        return allTableros.some(t => t.id === tramoId && t.proteccionCabecera !== undefined);
-    } else {
-        // Para circuitos, buscar el circuito en los circuitos calculados de vivienda
-        const circuitoActual = project.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId);
-        
-        // Buscamos si este circuito está asignado a un tablero que le haya asignado protección
-        for (const tablero of allTableros) {
-            const circuitoTerminal = tablero.circuitosTerminales?.find(ct => ct.id === tramoId);
-            if (circuitoTerminal && circuitoTerminal.proteccion) {
-                return true;
-            }
-        }
+  // Verificar si tiene protección asignada buscando el circuito o tablero en los datos del proyecto
+  const proteccionAsignada = useMemo(() => {
+    return obtenerProteccionAsignada(project, conductor, tramoId);
+  }, [project, conductor, tramoId]);
+
+  const tieneProteccionAsignada = Boolean(proteccionAsignada);
+
+  // Recalcular automáticamente si tiene protección asignada y faltan resultados pero hay datos suficientes
+  useEffect(() => {
+    if (project && tieneProteccionAsignada && conductor && !conductor.resultadoCalculo && conductor.metodoInstalacion && conductor.longitud) {
+      const calculated = calcularConductorResidencial({ ...conductor, ...(tramoId ? { tramoId } : {}) } as any, project);
+      if (calculated.resultadoCalculo) {
+        onChange(calculated);
+      }
     }
-    return false;
-  }, [project, tramoId, isPanelTramo]);
+  }, [project, tieneProteccionAsignada, tramoId]);
   
   // Buscar canalización vinculada si no está en el conductor
   const canalizacionVinculada = useMemo(() => {
@@ -55,7 +48,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   }, [project, conductor, tramoId]);
 
   const handleDataChange = (updates: Partial<Conductor>) => {
-    let newConductor = { ...conductor, ...updates } as Conductor;
+    let newConductor = { ...conductor, ...updates, ...(tramoId ? { tramoId } : {}) } as Conductor;
     
     if (isPanelTramo || esTramoProtegido) {
         newConductor.canalizacionId = undefined;
@@ -63,6 +56,9 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     
     if (project && tieneProteccionAsignada) {
         newConductor = calcularConductorResidencial(newConductor, project);
+    } else {
+        newConductor.resultadoCalculo = undefined;
+        newConductor.seccion = undefined;
     }
     
     onChange(newConductor);
@@ -75,8 +71,9 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
         </label>
         
         {!tieneProteccionAsignada ? (
-            <div className="p-4 bg-red-900/20 border border-red-700 rounded-lg text-red-300 text-sm">
-                Debe asignar una protección al circuito en la sección "Protecciones" antes de poder calcular el conductor.
+            <div className="p-4 bg-red-900/20 border border-red-700 rounded-lg text-red-300 text-sm flex items-center gap-2">
+                <span>⚠️</span>
+                <span>Debe asignar una protección al tablero o circuito en la sección "Protecciones" antes de poder calcular el conductor.</span>
             </div>
         ) : (
         <div className="grid grid-cols-1 gap-4">
