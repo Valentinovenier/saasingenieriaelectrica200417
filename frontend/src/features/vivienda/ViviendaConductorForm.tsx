@@ -16,10 +16,10 @@ interface Props {
 export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hideCanalizacion }: Props) => {
   const { state: project } = useProject();
   
-  // Buscar circuito correspondiente
+  // Buscar circuito correspondiente en datosVivienda
   const circuito = useMemo(() => project?.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId), [project, tramoId]);
   
-  // Verificar si tiene protección asignada buscando en tableros
+  // Verificar si tiene protección asignada buscando el circuito en los tableros
   const tieneProteccionAsignada = useMemo(() => {
     if (!project || !tramoId) return false;
     
@@ -27,10 +27,9 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     const allTableros = [project.tableroPrincipal, ...(project.tableros || [])];
     
     for (const tablero of allTableros) {
-        // En un modelo real, necesitaríamos vincular circuitoId -> proteccionId
-        // Por ahora, chequeamos si la lista de proteccionesSalida del tablero tiene elementos
-        // Esto es una simplificación dado que el modelo actual parece no tener una vinculación explícita
-        if (tablero.proteccionesSalida && tablero.proteccionesSalida.length > 0) {
+        // Buscar el circuito en los circuitos terminales del tablero
+        const circuitoTerminal = tablero.circuitosTerminales?.find(ct => ct.id === tramoId);
+        if (circuitoTerminal && circuitoTerminal.proteccion) {
             return true;
         }
     }
