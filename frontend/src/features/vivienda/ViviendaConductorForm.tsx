@@ -31,9 +31,12 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     
     if (isPanelTramo) {
         // Para tableros (LineaPrincipal, LineaSeccional), buscar si el tablero tiene proteccionCabecera
-        return allTableros.some(t => t.proteccionCabecera !== undefined);
+        return allTableros.some(t => t.id === tramoId && t.proteccionCabecera !== undefined);
     } else {
-        // Para circuitos, buscar el circuito en los circuitos terminales del tablero
+        // Para circuitos, buscar el circuito en los circuitos calculados de vivienda
+        const circuitoActual = project.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId);
+        
+        // Buscamos si este circuito está asignado a un tablero que le haya asignado protección
         for (const tablero of allTableros) {
             const circuitoTerminal = tablero.circuitosTerminales?.find(ct => ct.id === tramoId);
             if (circuitoTerminal && circuitoTerminal.proteccion) {
