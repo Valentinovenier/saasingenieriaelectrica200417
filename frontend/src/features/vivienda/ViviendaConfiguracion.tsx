@@ -41,7 +41,7 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
 
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
-      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Configuración Normativa AEA 770</h2>
+      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Grado de Electrificacion</h2>
       
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2">

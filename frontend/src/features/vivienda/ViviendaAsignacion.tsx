@@ -116,7 +116,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-8">
       <div className="bg-slate-900 p-5 rounded-lg border border-slate-700">
         <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Carga de Circuitos (Máx 15 por circuito)</h3>
+            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Carga de Circuitos</h3>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {datos.circuitosCalculados.map(c => {
@@ -143,12 +143,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
       <div className="space-y-4">
         <div className="flex justify-between items-end border-b border-slate-800 pb-2">
             <h2 className="text-xl font-bold text-white">Ambientes</h2>
-            <button 
-                onClick={autocompletarMinimos}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-full mb-1"
-            >
-                Autocompletar mínimos
-            </button>
+            
             <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Puntos mínimos de utilización</h3>
         </div>
         {datos.ambientes.map((ambiente) => {

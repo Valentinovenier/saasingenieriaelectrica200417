@@ -118,7 +118,7 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
             {/* Input Ik para Principal */}
             {tablero.tipo === 'Principal' && (
                 <div className="flex flex-col items-end gap-1">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase">Corriente de cortocircuito</span>
+                    <span className="text-[13px] font-bold text-slate-500 uppercase">Corriente de cortocircuito</span>
                     <div className="w-32">
                         <input 
                           type="number"

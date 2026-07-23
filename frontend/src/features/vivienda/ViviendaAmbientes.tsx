@@ -64,7 +64,7 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
 
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-4">
-      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Grado de Electrificacion</h2>
+      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Puntos de utilizacion y dimensiones por ambiente</h2>
       
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
         {TIPOS_AMBIENTES.map(tipo => (
@@ -78,8 +78,8 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
         {/* Encabezados */}
         <div className="grid grid-cols-12 gap-3 px-3 text-xs font-semibold text-slate-400 uppercase">
           <div className="col-span-2">Ambientes</div>
-          <div className="col-span-3">Dimensiones</div>
-          <div className="col-span-4 text-center">Puntos de utilización</div>
+          <div className="col-span-3">Dimensiones (m²)</div>
+          <div className="col-span-4 text-center">Puntos de utilización minimos</div>
         </div>
         {datos.ambientes.map((a) => (
           <div key={a.id} className="grid grid-cols-12 gap-3 items-center bg-slate-900 p-3 rounded-lg text-sm">
