@@ -16,6 +16,9 @@ interface Props {
 export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hideCanalizacion }: Props) => {
   const { state: project } = useProject();
   
+  const esTramoProtegido = tramoId === 'int-general-salida' || hideCanalizacion;
+  const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(conductor?.tipoTramo || '');
+
   // Buscar circuito correspondiente en datosVivienda
   const circuito = useMemo(() => project?.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId), [project, tramoId]);
   
@@ -47,9 +50,6 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     if (conductor?.canalizacionId) return project?.canalizaciones?.find(c => c.id === conductor.canalizacionId);
     return found;
   }, [project, conductor, tramoId]);
-
-  const esTramoProtegido = tramoId === 'int-general-salida' || hideCanalizacion;
-  const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(conductor?.tipoTramo || '');
 
   const handleDataChange = (updates: Partial<Conductor>) => {
     let newConductor = { ...conductor, ...updates } as Conductor;
