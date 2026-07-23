@@ -55,7 +55,7 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
   return (
     <div className="space-y-8 bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white">Configuración: {project.name}</h2>
+        <h2 className="text-2xl font-bold text-white">Parametros: {project.name}</h2>
         <div className="flex items-center gap-4">
             {project.projectType !== 'Vivienda' && (
                 <button 

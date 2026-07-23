@@ -45,7 +45,7 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
       
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2">
-          <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Superficie Cubierta (m²)</label>
+          <label className="block text-[13px] font-semibold uppercase text-slate-500 mb-1">Superficie Cubierta (m²)</label>
           <input 
             type="number" 
             className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
@@ -54,7 +54,7 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
           />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Superficie Semicubierta (m²)</label>
+          <label className="block text-[13px] font-semibold uppercase text-slate-500 mb-1">Superficie Semicubierta (m²)</label>
           <input 
             type="number" 
             className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
@@ -66,15 +66,15 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
 
       <div className="bg-slate-900 p-4 rounded-lg border border-slate-800 grid grid-cols-3 gap-4">
         <div>
-          <p className="text-[10px] text-slate-500 uppercase">Superficie Límite</p>
+          <p className="text-[13px] text-slate-500 uppercase">Superficie Límite</p>
           <p className="text-lg font-bold text-[var(--accent)]">{superficieLimite.toFixed(1)} m²</p>
         </div>
         <div>
-          <p className="text-[10px] text-slate-500 uppercase">Grado Electrificación</p>
+          <p className="text-[13px] text-slate-500 uppercase">Grado Electrificación</p>
           <p className="text-lg font-bold text-white">{grado}</p>
         </div>
         <div>
-          <p className="text-[10px] text-slate-500 uppercase">Circuitos Mínimos</p>
+          <p className="text-[13px] text-slate-500 uppercase">Circuitos Mínimos</p>
           <p className="text-lg font-bold text-white">{circuitosMinimos}</p>
         </div>
       </div>

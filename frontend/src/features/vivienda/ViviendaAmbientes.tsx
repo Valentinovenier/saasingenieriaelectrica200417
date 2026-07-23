@@ -64,7 +64,7 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
 
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-4">
-      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Ambientes (Requerimientos AEA 770)</h2>
+      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Grado de Electrificacion</h2>
       
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
         {TIPOS_AMBIENTES.map(tipo => (
